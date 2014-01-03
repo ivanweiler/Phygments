@@ -194,5 +194,81 @@ abstract class AbstractLexer
 	maximize effectiveness.
 	*/	
 	public abstract function get_tokens_unprocessed(&$text);
+	
+	
+	
+	/*
+	Weiler: Below isn't really an abstract, so maybe it should be seperate helper class,
+	but I wanted easier syntax for lexer rules, $this->_include(), etc.
+	*/
+	protected function _include($str)
+	{
+		return new Helper\_Include($str);
+	}
+	
+	protected function _inherit()
+	{
+		return new  Helper\_Inherit($str);
+	}
+	
+	protected function _combined($arr)
+	{
+		return new Helper\_Combined($str);
+	}
+	
+	protected function _bygroups()
+	{
+	
+	}
+	
+	protected function _using($_other, $kwargs)
+	{
+	
+	}
+	
+	public function do_insertions($insertions, $tokens)
+	{
+		
+	}
+	
+
+}
+
+
+namespace Phygments\Lexers\Helper;
+
+class _Include
+{
+	private $_value;
+
+	public function __construct($str)
+	{
+		$this->_value = $str;
+	}
+
+	public function __toString()
+	{
+		return $this->_value;
+	}
+}
+
+class _Inherit
+{
+	public function __toString()
+	{
+		return 'inherit';
+	}
+}
+
+class _Combined
+{
+	public function __construct($str)
+	{
+		$this->_value = $str;
+	}
+}
+
+class _PseudoMatch
+{
 
 }

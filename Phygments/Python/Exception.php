@@ -1,7 +1,4 @@
 <?php
-class ValueError extends Exception
-{
-}
-
-//AssertionError
-
+namespace Phygments\Python;
+class ValueError extends \Exception {}
+class AssertionError extends \Exception {}

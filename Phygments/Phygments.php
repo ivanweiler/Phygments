@@ -51,22 +51,11 @@ class Phygments
 		return self::format(self::lex($code, $lexer), $formatter, $outfile);
 	}
 	
-	
+	/*
 	public function check()
 	{
 		return version_compare(phpversion(), '5.5.0', '>=');
 	}
-	
-	
-	//here?
-	public function get_lexer_by_name()
-	{
-		
-	}
-	
-	public function get_formatter_by_name()
-	{
-		
-	}
+	*/
 	
 }

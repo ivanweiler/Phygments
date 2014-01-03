@@ -16,7 +16,7 @@ class Html extends Regex
 	
 	protected function __declare()
 	{
-		$this->flags = array(re::IGNORECASE, re::DOTALL); //re.IGNORECASE | re.DOTALL;
+		$this->flags = array(re::IGNORECASE, re::DOTALL);
 		$this->tokens = [
 			'root'=> [
 				['[^<&]+', 'Text'],
@@ -25,8 +25,8 @@ class Html extends Regex
 				['<!--', 'Comment', 'comment'],
 				['<\?.*?\?>', 'Comment.Preproc'],
 				['<![^>]*>', 'Comment.Preproc'],
-				//['<\s*script\s*', 'Name.Tag', ['script-content', 'tag']],
-				//['<\s*style\s*', 'Name.Tag', ['style-content', 'tag']],
+				['<\s*script\s*', 'Name.Tag', ['script-content', 'tag']],
+				['<\s*style\s*', 'Name.Tag', ['style-content', 'tag']],
 				['<\s*[a-zA-Z0-9:]+', 'Name.Tag', 'tag'],
 				['<\s*/\s*[a-zA-Z0-9:]+\s*>', 'Name.Tag'],
 			],
@@ -41,14 +41,14 @@ class Html extends Regex
 				['[a-zA-Z0-9_:-]+', 'Name.Attribute'],
 				['/?\s*>', 'Name.Tag', '#pop'],
 			],
-// 			'script-content'=> [
-// 				['<\s*/\s*script\s*>', 'Name.Tag', '#pop'],
-// 				//['.+?(?=<\s*/\s*script\s*>)', using(JavascriptLexer)],
-// 			],
-// 			'style-content'=> [
-// 				['<\s*/\s*style\s*>', 'Name.Tag', '#pop'],
-// 				//['.+?(?=<\s*/\s*style\s*>)', using(CssLexer)],
-// 			],
+			'script-content'=> [
+				['<\s*/\s*script\s*>', 'Name.Tag', '#pop'],
+				['.+?(?=<\s*/\s*script\s*>)', $this->_using('JavascriptLexer')],
+			],
+			'style-content'=> [
+				['<\s*/\s*style\s*>', 'Name.Tag', '#pop'],
+				['.+?(?=<\s*/\s*style\s*>)',  $this->_using('CssLexer')],
+			],
 			'attr'=> [
 				['".*?"', 'String', '#pop'],
 				["'.*?'", 'String', '#pop'],

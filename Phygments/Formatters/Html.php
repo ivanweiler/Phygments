@@ -1,6 +1,6 @@
 <?php
 namespace Phygments\Formatters;
-use Phygments\Util;
+use \Phygments\Util;
 
 class Html extends AbstractFormatter
 {
@@ -12,19 +12,20 @@ class Html extends AbstractFormatter
 	{
 		parent::__construct($options);
 		$this->title = $this->_decodeifneeded($this->title);
-        $this->nowrap = get_bool_opt($options, 'nowrap', false);
-        $this->noclasses = get_bool_opt($options, 'noclasses', false);
-        $this->classprefix = $options->get('classprefix', '');
-        $this->cssclass = $this->_decodeifneeded(options.get('cssclass', 'highlight'));
-        $this->cssstyles = $this->_decodeifneeded(options.get('cssstyles', ''));
-        $this->prestyles = $this->_decodeifneeded(options.get('prestyles', ''));
-        $this->cssfile = $this->_decodeifneeded(options.get('cssfile', ''));
-        $this->noclobber_cssfile = get_bool_opt(options, 'noclobber_cssfile', false);
-        $this->tagsfile = $this->_decodeifneeded(options.get('tagsfile', ''));
-        $this->tagurlformat = $this->_decodeifneeded(options.get('tagurlformat', ''));
+        $this->nowrap = Util::get_bool_opt($options, 'nowrap', false);
+        $this->noclasses = Util::get_bool_opt($options, 'noclasses', false);
+        $this->classprefix = Util::get_opt($options, 'classprefix', '');
+        $this->cssclass = $this->_decodeifneeded(Util::get_opt($options, 'cssclass', 'highlight'));
+        $this->cssstyles = $this->_decodeifneeded(Util::get_opt($options, 'cssstyles', ''));
+        $this->prestyles = $this->_decodeifneeded(Util::get_opt($options, 'prestyles', ''));
+        $this->cssfile = $this->_decodeifneeded(Util::get_opt($options, 'cssfile', ''));
+        $this->noclobber_cssfile = Util::get_bool_opt($options, 'noclobber_cssfile', false);
+        
+        /*@todo: check if ctags are possible through shell exec
+         * https://github.com/jeremykendall/phpctagger        
+        //$this->tagsfile = $this->_decodeifneeded(options.get('tagsfile', ''));
+        //$this->tagurlformat = $this->_decodeifneeded(options.get('tagurlformat', ''));
 
-		/*@todo: check if ctags are possible through shell exec 
-		 * https://github.com/jeremykendall/phpctagger
         if($this->tagsfile) {
             if(!ctags) {
                 raise RuntimeError('The "ctags" package must to be installed '
@@ -34,7 +35,7 @@ class Html extends AbstractFormatter
 		}
 		*/
 		
-        $linenos = options.get('linenos', False);
+        $linenos = Util::get_opt($options, 'linenos', false);
         if($linenos == 'inline') {
             $this->linenos = 2;
         } elseif(linenos) {
@@ -43,24 +44,18 @@ class Html extends AbstractFormatter
 		} else {
             $this->linenos = 0;
 		}
-        $this->linenostart = abs(get_int_opt(options, 'linenostart', 1));
-        $this->linenostep = abs(get_int_opt(options, 'linenostep', 1));
-        $this->linenospecial = abs(get_int_opt(options, 'linenospecial', 0));
-        $this->nobackground = get_bool_opt(options, 'nobackground', False);
+        $this->linenostart = abs(Util::get_int_opt($options, 'linenostart', 1));
+        $this->linenostep = abs(Util::get_int_opt($options, 'linenostep', 1));
+        $this->linenospecial = abs(Util::get_int_opt($options, 'linenospecial', 0));
+        $this->nobackground = Util::get_bool_opt($options, 'nobackground', false);
         $this->lineseparator = options.get('lineseparator', '\n');
-        $this->lineanchors = options.get('lineanchors', '');
-        $this->linespans = options.get('linespans', '');
-        $this->anchorlinenos = options.get('anchorlinenos', False);
-        $this->hl_lines = set();
+        $this->lineanchors = Util::get_opt($options, 'lineanchors', '');
+        $this->linespans = Util::get_opt($options, 'linespans', '');
+        $this->anchorlinenos = Util::get_opt($options, 'anchorlinenos', false);
+        $this->hl_lines = [];
 		
-		foreach(get_list_opt(options, 'hl_lines', []) as $lineno){
-			/*
-			for lineno in get_list_opt(options, 'hl_lines', []):
-				try:
-					$this->hl_lines.add(int(lineno))
-				except ValueError:
-					pass
-			*/		
+		foreach(Util::get_list_opt($options, 'hl_lines', []) as $lineno) {
+			$this->hl_lines[] = (int)$lineno;
 		}
 
         $this->_create_stylesheet();
@@ -69,19 +64,19 @@ class Html extends AbstractFormatter
 	
 	private function _get_css_class($ttype)
 	{
-        """Return the css class of this token type prefixed with
-        the classprefix option."""
+        /*Return the css class of this token type prefixed with
+        the classprefix option.*/
         $ttypeclass = _get_ttype_class($ttype);
         if($ttypeclass) {
             return $this->classprefix . $ttypeclass;
 		}
-        return ''	
+        return '';
 	}
 	
 	private function _create_stylesheet()
 	{
-        $t2c = $this->ttype2class = {Token: ''};
-        $c2s = $this->class2style = {};
+        //$t2c = &$this->ttype2class = {Token: ''};
+        //$c2s = &$this->class2style = {};
 		
 		/*
         for ttype, ndef in $this->style:
@@ -172,17 +167,19 @@ class Html extends AbstractFormatter
 
         $lspan = '';
         $line = '';
-        for ttype, value in tokensource:
-            if nocls:
-                cclass = getcls(ttype)
-                while cclass is None:
-                    ttype = ttype.parent
-                    cclass = getcls(ttype)
-                cspan = cclass and '<span style="%s">' % c2s[cclass][0] or ''
-            else:
-                cls = $this->_get_css_class(ttype)
+        
+        foreach($tokensource as $ttype => $value) {
+            if($nocls) {
+                $cclass = getcls($ttype);
+                while(!$cclass) {
+                    $ttype = $ttype->parent;
+                    $cclass = getcls($ttype);
+                }
+                $cspan = cclass and '<span style="%s">' % c2s[cclass][0] or ''
+            } else {
+                $cls = $this->_get_css_class($ttype);
                 cspan = cls and '<span class="%s">' % cls or ''
-			
+			}
 			$parts = htmlspecialchars($parts, ENT_QUOTES);
 			$parts = explode("\n", $parts);
 			
