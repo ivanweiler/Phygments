@@ -87,17 +87,13 @@ class Regex extends AbstractLexer
 				$action = $statetoken[1];
 				$new_state = $statetoken[2];
 				
-				//var_dump($new_state);
-				
 				$matches = array();
-				
-				//echo $pos . '<br />';
-				//echo htmlspecialchars($rexmatch) . '<br />';
-				
-				//$m = preg_match($rexmatch, $text, $matches, PREG_OFFSET_CAPTURE, $pos);
-				
 				$texttomatch = substr($text, $pos);
 				
+				//echo $pos . "\n";
+				//echo htmlspecialchars($texttomatch) . "\n";
+				//echo htmlspecialchars($rexmatch) . "\n";
+								
 				$m = preg_match($rexmatch, $texttomatch, $matches, PREG_OFFSET_CAPTURE);
 				
 				if($m) {
@@ -182,7 +178,7 @@ class Regex extends AbstractLexer
 		//return re.compile(regex, rflags).match
 		
 		$flags = implode((array)$rflags);
-		$regex = addcslashes($regex, '#');
+		//$regex = addcslashes($regex, '#');
 		return "#^$regex#$flags";
 	}
 				
@@ -282,6 +278,22 @@ class Regex extends AbstractLexer
 		foreach($unprocessed[$state] as $tdef) {
 			//var_dump($tdef);
 			//@todo: include, _inherit support
+			
+			if($tdef instanceof \Phygments\Lexers\Helper\_Include) {
+				# it's a state reference
+				if($tdef == $state) {
+					throw new Exception(sprinf('circular state reference %s', (string)$state));
+				}
+
+				$tokens = array_merge($tokens, $this->_process_state($unprocessed, $processed, (string)$tdef));
+				//tokens.extend(cls._process_state(unprocessed, processed,str(tdef)))
+				continue;			
+			}
+			
+			if($tdef instanceof \Phygments\Lexers\Helper\_Inherit) {
+				# processed already
+				continue;
+			}
 			
 			$rex = $this->_process_regex($tdef[0], $rflags);
 			$token = $this->_process_token($tdef[1]);

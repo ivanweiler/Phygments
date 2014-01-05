@@ -16,7 +16,7 @@ class Javascript extends Regex
 	
 	protected function __declare()
 	{
-		$this->flags = array(re::DOTALL);
+		$this->flags = [re::DOTALL];
 		$this->tokens = [
 			'commentsandwhitespace'=> [
 				['\s+', 'Text'],

@@ -16,7 +16,7 @@ class Html extends Regex
 	
 	protected function __declare()
 	{
-		$this->flags = array(re::IGNORECASE, re::DOTALL);
+		$this->flags = [re::IGNORECASE, re::DOTALL];
 		$this->tokens = [
 			'root'=> [
 				['[^<&]+', 'Text'],

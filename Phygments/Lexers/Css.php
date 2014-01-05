@@ -14,7 +14,8 @@ class Css extends Regex
     public $mimetypes = ['text/css'];
 	
 	protected function __declare()
-	{
+	{	
+		$this->flags = []; //shouldn't be here??
 		$this->tokens = [
 			'root'=> [
 				$this->_include('basics'),

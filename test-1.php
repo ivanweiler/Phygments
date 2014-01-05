@@ -30,6 +30,11 @@ $code = <<<'CODE'
 <b><span class="lol">test 123</span></b>
 CODE;
 
+$code2 = <<<'CODE'
+* { border: 0; margin: 0; }
+#lol { color: #fff; }
+CODE;
+
 /*
 $token = \Phygments\Token::getToken('Name.Tag');
 var_dump((string)$token);
@@ -39,7 +44,7 @@ die();
 
 use \Phygments\Phygments;
 
-$lexer = new \Phygments\Lexers\Html();
+$lexer = new \Phygments\Lexers\Css();
 //$generator = $lexer->get_tokens($code);
 
 
@@ -47,7 +52,7 @@ $formater = new \Phygments\Formatters\RawToken();
 //echo $formater->format($generator);
 
 echo '<pre>';
-echo htmlspecialchars(Phygments::highlight($code, $lexer, $formater));
+echo htmlspecialchars(Phygments::highlight($code2, $lexer, $formater));
 
 /*
 foreach($generator as $token => $value) {

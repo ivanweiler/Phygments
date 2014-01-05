@@ -46,12 +46,13 @@ abstract class AbstractLexer
 
     //protected $__metaclass__ = 'Phygments\Lexers\LexerMeta';
 
-	public function __construct($options)
+	public function __construct($options=array())
 	{
+		$this->options = $options;
+		
 		# declare dynamic properties
 		//$this->__declare();
-		
-        $this->options = $options;
+
         $this->stripnl = Util::get_bool_opt($options, 'stripnl', True);
         $this->stripall = Util::get_bool_opt($options, 'stripall', False);
         $this->ensurenl = Util::get_bool_opt($options, 'ensurenl', True);
@@ -218,12 +219,97 @@ abstract class AbstractLexer
 	
 	protected function _bygroups()
 	{
-	
+		
 	}
 	
-	protected function _using($_other, $kwargs)
+	protected function _using($_other, $kwargs=[])
 	{
-	
+		/*
+	    Callback that processes the match with a different lexer.
+			
+	    The keyword arguments are forwarded to the lexer, except `state` which
+	    is handled separately.
+			
+	    `state` specifies the state that the new lexer will start in, and can
+	    be an enumerable such as ('root', 'inline', 'string') or a simple
+	    string which is assumed to be on top of the root state.
+			
+	    Note: For that to work, `_other` must not be an `ExtendedRegexLexer`.
+	    */
+		$gt_kwargs = [];
+		if(isset($kwargs['state'])) {
+			$s = $kwargs['state'];
+			unset($kwargs['state']);
+			
+			if(is_array($s)) {
+				$gt_kwargs['stack'] = $s;
+			} else {
+				$gt_kwargs['stack'] = ['root', $s];
+			}
+		}
+		
+		$kwargs = array_merge($kwargs, $lexer->options);
+		
+		//Weiler: lexer should be class not current object? parent tokens?
+		//why always new class inside callback? can we define it outside+use()
+		
+		$lexer = $this;
+		
+		if(is_object($_other) && get_class($_other) == get_class()) {
+			$callback = function($match, &$ctx=null) use ($lexer, $kwargs, $gt_kwargs) 
+			{
+				# if keyword arguments are given the callback
+				# function has to create a new lexer instance
+				if($kwargs) {
+					# XXX: cache that somehow
+					//Weiler: options needed before __declare() !!
+					$kwargs = array_merge($kwargs, $lexer->options);
+					$lx = new $lexer($kwargs);
+					//kwargs.update(lexer.options)
+					//lx = lexer.__class__(**kwargs)
+				} else {
+					$lx = $lexer;
+				}
+				
+				/*
+				s = match.start()
+				for i, t, v in lx.get_tokens_unprocessed(match.group(), **gt_kwargs):
+					yield i + s, t, v
+				if ctx:
+					ctx.pos = match.end()
+				*/
+			};
+		} else {
+			$callback = function($match, &$ctx=null) use ($_other, $kwargs, $gt_kwargs) 
+			{
+				# XXX: cache that somehow
+				$kwargs = array_merge($kwargs, $this->options);
+				$lx = new $_other($kwargs);
+				//kwargs.update(lexer.options)
+				//lx = _other(**kwargs)
+				
+				$matches = array();
+				$s = preg_match($rexmatch, $texttomatch, $matches, PREG_OFFSET_CAPTURE);
+				
+				foreach($lx->get_tokens_unprocessed($matches[0], $gt_kwargs) as $tokenu) {
+					list($i, $t, $v) = $tokenu;
+					yield [$i + $s, $t, $v];
+				}
+				if($ctx) {
+					//ctx.pos = match.end()
+				}				
+				
+				/*
+				s = match.start()
+				for i, t, v in lx.get_tokens_unprocessed(match.group(), **gt_kwargs):
+					yield i + s, t, v
+				if ctx:
+					ctx.pos = match.end()
+				*/
+			};
+		}
+
+		return $callback;
 	}
 	
 	public function do_insertions($insertions, $tokens)

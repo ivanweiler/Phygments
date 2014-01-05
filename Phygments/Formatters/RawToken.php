@@ -55,7 +55,7 @@ class RawToken extends AbstractFormatter
     	$data = '';
     	foreach($tokensource as $ttype => $value) {
     		$value = str_replace(array("\r","\n","\t","\v"), array('\r','\n','\t','\v'), $value);
-    		$data .= sprintf("%s\t%s\n", $ttype, $value);
+    		$data .= sprintf("%s\t'%s'\n", $ttype, $value);
     	}
     	
     	//var_dump($outfile);
