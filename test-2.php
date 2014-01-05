@@ -2,8 +2,23 @@
 //phpinfo();
 
 $matches = array();
-$m = preg_match('/(\w+)((\d*)| )(\w+)/','The Cat in the Hat.', $matches, PREG_OFFSET_CAPTURE);
 
+//pos>0, with [-1]
+$m = preg_match('#\A(?:.|\n){1}Lorem.*#m', "XLorem ipsum sit amet", $matches);
+
+//pos=0, no last char
+//$m = preg_match('#\A^Lorem.*#m', "Lorem ipsum sit amet", $matches, PREG_OFFSET_CAPTURE, 0);
+
+echo '<pre>';
+var_dump($m);
+var_dump($matches);
+
+return;
+
+$matches = array();
+$m = preg_match('/^^(\w+)((\d*)| )(\w+)/','The Cat in the Hat.', $matches, PREG_OFFSET_CAPTURE);
+
+echo '<pre>';
 var_dump($m);
 var_dump($matches);
 

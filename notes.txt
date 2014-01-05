@@ -15,3 +15,23 @@ Current Devel Notes
 - make it run, fix structure
 - code lexer brain, get valid tokens
 
+
+RegexLexer match logic notes
+Pythons re.match() is matching start of the string, Phps preg_match() is matching whole string. 
+We can always catch PREG_OFFSET_CAPTURE and compare it to zero, but engine is going through whole
+string all the time, can we optimize that?
+
+If we add ^ to the begining of pattern, it will still go through whole string and match something 
+in MULTILINE mode;
+If we add \A to the begining of pattern, we are unable to match ^pattern tokens which exist in 
+some languages. For example, with offset, in MULTILINE mode to match only when we're after \n.
+Same thing when we use substr() to cut text, we're losing ^pattern tokens, since we can't know 
+if they come after \n or not.
+
+I'll most likely implement PREG_OFFSET_CAPTURE=0 logic for start, but it could maybe work 
+to use \A+pattern while remembering last [-1] char from previous match, 
+to know if it's new line or not.
+'#\A(?:.|\n)PATTERN_HERE*#m'
+
+It seems \A in front speeds up preg_match() in php (tests needed), it makes sense it does.
+

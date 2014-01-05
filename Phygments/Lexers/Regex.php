@@ -88,16 +88,24 @@ class Regex extends AbstractLexer
 				$new_state = $statetoken[2];
 				
 				$matches = array();
-				$texttomatch = substr($text, $pos);
+				//$texttomatch = substr($text, $pos);
 				
 				//echo $pos . "\n";
 				//echo htmlspecialchars($texttomatch) . "\n";
 				//echo htmlspecialchars($rexmatch) . "\n";
-								
-				$m = preg_match($rexmatch, $texttomatch, $matches, PREG_OFFSET_CAPTURE);
+				
+				$m = preg_match($rexmatch, $text, $matches, PREG_OFFSET_CAPTURE, $pos);
+				
+				//var_dump($matches);
+
+				if($m && $matches[0][1]!=$pos) {
+					$m = false;
+				}
 				
 				if($m) {
-					//echo 'match <br />';
+					//var_dump($matches);
+					//echo htmlspecialchars($rexmatch) . "\n";
+					//echo "match\n";
 					if($action instanceof \Phygments\_TokenType) {
 						yield array($pos, $action, $matches[0][0]);
 					} else {
@@ -107,8 +115,8 @@ class Regex extends AbstractLexer
 					}
 					
 					//m.end();
-					$pos += ($matches[0][1]==-1) ? -1 : $matches[0][1]+strlen($matches[0][0]);
-					
+					//$pos += ($matches[0][1]==-1) ? 0 : $matches[0][1]+strlen($matches[0][0]);
+					$pos += strlen($matches[0][0]);
 					//var_dump($new_state);
 					
 					//@todo: push isn't tested
@@ -175,11 +183,10 @@ class Regex extends AbstractLexer
 	private function _process_regex($regex, $rflags)
 	{
 		/*Preprocess the regular expression component of a token definition.*/
-		//return re.compile(regex, rflags).match
-		
+
 		$flags = implode((array)$rflags);
 		//$regex = addcslashes($regex, '#');
-		return "#^$regex#$flags";
+		return "#$regex#$flags";
 	}
 				
 	private function _process_token($token)
@@ -296,6 +303,7 @@ class Regex extends AbstractLexer
 			}
 			
 			$rex = $this->_process_regex($tdef[0], $rflags);
+			//$rex = $tdef[0];
 			$token = $this->_process_token($tdef[1]);
 			
 			if(count($tdef) == 2) {
