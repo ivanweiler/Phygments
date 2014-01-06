@@ -11,10 +11,6 @@ Roadmap
 - consider non-generator version? (php<5.5)
 - implement and test all languages - community help needed
 
-Current Devel Notes
-- make it run, fix structure
-- code lexer brain, get valid tokens
-
 
 RegexLexer match logic notes
 Pythons re.match() is matching start of the string, Phps preg_match() is matching whole string. 
@@ -29,9 +25,10 @@ Same thing when we use substr() to cut text, we're losing ^pattern tokens, since
 if they come after \n or not.
 
 I'll most likely implement PREG_OFFSET_CAPTURE=0 logic for start, but it could maybe work 
-to use \A+pattern while remembering last [-1] char from previous match, 
-to know if it's new line or not.
-'#\A(?:.|\n)PATTERN_HERE*#m'
+to use \A+pattern while remembering last [-1] char from previous match, to know if it's new line or not.
 
-It seems \A in front speeds up preg_match() in php (tests needed), it makes sense it does.
+#\A(?:.|\n)PATTERN_HERE#m  =>  prev_char+CURRENT_TEXT_TO_MATCH
+
+It seems \A in front speeds up preg_match(), it makes sense. I did few simple tests, but further testing 
+is needed.
 

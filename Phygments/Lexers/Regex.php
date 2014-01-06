@@ -109,7 +109,7 @@ class Regex extends AbstractLexer
 					if($action instanceof \Phygments\_TokenType) {
 						yield array($pos, $action, $matches[0][0]);
 					} else {
-						foreach($action($this, $m) as $item) {
+						foreach($action(/*$this,*/ $matches[0][0], $pos) as $item) {
 							yield $item;
 						}						
 					}
@@ -191,11 +191,17 @@ class Regex extends AbstractLexer
 				
 	private function _process_token($token)
 	{
-		//check string format? Xyz.Xyz?
-		$token = Token::getToken($token);
-		//var_dump($token);
+		/*Preprocess the token component of a token definition.*/
 		
-        /*Preprocess the token component of a token definition.*/
+		//check string format? Xyz.Xyz?
+		if(is_string($token) && preg_match('#^[A-Z][a-z]*(?:\.[A-Z][a-z]*)*$#', $token)) {
+			$token = Token::getToken($token);
+		}
+		
+		if(!(($token instanceof \Phygments\_TokenType) || is_callable($token))) {
+			throw new Exception(sprinf('token type must be simple type or callable, not %s', gettype($token)));
+		}
+
 		/*
         assert type(token) is _TokenType or callable(token), \
                'token type must be simple type or callable, not %r' % (token,)

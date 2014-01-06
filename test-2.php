@@ -1,6 +1,44 @@
 <?php
 //phpinfo();
 
+
+class A
+{
+	public $lol = 'a';
+}
+
+class B extends A
+{
+	public $lol = 'b';
+}
+
+
+class C extends B
+{
+	public $lol = 'c';
+	
+	public function __construct()
+	{
+		$this->test();
+	}
+	
+	public function test()
+	{
+		
+	}
+	
+}
+
+
+$test = new C();
+
+
+
+
+
+
+return;
+
 $matches = array();
 
 //pos>0, with [-1]

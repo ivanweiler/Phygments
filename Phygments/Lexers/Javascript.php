@@ -37,7 +37,7 @@ class Javascript extends Regex
 			'root'=> [
 				['^(?=\s|/|<!--)', 'Text', 'slashstartsregex'],
 				$this->_include('commentsandwhitespace'),
-				['\+\+|--|~|&&|\?|:|\|\||\\(?=\n)|'.
+				['\+\+|--|~|&&|\?|:|\|\||\\\\(?=\n)|'.   //fixed \\ => \\\\
 				 '(<<|>>>?|==?|!=?|[-<>+*%&\|\^/])=?', 'Operator', 'slashstartsregex'],
 				['[{(\[;,]', 'Punctuation', 'slashstartsregex'],
 				['[})\].]', 'Punctuation'],

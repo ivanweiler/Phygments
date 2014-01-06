@@ -28,11 +28,18 @@ spl_autoload_register(function($class) {
 
 $code = <<<'CODE'
 <b><span class="lol">test 123</span></b>
+<script>
+	var a = 1337;
+</script>
+<style>
+* { border: 0; margin: 0; }
+#lol { color: #fff; }
+</style>
 CODE;
 
 $code2 = <<<'CODE'
-* { border: 0; margin: 0; }
-#lol { color: #fff; }
+var a = 1337;
+b = function(){ console.log(123); };
 CODE;
 
 /*
@@ -44,15 +51,14 @@ die();
 
 use \Phygments\Phygments;
 
-$lexer = new \Phygments\Lexers\Css();
+$lexer = new \Phygments\Lexers\Html();
 //$generator = $lexer->get_tokens($code);
-
 
 $formater = new \Phygments\Formatters\RawToken();
 //echo $formater->format($generator);
 
 echo '<pre>';
-echo htmlspecialchars(Phygments::highlight($code2, $lexer, $formater));
+echo htmlspecialchars(Phygments::highlight($code, $lexer, $formater));
 
 /*
 foreach($generator as $token => $value) {

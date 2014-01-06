@@ -219,9 +219,66 @@ abstract class AbstractLexer
 	
 	protected function _bygroups()
 	{
-		
+		/*
+		Callback that yields multiple actions for each group in the match.
+		*/
+		$args = func_get_args();
+		$callback = function($lexer, $match, $pos, $ctx=null) {
+			
+			foreach($args as $i => $action) {
+				if(!$action){
+					continue;
+				} elseif(is_string($action)) {
+					//$action = Token::getToken($action);
+					$data = isset($match[$i+1]) ? $match[$i+1] : '';
+					if($data) {
+						yield [$pos+1, Token::getToken($action), $data];
+					}
+				} else {
+					$data = isset($match[$i+1]) ? $match[$i+1] : null;
+					if(!is_null($data)) {
+						if($ctx) {
+							$ctx->pos = $pos+1;
+						}
+						foreach($action($lexer, _PseudoMatch($pos+1, $data), $ctx) as $item) {
+							if($item) {
+								yield $item;
+							}
+						}
+					}
+				}
+			}
+			
+			if($ctx) {
+				//$ctx->pos = $pos+strlen($match);
+			}
+		};
+			
+			/*
+			for i, action in enumerate(args):
+				if action is None:
+					continue
+				elif type(action) is _TokenType:
+					data = match.group(i + 1)
+					if data:
+						yield match.start(i + 1), action, data
+				else:
+					data = match.group(i + 1)
+					if data is not None:
+						if ctx:
+							ctx.pos = match.start(i + 1)
+						for item in action(lexer, _PseudoMatch(match.start(i + 1),
+										   data), ctx):
+							if item:
+								yield item
+			if ctx:
+				ctx.pos = match.end()
+			*/
+
+		return $callback;		
 	}
 	
+	//@todo: _using needs serious revamp
 	protected function _using($_other, $kwargs=[])
 	{
 		/*
@@ -248,7 +305,7 @@ abstract class AbstractLexer
 			}
 		}
 		
-		$kwargs = array_merge($kwargs, $lexer->options);
+		$gt_kwargs = array('root'); //hack
 		
 		//Weiler: lexer should be class not current object? parent tokens?
 		//why always new class inside callback? can we define it outside+use()
@@ -264,6 +321,7 @@ abstract class AbstractLexer
 					# XXX: cache that somehow
 					//Weiler: options needed before __declare() !!
 					$kwargs = array_merge($kwargs, $lexer->options);
+					$lexer = '\\Phygments\\Lexers\\'.$lexer;
 					$lx = new $lexer($kwargs);
 					//kwargs.update(lexer.options)
 					//lx = lexer.__class__(**kwargs)
@@ -280,23 +338,25 @@ abstract class AbstractLexer
 				*/
 			};
 		} else {
-			$callback = function($match, &$ctx=null) use ($_other, $kwargs, $gt_kwargs) 
+			$callback = function($match, $pos, &$ctx=null) use ($_other, $kwargs, $gt_kwargs) 
 			{
+				//var_dump(get_class($this));
+				//var_dump($gt_kwargs);
+				
 				# XXX: cache that somehow
 				$kwargs = array_merge($kwargs, $this->options);
+				$_other = '\\Phygments\\Lexers\\'.$_other;
 				$lx = new $_other($kwargs);
 				//kwargs.update(lexer.options)
 				//lx = _other(**kwargs)
 				
-				$matches = array();
-				$s = preg_match($rexmatch, $texttomatch, $matches, PREG_OFFSET_CAPTURE);
-				
-				foreach($lx->get_tokens_unprocessed($matches[0], $gt_kwargs) as $tokenu) {
+				$s = $pos; //is $pos reference?
+				foreach($lx->get_tokens_unprocessed($match, $gt_kwargs) as $tokenu) {
 					list($i, $t, $v) = $tokenu;
 					yield [$i + $s, $t, $v];
 				}
 				if($ctx) {
-					//ctx.pos = match.end()
+					$ctx->pos = $pos+strlen($match);
 				}				
 				
 				/*
@@ -316,7 +376,6 @@ abstract class AbstractLexer
 	{
 		
 	}
-	
 
 }
 
@@ -356,5 +415,45 @@ class _Combined
 
 class _PseudoMatch
 {
+	/*
+    A pseudo match object constructed from a string.
+	*/
+	
+	public function __construct($start, $text)
+	{
+		$this->_text = $text;
+		$this->_start = $start;		
+	}
+	
+	public function start()
+	{
+		return $this->_start;
+	}
+	
+	public function end()
+	{
+		return $this->_start + strlen($this->_text);
+	}
 
+	
+	public function group($arg)
+	{
+		if($arg) {
+			//raise IndexError('No such group')
+		}
+		return  $this->_text;
+	}
+
+	
+	public function groups()
+	{
+		return [self._text];
+	}
+
+	public function groupdict()
+	{
+		return [];  //{}
+	}
+	    		
 }
+

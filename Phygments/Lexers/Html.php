@@ -43,11 +43,11 @@ class Html extends Regex
 			],
 			'script-content'=> [
 				['<\s*/\s*script\s*>', 'Name.Tag', '#pop'],
-				['.+?(?=<\s*/\s*script\s*>)', $this->_using('JavascriptLexer')],
+				['.+?(?=<\s*/\s*script\s*>)', $this->_using('Javascript')],
 			],
 			'style-content'=> [
 				['<\s*/\s*style\s*>', 'Name.Tag', '#pop'],
-				['.+?(?=<\s*/\s*style\s*>)',  $this->_using('CssLexer')],
+				['.+?(?=<\s*/\s*style\s*>)',  $this->_using('Css')],
 			],
 			'attr'=> [
 				['".*?"', 'String', '#pop'],
