@@ -1,6 +1,25 @@
 <?php
 //phpinfo();
 
+$test = array(
+	'a' => 1,
+	'b' => null
+);
+
+$test['c'] = null;
+
+echo count($test);
+
+var_dump(isset($test['b'])); //F
+var_dump(array_key_exists('b', $test)); //T
+
+foreach($test as $key => $value) {
+	var_dump($key);
+	var_dump($value);
+} //3 times
+
+
+return;
 
 class A
 {

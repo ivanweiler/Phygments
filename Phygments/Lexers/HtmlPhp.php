@@ -20,12 +20,12 @@ class HtmlPhp extends Delegating
 	
 	public function __construct($options=array())
 	{
-		parent::__construct('HtmlLexer', 'PhpLexer', $options);
+		parent::__construct('HtmlLexer', 'PhpLexer', 'Other', $options);
 	}
 		
 	public function analyse_text($text)
 	{
-		$rv = PhpLexer.analyse_text(text) - 0.01;
+		$rv = PhpLexer::analyse_text($text) - 0.01;
 		if(Util::html_doctype_matches($text)) {
 			$rv += 0.5;
 			return $rv;

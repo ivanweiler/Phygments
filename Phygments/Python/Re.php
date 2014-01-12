@@ -22,4 +22,9 @@ class Re
 	const MULTILINE = 'm';
 	const DOTALL = 's';
 	
+	public static function match()
+	{
+		
+	}
+	
 }

@@ -37,18 +37,103 @@ class _TokenType
 		}
 		return $name;
 	}
+	
+	public function split()
+	{
+		$buf = [];
+		$node = $this;
+		while($node) {
+			$buf[] = $node;
+			$node = $node->parent;
+		}
+		$buf = array_reverse($buf);
+		return $buf;		
+	}
 }
 
 class Token
 {
 	public static $STANDARD_TYPES = array(
-		'Token'					=> '',
-
-		'Text'					=> '',
-		'Whitespace'			=> 'w',
-		'Error'					=> 'err',
-		'Other'					=> 'x',
-		//..
+	    'Token'=>                         '',
+	
+	    'Text'=>                          '',
+	    'Whitespace'=>                    'w',
+	    'Error'=>                         'err',
+	    'Other'=>                         'x',
+		
+		'Keyword'=>                       'k',
+		'Keyword.Constant'=>              'kc',
+		'Keyword.Declaration'=>           'kd',
+		'Keyword.Namespace'=>             'kn',
+		'Keyword.Pseudo'=>                'kp',
+		'Keyword.Reserved'=>              'kr',
+		'Keyword.Type'=>                  'kt',
+		
+		'Name'=>                          'n',
+		'Name.Attribute'=>                'na',
+		'Name.Builtin'=>                  'nb',
+		'Name.Builtin.Pseudo'=>           'bp',
+		'Name.Class'=>                    'nc',
+		'Name.Constant'=>                 'no',
+		'Name.Decorator'=>                'nd',
+		'Name.Entity'=>                   'ni',
+		'Name.Exception'=>                'ne',
+		'Name.Function'=>                 'nf',
+		'Name.Property'=>                 'py',
+		'Name.Label'=>                    'nl',
+		'Name.Namespace'=>                'nn',
+		'Name.Other'=>                    'nx',
+		'Name.Tag'=>                      'nt',
+		'Name.Variable'=>                 'nv',
+		'Name.Variable.Class'=>           'vc',
+		'Name.Variable.Global'=>          'vg',
+		'Name.Variable.Instance'=>        'vi',
+		
+		'Literal'=>                       'l',
+		'Literal.Date'=>                  'ld',
+		
+		'String'=>                        's',
+		'String.Backtick'=>               'sb',
+		'String.Char'=>                   'sc',
+		'String.Doc'=>                    'sd',
+		'String.Double'=>                 's2',
+		'String.Escape'=>                 'se',
+		'String.Heredoc'=>                'sh',
+		'String.Interpol'=>               'si',
+		'String.Other'=>                  'sx',
+		'String.Regex'=>                  'sr',
+		'String.Single'=>                 's1',
+		'String.Symbol'=>                 'ss',
+		
+		'Number'=>                        'm',
+		'Number.Float'=>                  'mf',
+		'Number.Hex'=>                    'mh',
+		'Number.Integer'=>                'mi',
+		'Number.Integer.Long'=>           'il',
+		'Number.Oct'=>                    'mo',
+		
+		'Operator'=>                      'o',
+		'Operator.Word'=>                 'ow',
+		
+		'Punctuation'=>                   'p',
+		
+		'Comment'=>                       'c',
+		'Comment.Multiline'=>             'cm',
+		'Comment.Preproc'=>               'cp',
+		'Comment.Single'=>                'c1',
+		'Comment.Special'=>               'cs',
+		
+		'Generic'=>                       'g',
+		'Generic.Deleted'=>               'gd',
+		'Generic.Emph'=>                  'ge',
+		'Generic.Error'=>                 'gr',
+		'Generic.Heading'=>               'gh',
+		'Generic.Inserted'=>              'gi',
+		'Generic.Output'=>                'go',
+		'Generic.Prompt'=>                'gp',
+		'Generic.Strong'=>                'gs',
+		'Generic.Subheading'=>            'gu',
+		'Generic.Traceback'=>             'gt',
 	);
 	
 	private static $_token = null;
@@ -110,6 +195,9 @@ class Token
 		}
 	
 		$names = explode('.', $type);
+		if($names[0]=='Token') {	// fast hack for styles! but Token.Token is an alias ??
+			array_shift($names);
+		}
 		$class = self::$_token;
 		foreach($names as $name) {
 			$class = $class->{$name};

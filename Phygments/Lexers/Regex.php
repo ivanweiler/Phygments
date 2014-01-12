@@ -439,4 +439,259 @@ class Regex extends AbstractLexer
 	}
 	
 	
+	
+	/*
+    Helpers
+	*/	
+
+	protected function _include($str)
+	{
+		return new Regex\Helper\_Include($str);
+	}
+	
+	protected function _inherit()
+	{
+		return new  Regex\Helper\_Inherit($str);
+	}
+	
+	protected function _combined($arr)
+	{
+		return new Regex\Helper\_Combined($str);
+	}
+	
+	protected function _bygroups()
+	{
+		/*
+		Callback that yields multiple actions for each group in the match.
+		*/
+		$args = func_get_args();
+		$callback = function($lexer, $match, $pos, $ctx=null) {
+			
+			foreach($args as $i => $action) {
+				if(!$action){
+					continue;
+				} elseif(is_string($action)) {
+					//$action = Token::getToken($action);
+					$data = isset($match[$i+1]) ? $match[$i+1] : '';
+					if($data) {
+						yield [$pos+1, Token::getToken($action), $data];
+					}
+				} else {
+					$data = isset($match[$i+1]) ? $match[$i+1] : null;
+					if(!is_null($data)) {
+						if($ctx) {
+							$ctx->pos = $pos+1;
+						}
+						foreach($action($lexer, new _PseudoMatch($pos+1, $data), $ctx) as $item) {
+							if($item) {
+								yield $item;
+							}
+						}
+					}
+				}
+			}
+			
+			if($ctx) {
+				//$ctx->pos = $pos+strlen($match);
+			}
+		};
+			
+			/*
+			for i, action in enumerate(args):
+				if action is None:
+					continue
+				elif type(action) is _TokenType:
+					data = match.group(i + 1)
+					if data:
+						yield match.start(i + 1), action, data
+				else:
+					data = match.group(i + 1)
+					if data is not None:
+						if ctx:
+							ctx.pos = match.start(i + 1)
+						for item in action(lexer, _PseudoMatch(match.start(i + 1),
+										   data), ctx):
+							if item:
+								yield item
+			if ctx:
+				ctx.pos = match.end()
+			*/
+
+		return $callback;		
+	}
+	
+	//@todo: _using needs serious revamp
+	protected function _using($_other, $kwargs=[])
+	{
+		/*
+	    Callback that processes the match with a different lexer.
+			
+	    The keyword arguments are forwarded to the lexer, except `state` which
+	    is handled separately.
+			
+	    `state` specifies the state that the new lexer will start in, and can
+	    be an enumerable such as ('root', 'inline', 'string') or a simple
+	    string which is assumed to be on top of the root state.
+			
+	    Note: For that to work, `_other` must not be an `ExtendedRegexLexer`.
+	    */
+		$gt_kwargs = [];
+		if(isset($kwargs['state'])) {
+			$s = $kwargs['state'];
+			unset($kwargs['state']);
+			
+			if(is_array($s)) {
+				$gt_kwargs['stack'] = $s;
+			} else {
+				$gt_kwargs['stack'] = ['root', $s];
+			}
+		}
+		
+		$gt_kwargs = array('root'); //hack
+		
+		//Weiler: lexer should be class not current object? parent tokens?
+		//why always new class inside callback? can we define it outside+use()
+		
+		$lexer = $this;
+		
+		if(is_object($_other) && get_class($_other) == get_class()) {
+			$callback = function($match, &$ctx=null) use ($lexer, $kwargs, $gt_kwargs) 
+			{
+				# if keyword arguments are given the callback
+				# function has to create a new lexer instance
+				if($kwargs) {
+					# XXX: cache that somehow
+					//Weiler: options needed before __declare() !!
+					$kwargs = array_merge($kwargs, $lexer->options);
+					$lexer = '\\Phygments\\Lexers\\'.$lexer;
+					$lx = new $lexer($kwargs);
+					//kwargs.update(lexer.options)
+					//lx = lexer.__class__(**kwargs)
+				} else {
+					$lx = $lexer;
+				}
+				
+				/*
+				s = match.start()
+				for i, t, v in lx.get_tokens_unprocessed(match.group(), **gt_kwargs):
+					yield i + s, t, v
+				if ctx:
+					ctx.pos = match.end()
+				*/
+			};
+		} else {
+			$callback = function($match, $pos, &$ctx=null) use ($_other, $kwargs, $gt_kwargs) 
+			{
+				//var_dump(get_class($this));
+				//var_dump($gt_kwargs);
+				
+				# XXX: cache that somehow
+				$kwargs = array_merge($kwargs, $this->options);
+				$_other = '\\Phygments\\Lexers\\'.$_other;
+				$lx = new $_other($kwargs);
+				//kwargs.update(lexer.options)
+				//lx = _other(**kwargs)
+				
+				$s = $pos; //is $pos reference?
+				foreach($lx->get_tokens_unprocessed($match, $gt_kwargs) as $tokenu) {
+					list($i, $t, $v) = $tokenu;
+					yield [$i + $s, $t, $v];
+				}
+				if($ctx) {
+					$ctx->pos = $pos+strlen($match);
+				}				
+				
+				/*
+				s = match.start()
+				for i, t, v in lx.get_tokens_unprocessed(match.group(), **gt_kwargs):
+					yield i + s, t, v
+				if ctx:
+					ctx.pos = match.end()
+				*/
+			};
+		}
+
+		return $callback;
+	}
+	
+	
+}
+
+
+
+namespace Phygments\Lexers\Regex\Helper;
+
+class _Include
+{
+	private $_value;
+
+	public function __construct($str)
+	{
+		$this->_value = $str;
+	}
+
+	public function __toString()
+	{
+		return $this->_value;
+	}
+}
+
+class _Inherit
+{
+	public function __toString()
+	{
+		return 'inherit';
+	}
+}
+
+class _Combined
+{
+	public function __construct($str)
+	{
+		$this->_value = $str;
+	}
+}
+
+class _PseudoMatch
+{
+	/*
+	 A pseudo match object constructed from a string.
+	*/
+
+	public function __construct($start, $text)
+	{
+		$this->_text = $text;
+		$this->_start = $start;
+	}
+
+	public function start()
+	{
+		return $this->_start;
+	}
+
+	public function end()
+	{
+		return $this->_start + strlen($this->_text);
+	}
+
+
+	public function group($arg)
+	{
+		if($arg) {
+			//raise IndexError('No such group')
+		}
+		return  $this->_text;
+	}
+
+
+	public function groups()
+	{
+		return [self._text];
+	}
+
+	public function groupdict()
+	{
+		return [];  //{}
+	}
+	 
 }

@@ -25,6 +25,9 @@ spl_autoload_register(function($class) {
 });
 //
 
+echo '<pre>';
+$style = new \Phygments\Styles\Def();
+return;
 
 $code = <<<'CODE'
 <b><span class="lol">test 123</span></b>
