@@ -7,6 +7,50 @@ class Html extends AbstractFormatter
     public $name = 'HTML';
     public $aliases = ['html'];
     public $filenames = ['*.html', '*.htm'];
+    
+    const CSSFILE_TEMPLATE = <<<'CONST'
+td.linenos { background-color: #f0f0f0; padding-right: 10px; }
+span.lineno { background-color: #f0f0f0; padding: 0 5px 0 5px; }
+pre { line-height: 125%%; }
+%(styledefs)s
+CONST;
+    
+    const DOC_HEADER = <<<'CONST'
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+    
+<html>
+<head>
+  <title>%(title)s</title>
+  <meta http-equiv="content-type" content="text/html; charset=%(encoding)s">
+  <style type="text/css">
+%(CSSFILE_TEMPLATE)
+  </style>
+</head>
+<body>
+<h2>%(title)s</h2>
+
+CONST;
+    
+    const DOC_HEADER_EXTERNALCSS = <<<'CONST'
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
+   "http://www.w3.org/TR/html4/strict.dtd">
+    
+<html>
+<head>
+  <title>%(title)s</title>
+  <meta http-equiv="content-type" content="text/html; charset=%(encoding)s">
+  <link rel="stylesheet" href="%(cssfile)s" type="text/css">
+</head>
+<body>
+<h2>%(title)s</h2>
+    
+CONST;
+    
+    const DOC_FOOTER = <<<'CONST'
+</body>
+</html>
+CONST;
 	
 	public function __construct($options)
 	{
@@ -61,11 +105,9 @@ class Html extends AbstractFormatter
         $this->_create_stylesheet();
 	}
 	
-	
 	private function _get_css_class($ttype)
 	{
-        /*Return the css class of this token type prefixed with
-        the classprefix option.*/
+        /*Return the css class of this token type prefixed with the classprefix option.*/
         $ttypeclass = _get_ttype_class($ttype);
         if($ttypeclass) {
             return $this->classprefix . $ttypeclass;
@@ -73,38 +115,102 @@ class Html extends AbstractFormatter
         return '';
 	}
 	
-	private function _create_stylesheet()
+	private function _get_ttype_class($ttype)
 	{
-        //$t2c = &$this->ttype2class = {Token: ''};
-        //$c2s = &$this->class2style = {};
-		
 		/*
-        for ttype, ndef in $this->style:
-            name = $this->_get_css_class(ttype)
-            style = ''
-            if ndef['color']:
-                style += 'color: #%s; ' % ndef['color']
-            if ndef['bold']:
-                style += 'font-weight: bold; '
-            if ndef['italic']:
-                style += 'font-style: italic; '
-            if ndef['underline']:
-                style += 'text-decoration: underline; '
-            if ndef['bgcolor']:
-                style += 'background-color: #%s; ' % ndef['bgcolor']
-            if ndef['border']:
-                style += 'border: 1px solid #%s; ' % ndef['border']
-            if style:
-                t2c[ttype] = name
-                # save len(ttype) to enable ordering the styles by
-                # hierarchy (necessary for CSS cascading rules!)
-                c2s[name] = (style[:-2], ttype, len(ttype))
+		fname = STANDARD_TYPES.get(ttype)
+		if fname:
+			return fname
+		aname = ''
+		while fname is None:
+			aname = '-' + ttype[-1] + aname
+			ttype = ttype.parent
+			fname = STANDARD_TYPES.get(ttype)
+		return fname + aname
 		*/
 	}
 	
-    public function get_style_defs()
+	private function _create_stylesheet()
 	{
+        $this->ttype2class = ['Token'=>''];
+        $t2c = &$this->ttype2class;
+        
+        $this->class2style = [];
+        $c2s = &$this->class2style;
 		
+		foreach($this->style as $ttype => $ndef) {
+			$name = $this->_get_css_class($ttype);
+            $style = '';
+            if($ndef['color']) {
+                $style .= sprintf('color: #%s; ', $ndef['color']);
+            }
+            if($ndef['bold']) {
+                $style .= 'font-weight: bold; ';
+            }
+            if($ndef['italic']) {
+                $style .= 'font-style: italic; ';
+            }
+            if($ndef['underline']) {
+                $style .= 'text-decoration: underline; ';
+            }
+            if($ndef['bgcolor']) {
+                $style .= sprintf('background-color: #%s; ', $ndef['bgcolor']);
+            }
+            if($ndef['border']) {
+                $style .= sprintf('border: 1px solid #%s; ', $ndef['border']);
+            }
+            if($style) {
+                $t2c[$ttype] = $name;
+                # save len(ttype) to enable ordering the styles by
+                # hierarchy (necessary for CSS cascading rules!)
+                
+                //$c2s[$name] = [style[:-2], ttype, len(ttype)]; //len??
+            }
+		}
+
+	}
+	
+    public function get_style_defs($arg=null)
+	{
+        /*
+        Return CSS style definitions for the classes produced by the current
+        highlighting style. ``arg`` can be a string or list of selectors to
+        insert before the token type classes.
+        */
+		/*
+        if arg is None:
+            arg = ('cssclass' in self.options and '.'+self.cssclass or '')
+        if isinstance(arg, basestring):
+            args = [arg]
+        else:
+            args = list(arg)
+
+        def prefix(cls):
+            if cls:
+                cls = '.' + cls
+            tmp = []
+            for arg in args:
+                tmp.append((arg and arg + ' ' or '') + cls)
+            return ', '.join(tmp)
+
+        styles = [(level, ttype, cls, style)
+                  for cls, (style, ttype, level) in self.class2style.iteritems()
+                  if cls and style]
+        styles.sort()
+        lines = ['%s { %s } /zvjezda %s zvjezda/' % (prefix(cls), style, repr(ttype)[6:])
+                 for (level, ttype, cls, style) in styles]
+        if arg and not self.nobackground and \
+           self.style.background_color is not None:
+            text_style = ''
+            if Text in self.ttype2class:
+                text_style = ' ' + self.class2style[self.ttype2class[Text]][0]
+            lines.insert(0, '%s { background: %s;%s }' %
+                         (prefix(''), self.style.background_color, text_style))
+        if self.style.highlight_color is not None:
+            lines.insert(0, '%s.hll { background-color: %s }' %
+                         (prefix(''), self.style.highlight_color))
+        return '\n'.join(lines)	
+		*/	
 	}
 	
     private function _decodeifneeded($value)
@@ -148,8 +254,6 @@ class Html extends AbstractFormatter
                 yield 0, line	
 		*/
 	}
-	
-	
 	
 	private function _format_lines($tokensource)
 	{

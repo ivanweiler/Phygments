@@ -1,7 +1,7 @@
 <?php
 namespace Phygments\Styles;
 
-class Def extends AbstractStyle
+class Def extends AbstractStyle	//rename to Standard?
 {
     /*
     The default style (inspired by Emacs 22).

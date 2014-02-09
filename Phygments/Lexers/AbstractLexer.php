@@ -1,6 +1,7 @@
 <?php
 namespace Phygments\Lexers;
 use \Phygments\Util;
+
 abstract class AbstractLexer
 {
 	/*
@@ -57,7 +58,7 @@ abstract class AbstractLexer
         $this->stripall = Util::get_bool_opt($options, 'stripall', False);
         $this->ensurenl = Util::get_bool_opt($options, 'ensurenl', True);
         $this->tabsize = Util::get_int_opt($options, 'tabsize', 0);
-        $this->encoding = Util::get_opt('encoding', 'latin1');
+        $this->encoding = Util::get_opt($options, 'encoding', 'latin1');
         # self.encoding = options.get('inencoding', None) or self.encoding
         $this->filters = [];
         /*

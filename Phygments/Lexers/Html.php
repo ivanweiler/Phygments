@@ -25,8 +25,8 @@ class Html extends Regex
 				['<!--', 'Comment', 'comment'],
 				['<\?.*?\?>', 'Comment.Preproc'],
 				['<![^>]*>', 'Comment.Preproc'],
-				['<\s*script\s*', 'Name.Tag', ['script-content', 'tag']],
-				['<\s*style\s*', 'Name.Tag', ['style-content', 'tag']],
+				//['<\s*script\s*', 'Name.Tag', ['script-content', 'tag']],
+				//['<\s*style\s*', 'Name.Tag', ['style-content', 'tag']],
 				['<\s*[a-zA-Z0-9:]+', 'Name.Tag', 'tag'],
 				['<\s*/\s*[a-zA-Z0-9:]+\s*>', 'Name.Tag'],
 			],
@@ -41,14 +41,14 @@ class Html extends Regex
 				['[a-zA-Z0-9_:-]+', 'Name.Attribute'],
 				['/?\s*>', 'Name.Tag', '#pop'],
 			],
-			'script-content'=> [
-				['<\s*/\s*script\s*>', 'Name.Tag', '#pop'],
-				['.+?(?=<\s*/\s*script\s*>)', $this->_using('Javascript')],
-			],
-			'style-content'=> [
-				['<\s*/\s*style\s*>', 'Name.Tag', '#pop'],
-				['.+?(?=<\s*/\s*style\s*>)',  $this->_using('Css')],
-			],
+// 			'script-content'=> [
+// 				['<\s*/\s*script\s*>', 'Name.Tag', '#pop'],
+// 				['.+?(?=<\s*/\s*script\s*>)', $this->_using('Javascript')],
+// 			],
+// 			'style-content'=> [
+// 				['<\s*/\s*style\s*>', 'Name.Tag', '#pop'],
+// 				['.+?(?=<\s*/\s*style\s*>)',  $this->_using('Css')],
+// 			],
 			'attr'=> [
 				['".*?"', 'String', '#pop'],
 				["'.*?'", 'String', '#pop'],

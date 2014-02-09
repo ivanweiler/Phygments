@@ -95,16 +95,17 @@ class Regex extends AbstractLexer
 				//echo htmlspecialchars($rexmatch) . "\n";
 				
 				$m = preg_match($rexmatch, $text, $matches, PREG_OFFSET_CAPTURE, $pos);
-				
 				//var_dump($matches);
-
-				if($m && $matches[0][1]!=$pos) {
-					$m = false;
-				}
+				
+				//@todo: not needed?
+ 				if($m && $matches[0][1]!=$pos) {
+ 					$m = false;
+ 				}
 				
 				if($m) {
+					//echo $pos . "\n";
+					//echo $rexmatch . "\n";
 					//var_dump($matches);
-					//echo htmlspecialchars($rexmatch) . "\n";
 					//echo "match\n";
 					if($action instanceof \Phygments\_TokenType) {
 						yield array($pos, $action, $matches[0][0]);
@@ -140,7 +141,7 @@ class Regex extends AbstractLexer
 							$statestack[] = $statestack[count($statestack)-1];
 						} else {
 							//assert False, "wrong state def: %r" % new_state
-							throw new Exception(sprintf(
+							throw new \Exception(sprintf(
 								'wrong state def: %s', print_r($new_state)
 							));
 						}
@@ -186,7 +187,7 @@ class Regex extends AbstractLexer
 
 		$flags = implode((array)$rflags);
 		//$regex = addcslashes($regex, '#');
-		return "#$regex#$flags";
+		return "#\G$regex#$flags";
 	}
 				
 	private function _process_token($token)
@@ -199,7 +200,7 @@ class Regex extends AbstractLexer
 		}
 		
 		if(!(($token instanceof \Phygments\_TokenType) || is_callable($token))) {
-			throw new Exception(sprinf('token type must be simple type or callable, not %s', gettype($token)));
+			throw new \Exception(sprintf('token type must be simple type or callable, not %s', gettype($token)));
 		}
 
 		/*
@@ -225,19 +226,19 @@ class Regex extends AbstractLexer
 				return -(int)substr($new_state, 5);
 			} else {
 				//assert False, 'unknown new state %r' % new_state
-				throw new Exception(sprinf('unknown new state %s', (string)$new_state));
+				throw new \Exception(sprintf('unknown new state %s', (string)$new_state));
 			}			
 		} elseif(0) {
 			//@todo: combined missing 
 		} elseif(is_array($new_state)) {
 			foreach($new_state as $istate) {
 				if(!(isset($unprocessed[$istate]) || in_array($istate, array('#pop', '#push')))) {
-					throw new Exception(sprinf('unknown new state %s', (string)$istate));
+					throw new \Exception(sprintf('unknown new state %s', (string)$istate));
 				}
 			}
 			return $new_state;
 		} else {
-			throw new Exception(sprinf('unknown new state def %s', (string)$new_state));
+			throw new \Exception(sprintf('unknown new state def %s', (string)$new_state));
 		}
 		
 		/*
@@ -295,7 +296,7 @@ class Regex extends AbstractLexer
 			if($tdef instanceof \Phygments\Lexers\Helper\_Include) {
 				# it's a state reference
 				if($tdef == $state) {
-					throw new Exception(sprinf('circular state reference %s', (string)$state));
+					throw new \Exception(sprintf('circular state reference %s', (string)$state));
 				}
 
 				$tokens = array_merge($tokens, $this->_process_state($unprocessed, $processed, (string)$tdef));

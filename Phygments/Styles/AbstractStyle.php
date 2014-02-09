@@ -103,7 +103,7 @@ class AbstractStyle implements \IteratorAggregate, \Countable
 			}
 		}
 		
-		var_dump($this->_styles);
+		//var_dump($this->_styles);
 	}
         
 	public function style_for_token($token)
@@ -122,11 +122,13 @@ class AbstractStyle implements \IteratorAggregate, \Countable
         ];
 	}
 
+	/*
     public function list_styles()
     {
         //return list(cls) //?? property list?
     }
-    
+    */
+	
     public function styles_token($ttype)
     {
         //return ttype in cls._styles

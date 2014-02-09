@@ -22,9 +22,21 @@ class Re
 	const MULTILINE = 'm';
 	const DOTALL = 's';
 	
-	public static function match()
+	//emulates python re.match()
+	// match(string[, pos[, endpos]])
+	public static function match($pattern, $string, $flags='', $pos=0)
 	{
+		$flags = is_array($flags) ? implode('', $flags) : $flags;
+		//$regex = addcslashes($regex, '#');
+		$pattern = "#$pattern#$flags";
+				
+		$matches = array();
+		$m = preg_match($pattern, $string, $matches, PREG_OFFSET_CAPTURE, $pos);
 		
+		return new Re\MatchObject($matches, $pos);
 	}
+	
+	//@todo
+	//public static function search() {}
 	
 }

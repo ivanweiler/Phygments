@@ -1,4 +1,17 @@
 <?php
+
+$matches = array();
+
+$m = preg_match('#\G^Lorem.*#m', "XXX\nLorem ipsum sit amet", $matches, PREG_OFFSET_CAPTURE, 4);
+
+echo '<pre>';
+var_dump($m);
+var_dump($matches);
+
+
+return;
+
+
 //phpinfo();
 
 $test = array(

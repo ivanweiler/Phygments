@@ -1,5 +1,8 @@
 <?php
 namespace Phygments\Formatters;
+use \Phygments\Util;
+use \Phygments\Styles;
+
 abstract class AbstractFormatter
 {
 	/*
@@ -43,18 +46,13 @@ abstract class AbstractFormatter
 
     public function __construct($options=array())
 	{
-		//is name defined check
+		//add abstract property checks (is name defined, ..)?
 		
-		/*
-        self.style = _lookup_style(options.get('style', 'default'))
-        self.full  = get_bool_opt(options, 'full', False)
-        self.title = options.get('title', '')
-        self.encoding = options.get('encoding', None) or None
-        self.encoding = options.get('outencoding', None) or self.encoding
-        self.options = options
-		*/
-		
-		$this->options = $options;
+        $this->style = $this->_lookup_style(Util::get_opt($options, 'style', 'default'));
+        $this->full  = Util::get_bool_opt($options, 'full', false);
+        $this->title =  Util::get_opt($options, 'title', '');
+        $this->encoding =  Util::get_opt($options, 'outencoding', Util::get_opt($options, 'encoding'));
+        $this->options = $options;
 	}
 
     public function get_style_defs($arg='')
@@ -85,9 +83,17 @@ abstract class AbstractFormatter
 		return $this->format_unencoded($tokensource, $outfile);
 	}
 	
-	public function format_unencoded()
+	public function format_unencoded() 
 	{
 		
+	}
+	
+	private function _lookup_style($style)
+	{
+		if(is_string($style)) {
+			return Styles::get_style_by_name($style);
+		}
+		return $style;
 	}
 	
 }

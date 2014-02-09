@@ -15,61 +15,109 @@
 */
 
 $LEXERS = [
-	'HtmlLexer'	=> ['HTML', ['html',], ['*.html', '*.htm', '*.xhtml', '*.xslt'], ['text/html', 'application/xhtml+xml']],
-    'HtmlPhpLexer' => ['HTML+PHP', ['html+php',], ['*.phtml',], ['application/x-php', 'application/x-httpd-php', 'application/x-httpd-php3', 'application/x-httpd-php4', 'application/x-httpd-php5']],
+	'Css' => ['CSS',['css',],['*.css',],['text/css',],],
+	'Html' => ['HTML',['html',],['*.html','*.htm','*.xhtml','*.xslt',],['text/html','application/xhtml+xml',],],
+	'HtmlPhp' => ['HTML+PHP',['html+php',],['*.phtml',],['application/x-php','application/x-httpd-php','application/x-httpd-php3','application/x-httpd-php4','application/x-httpd-php5',],],
+	'Javascript' => ['JavaScript',['js','javascript',],['*.js',],['application/javascript','application/x-javascript','text/x-javascript','text/javascript',],],
+	'Php' => ['PHP',['php','php3','php4','php5',],['*.php','*.php[345]','*.inc',],['text/x-php',],],
 ];
 
-
-/*
-if (isset($_SERVER['REQUEST_METHOD'])) {
-	die('This script cannot be run from Browser. This is the shell script.');
-}
-
-if(php_sapi_name() == 'cli')
-{
-    //@todo
-}
-
-*/
-
-/*
-if __name__ == '__main__':
-    import sys
-    import os
-
+if(php_sapi_name() == 'cli') {
+	
+	$path = dirname(__FILE__);
+	
+	set_include_path(dirname(dirname($path)));
+	spl_autoload_register(function($class) {
+		require_once str_replace(array('_','\\'), DIRECTORY_SEPARATOR, $class) . '.php';
+	});
+	
+	//modified drupal_var_export() // Drupal
+	function pprint($var, $prefix = '')
+	{
+		static $level = 0;
+		
+		if (is_array($var)) {
+			$level++;
+			if (empty($var)) {
+				$output = '[]';
+			}
+			else {
+				$output = "[".($level==1 ? "\n" : '');
+				// Don't export keys if the array is non associative.
+				$export_keys = array_values($var) != $var;
+				foreach ($var as $key => $value) {
+					$output .= ($export_keys ? "\t" . pprint($key) . ' => ' : '') . pprint($value, ' ') . "," . ($level==1 ? "\n" : '');
+				}
+				$output .= ']';
+			}
+			$level--;
+		} elseif (is_string($var)) {
+			$line_safe_var = str_replace("\n", '\n', $var);
+			if (strpos($var, "\n") !== false || strpos($var, "'") !== false) {
+				// If the string contains a line break or a single quote, use the
+				// double quote export mode. Encode backslash and double quotes and
+				// transform some common control characters.
+				$var = str_replace(array('\\', '"', "\n", "\r", "\t"), array('\\\\', '\"', '\n', '\r', '\t'), $var);
+				$output = '"' . $var . '"';
+			}
+			else {
+				$output = "'" . $var . "'";
+			}
+		} else {
+			$output = var_export($var, true);
+		}
+	
+		if ($prefix) {
+			$output = str_replace("\n", "\n$prefix", $output);
+		}
+	
+		return $output;
+	}	
+	
     # lookup lexers
-    found_lexers = []
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
-    for filename in os.listdir('.'):
-        if filename.endswith('.py') and not filename.startswith('_'):
-            module_name = 'pygments.lexers.%s' % filename[:-3]
-            print module_name
-            module = __import__(module_name, None, None, [''])
-            for lexer_name in module.__all__:
-                lexer = getattr(module, lexer_name)
-                found_lexers.append(
-                    '%r: %r' % (lexer_name,
-                                (module_name,
-                                 lexer.name,
-                                 tuple(lexer.aliases),
-                                 tuple(lexer.filenames),
-                                 tuple(lexer.mimetypes))))
-    # sort them, that should make the diff files for svn smaller
-    found_lexers.sort()
+    $found_lexers = [];
+    foreach(scandir(dirname(__FILE__)) as $filename) {
+    	
+    	if(substr($filename, -4) == '.php' && substr($filename, 0, 1) != '_') {
+    		
+    		$lexer_name = substr($filename, 0, -4);
+    		$module_name = sprintf('\Phygments\Lexers\%s', $lexer_name);
+    		
+    		//new instance or reflection?
+    		//include_once $filename;
+    		$class = new ReflectionClass($module_name);
+    		$lexer_info = $class->getDefaultProperties();
+    		
+    		if(isset($lexer_info['name']) && !empty($lexer_info['name'])) {
+    			
+    			print "$module_name\n";
+    			
+    			$found_lexers[$lexer_name] = [
+    				$lexer_info['name'],
+    				$lexer_info['aliases'],
+    				$lexer_info['filenames'],
+    				$lexer_info['mimetypes'],
+    			];    			
+    		}
+    		
+    	}
+    	
+    }
 
+    # sort them, that should make the diff files for svn smaller    
+    ksort($found_lexers);
+    
     # extract useful sourcecode from this file
-    f = open(__file__)
-    try:
-        content = f.read()
-    finally:
-        f.close()
-    header = content[:content.find('LEXERS = {')]
-    footer = content[content.find("if __name__ == '__main__':"):]
-
+    $content = file_get_contents(__FILE__);
+    
+    $header = strstr($content, '$LEXERS = [', true);
+    $footer = strstr($content, "if(php_sapi_name() == 'cli') {");
+    
     # write new file
-    f = open(__file__, 'wb')
-    f.write(header)
-    f.write('LEXERS = {\n    %s,\n}\n\n' % ',\n    '.join(found_lexers))
-    f.write(footer)
-    f.close()
-*/
+    $f = fopen(__FILE__, 'wb');
+    fwrite($f, $header);
+    fwrite($f, sprintf('$LEXERS = %s;'."\n\n", pprint($found_lexers)));
+    fwrite($f, $footer);
+    fclose($f);
+    
+}

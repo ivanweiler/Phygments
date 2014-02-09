@@ -18,6 +18,8 @@ class MatchObject
 	
 	public function end()
 	{
+		//($matches[0][1]==-1) ? -1 : $matches[0][1]+strlen($matches[0][0]);
+		
 		return $this->_start + strlen($this->_text);
 	}
 	

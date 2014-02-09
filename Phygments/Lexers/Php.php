@@ -130,7 +130,7 @@ class Php extends Regex
         $this->startinline = Util::get_bool_opt($options, 'startinline', false);
 
         # private option argument for the lexer itself
-        if(isset($options('_startinline'))) {
+        if(isset($options['_startinline'])) {
 			$this->startinline = $options['_startinline'];
 			unset($options['_startinline']);
         }
@@ -150,7 +150,7 @@ class Php extends Regex
 		parent::__construct($options);
 	}
         
-    public function get_tokens_unprocessed($text)
+    public function get_tokens_unprocessed(&$text)
     {
     	$stack = ['root'];
     	if($this->startinline) {

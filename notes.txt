@@ -17,6 +17,11 @@ Pythons re.match() is matching start of the string, Phps preg_match() is matchin
 We can always catch PREG_OFFSET_CAPTURE and compare it to zero, but engine is going through whole
 string all the time, can we optimize that?
 
+#\GPATTERN_HERE#m should be ok?
+
+
+
+OLD:
 If we add ^ to the begining of pattern, it will still go through whole string and match something 
 in MULTILINE mode;
 If we add \A to the begining of pattern, we are unable to match ^pattern tokens which exist in 
