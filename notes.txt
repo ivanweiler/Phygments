@@ -3,13 +3,18 @@ Goals
 - make full Pygmants php port with community help
 
 Roadmap
-- define structure similar to Pygments
-- implement lexer abstract, regex lexer and basic html lexer
+- define structure similar to Pygments - DONE
+- implement lexer abstract, regex lexer and basic html lexer - DONE
 - html formatter and html lexer without any guess or file load functionality
 - other web-relevant lexers - php, js, sass ..
-- main Pygments functionalities (Filters, Formaters, language detection, etc.)
-- consider non-generator version? (php<5.5)
+- main Pygments functionalities (Filters, Formaters, Styles, language detection, etc.)
+- consider non-generator version? (php<5.5) - NO
 - implement and test all languages - community help needed
+
+
+Current
+- solve STANDARD_TYPES to Token map problem, finish Styles logic
+- finalize bygroups, calls, includes, etc.
 
 
 RegexLexer match logic notes

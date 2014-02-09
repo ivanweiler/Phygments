@@ -195,9 +195,12 @@ class Token
 		}
 	
 		$names = explode('.', $type);
-		if($names[0]=='Token') {	// fast hack for styles! but Token.Token is an alias ??
+		
+		//fast hack for styles! but Token.Token is an alias ??
+		if($names[0]=='Token') {
 			array_shift($names);
 		}
+		
 		$class = self::$_token;
 		foreach($names as $name) {
 			$class = $class->{$name};

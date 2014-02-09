@@ -4,7 +4,8 @@ class Styles
 {
 	#: Maps style names to 'submodule::classname'.
 	public static $STYLE_MAP = [
-		'default'=>  'default::DefaultStyle',
+		//'default'=>  'standard::StandardStyle',
+		'standard'=> 'standard::StandardStyle',
 		'emacs'=>    'emacs::EmacsStyle',
 		'friendly'=> 'friendly::FriendlyStyle',
 		'colorful'=> 'colorful::ColorfulStyle',

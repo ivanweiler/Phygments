@@ -10,7 +10,7 @@ class AbstractStyle implements \IteratorAggregate, \Countable
 	public $highlight_color = '#ffffcc';
 	
 	public function __construct()
-	{	
+	{
 		//we need to map aliases to real token names
 		$dummy = array();
 		foreach($this->styles as $token => $value) {

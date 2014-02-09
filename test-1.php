@@ -32,7 +32,7 @@ return;
 */
 
 $code = <<<'CODE'
-<b><span class="lol">test 123</span></b>
+<b><div class="lol">test 123</div></b>
 <script>
 	var a = 1337;
 </script>
@@ -59,11 +59,13 @@ use \Phygments\Phygments;
 $lexer = new \Phygments\Lexers\Html();
 //$generator = $lexer->get_tokens($code);
 
-$formater = new \Phygments\Formatters\RawToken();
+//$formater = new \Phygments\Formatters\RawToken();
+$formater = new \Phygments\Formatters\Html();
 //echo $formater->format($generator);
 
-echo '<pre>';
-echo htmlspecialchars(Phygments::highlight($code, $lexer, $formater));
+//echo '<pre>';
+//echo htmlspecialchars(Phygments::highlight($code, $lexer, $formater));
+echo Phygments::highlight($code, $lexer, $formater);
 
 /*
 foreach($generator as $token => $value) {

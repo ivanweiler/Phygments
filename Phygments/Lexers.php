@@ -19,7 +19,7 @@ class Lexers
 	{
 		if(!self::$LEXERS) {
 			require dirname(__FILE__).'/_mapping.php';
-			self::$LEXERS = &$LEXERS;
+			self::$LEXERS = $LEXERS;
 		}
 	}
 	
@@ -70,7 +70,7 @@ class Lexers
 		foreach(self::$LEXERS as $lexer) {
 			list($module_name, $lname) = $lexer;
 			if($name == $lname) {
-				return _lexer_cache[name];
+				return self::$_lexer_cache[$name];
 			}	
 		}
 		/*
@@ -96,11 +96,13 @@ class Lexers
 		self::_import_lexers();
 		
 		# lookup builtin lexers
+		/*
 		for module_name, name, aliases, _, _ in LEXERS.itervalues():
 			if _alias in aliases:
 				if name not in _lexer_cache:
 					_load_lexers(module_name)
 				return _lexer_cache[name](**options)
+		*/
 		# continue with lexers from setuptools entrypoints
 		/*
 		for cls in find_plugin_lexers():

@@ -3,6 +3,7 @@ namespace Phygments\Lexers;
 use \Phygments\Util;
 use \Phygments\Token;
 use \Phygments\Python\Re as re;
+use \Phygments\Python\Exception;
 
 class Regex extends AbstractLexer
 {
@@ -441,9 +442,7 @@ class Regex extends AbstractLexer
 	
 	
 	
-	/*
-    Helpers
-	*/	
+	/* Helpers */
 
 	protected function _include($str)
 	{
@@ -615,9 +614,7 @@ class Regex extends AbstractLexer
 		return $callback;
 	}
 	
-	
 }
-
 
 
 namespace Phygments\Lexers\Regex\Helper;
@@ -675,15 +672,14 @@ class _PseudoMatch
 		return $this->_start + strlen($this->_text);
 	}
 
-
 	public function group($arg)
 	{
 		if($arg) {
 			//raise IndexError('No such group')
+			throw new Exception\IndexError('No such group');
 		}
 		return  $this->_text;
 	}
-
 
 	public function groups()
 	{
@@ -692,7 +688,7 @@ class _PseudoMatch
 
 	public function groupdict()
 	{
-		return [];  //{}
+		return array();  //{}
 	}
 	 
 }
