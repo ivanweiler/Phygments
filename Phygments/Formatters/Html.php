@@ -93,7 +93,7 @@ CONST;
         $this->linenostep = abs(Util::get_int_opt($options, 'linenostep', 1));
         $this->linenospecial = abs(Util::get_int_opt($options, 'linenospecial', 0));
         $this->nobackground = Util::get_bool_opt($options, 'nobackground', false);
-        $this->lineseparator = Util::get_opt('lineseparator', "\n");
+        $this->lineseparator = Util::get_opt($options, 'lineseparator', "\n");
         $this->lineanchors = Util::get_opt($options, 'lineanchors', '');
         $this->linespans = Util::get_opt($options, 'linespans', '');
         $this->anchorlinenos = Util::get_opt($options, 'anchorlinenos', false);
@@ -103,7 +103,7 @@ CONST;
 			$this->hl_lines[] = (int)$lineno;
 		}
 
-        //$this->_create_stylesheet();
+        $this->_create_stylesheet();
 	}
 	
 	private function _get_css_class($ttype)
@@ -118,13 +118,11 @@ CONST;
 	
 	private function _get_ttype_class($ttype)
 	{
-		$ttype = ltrim($ttype, 'Token.');
-		
 		if(isset(Token::$STANDARD_TYPES[$ttype])) {
 			return Token::$STANDARD_TYPES[$ttype];
 		}
 		
-		//return 'XX';
+		return 'XX';
 		
 		$i = 1;
 		
@@ -163,8 +161,11 @@ CONST;
         
         $this->class2style = [];
         $c2s = &$this->class2style;
-		
+        
 		foreach($this->style as $ttype => $ndef) {
+			
+			//var_dump($ttype);
+			
 			$name = $this->_get_css_class($ttype);
             $style = '';
             if($ndef['color']) {
@@ -570,6 +571,8 @@ CONST;
         if($this->hl_lines) {
             $source = $this->_highlight_lines($source);
 		}
+		
+		$this->nowrap = 1;
 		
         if(!$this->nowrap) {
             if($this->linenos == 2) {

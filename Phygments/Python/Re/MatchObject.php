@@ -1,7 +1,7 @@
 <?php
 namespace Phygments\Python\Re;
 
-//just an idea, but i think it will complicate everything
+//just an idea
 
 class MatchObject
 {
@@ -18,17 +18,13 @@ class MatchObject
 	
 	public function end()
 	{
-		//($matches[0][1]==-1) ? -1 : $matches[0][1]+strlen($matches[0][0]);
-		
-		return $this->_start + strlen($this->_text);
+		return $this->_start + strlen($this->_matches[0][0]);
 	}
-	
 	
 	public function group($arg)
 	{
-		return $this->_matches[$arg];
+		return $this->_matches[0][$arg];
 	}
-	
 	
 	public function groups()
 	{

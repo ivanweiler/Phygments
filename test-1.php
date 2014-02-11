@@ -60,7 +60,9 @@ $lexer = new \Phygments\Lexers\Html();
 //$generator = $lexer->get_tokens($code);
 
 //$formater = new \Phygments\Formatters\RawToken();
-$formater = new \Phygments\Formatters\Html();
+$formater = new \Phygments\Formatters\Html(array(
+	
+));
 //echo $formater->format($generator);
 
 //echo '<pre>';

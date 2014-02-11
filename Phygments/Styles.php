@@ -4,7 +4,7 @@ class Styles
 {
 	#: Maps style names to 'submodule::classname'.
 	public static $STYLE_MAP = [
-		//'default'=>  'standard::StandardStyle',
+		'default'=>  'standard::StandardStyle',
 		'standard'=> 'standard::StandardStyle',
 		'emacs'=>    'emacs::EmacsStyle',
 		'friendly'=> 'friendly::FriendlyStyle',
@@ -28,6 +28,8 @@ class Styles
 
 	public static function get_style_by_name($name)
 	{
+		return new \Phygments\Styles\Standard();
+		
 		if(array_key_exists($name, self::$STYLE_MAP)) {
 			list($mod, $cls) = explode('::', self::$STYLE_MAP[$name]);
 			$builtin = "yes";

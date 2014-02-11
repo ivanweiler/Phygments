@@ -11,18 +11,16 @@ class AbstractStyle implements \IteratorAggregate, \Countable
 	
 	public function __construct()
 	{
-		//we need to map aliases to real token names
+		//aliases to real token names
 		$dummy = array();
 		foreach($this->styles as $token => $value) {
-			$token = (string)Token::getToken($token);
-			$dummy["$token"] = $value;
-		}	
+			$dummy[Token::alias_to_name($token)] = $value;
+		}
 		$this->styles = $dummy;
 		
 		foreach(array_keys(Token::$STANDARD_TYPES) as $token) {
-			$token = Token::getToken($token);
-			if(!array_key_exists((string)$token, $this->styles)) {
-				$this->styles["$token"] = '';
+			if(!isset($this->styles[$token])) {
+				$this->styles[$token] = '';
 			}
 		}
 		
@@ -47,29 +45,28 @@ class AbstractStyle implements \IteratorAggregate, \Countable
                 _styles[token] = ndef
 		*/
 		foreach(array_keys($this->styles) as $ttype) {
-			//var_dump($ttype);
-			$ttype = Token::getToken($ttype);
-			//var_dump("1".(string)$ttype);
-			foreach($ttype->split() as $token) {
-				//var_dump((string)$token);
-				if(array_key_exists("$token", $this->_styles)) {
+			$parent = '';
+			foreach(explode('.', $ttype) as $token) {
+				
+				if(array_key_exists($token, $this->_styles)) {
 					continue;
 				}
 				
-				$ndef = $_styles[(string)$token->parent] ?: null;
+				$ndef = $_styles[$parent] ?: null;
 				$styledefs = explode(' ', $this->styles["$token"]);
-				//var_dump("$token");
+				
+				$parent .= ($parent ? ".$token" : $token);
 				
 				if(!$ndef || !$token) {
 					$ndef = ['', 0, 0, 0, '', '', 0, 0, 0];
-				} elseif(in_array('noinherit', $styledefs) && (string)$token!='Token') {
+				} elseif(in_array('noinherit', $styledefs) && $token!='Token') {
 					$ndef = $_styles['Token'];
 				} else {
 					//$ndef = ndef[:]
 					$ndef = $ndef;
 				}
 				
-				$_styles["$token"] = $ndef;
+				$_styles[$token] = $ndef;
 				
 				foreach($styledefs as $styledef) {
 					if($styledef == 'noinherit') {
@@ -164,14 +161,14 @@ class AbstractStyle implements \IteratorAggregate, \Countable
     //will this work? Generator implements Iterator, it should
     public function getIterator()
     {
-    	//return new ArrayIterator($this->_styles);
+    	//return new \ArrayIterator($this->_styles);
     	$generator = function() {
         	foreach(array_keys($this->_styles) as $token) {
             	yield $token => $this->style_for_token($token);
         	}
     	};
     	
-    	return $generator;
+    	return $generator();
     }
     
     public function count()

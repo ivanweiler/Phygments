@@ -54,90 +54,96 @@ class _TokenType
 class Token
 {
 	public static $STANDARD_TYPES = array(
-	    'Token'=>                         '',
+	    'Token'=>								'',
 	
-	    'Text'=>                          '',
-	    'Whitespace'=>                    'w',
-	    'Error'=>                         'err',
-	    'Other'=>                         'x',
+	    'Token.Text'=>                          '',
+	    'Token.Text.Whitespace'=>				'w',
+	    'Token.Error'=>                         'err',
+	    'Token.Other'=>                         'x',
 		
-		'Keyword'=>                       'k',
-		'Keyword.Constant'=>              'kc',
-		'Keyword.Declaration'=>           'kd',
-		'Keyword.Namespace'=>             'kn',
-		'Keyword.Pseudo'=>                'kp',
-		'Keyword.Reserved'=>              'kr',
-		'Keyword.Type'=>                  'kt',
+		'Token.Keyword'=>                       'k',
+		'Token.Keyword.Constant'=>              'kc',
+		'Token.Keyword.Declaration'=>           'kd',
+		'Token.Keyword.Namespace'=>             'kn',
+		'Token.Keyword.Pseudo'=>                'kp',
+		'Token.Keyword.Reserved'=>              'kr',
+		'Token.Keyword.Type'=>                  'kt',
 		
-		'Name'=>                          'n',
-		'Name.Attribute'=>                'na',
-		'Name.Builtin'=>                  'nb',
-		'Name.Builtin.Pseudo'=>           'bp',
-		'Name.Class'=>                    'nc',
-		'Name.Constant'=>                 'no',
-		'Name.Decorator'=>                'nd',
-		'Name.Entity'=>                   'ni',
-		'Name.Exception'=>                'ne',
-		'Name.Function'=>                 'nf',
-		'Name.Property'=>                 'py',
-		'Name.Label'=>                    'nl',
-		'Name.Namespace'=>                'nn',
-		'Name.Other'=>                    'nx',
-		'Name.Tag'=>                      'nt',
-		'Name.Variable'=>                 'nv',
-		'Name.Variable.Class'=>           'vc',
-		'Name.Variable.Global'=>          'vg',
-		'Name.Variable.Instance'=>        'vi',
+		'Token.Name'=>                          'n',
+		'Token.Name.Attribute'=>                'na',
+		'Token.Name.Builtin'=>                  'nb',
+		'Token.Name.Builtin.Pseudo'=>           'bp',
+		'Token.Name.Class'=>                    'nc',
+		'Token.Name.Constant'=>                 'no',
+		'Token.Name.Decorator'=>                'nd',
+		'Token.Name.Entity'=>                   'ni',
+		'Token.Name.Exception'=>                'ne',
+		'Token.Name.Function'=>                 'nf',
+		'Token.Name.Property'=>                 'py',
+		'Token.Name.Label'=>                    'nl',
+		'Token.Name.Namespace'=>				'nn',
+		'Token.Name.Other'=>					'nx',
+		'Token.Name.Tag'=>						'nt',
+		'Token.Name.Variable'=>					'nv',
+		'Token.Name.Variable.Class'=>			'vc',
+		'Token.Name.Variable.Global'=>			'vg',
+		'Token.Name.Variable.Instance'=>		'vi',
 		
-		'Literal'=>                       'l',
-		'Literal.Date'=>                  'ld',
+		'Token.Literal'=>						'l',
+		'Token.Literal.Date'=>					'ld',
 		
-		'String'=>                        's',
-		'String.Backtick'=>               'sb',
-		'String.Char'=>                   'sc',
-		'String.Doc'=>                    'sd',
-		'String.Double'=>                 's2',
-		'String.Escape'=>                 'se',
-		'String.Heredoc'=>                'sh',
-		'String.Interpol'=>               'si',
-		'String.Other'=>                  'sx',
-		'String.Regex'=>                  'sr',
-		'String.Single'=>                 's1',
-		'String.Symbol'=>                 'ss',
+		'Token.Literal.String'=>'s',
+		'Token.Literal.String.Backtick'=>		'sb',
+		'Token.Literal.String.Char'=>			'sc',
+		'Token.Literal.String.Doc'=>			'sd',
+		'Token.Literal.String.Double'=>			's2',
+		'Token.Literal.String.Escape'=>			'se',
+		'Token.Literal.String.Heredoc'=>		'sh',
+		'Token.Literal.String.Interpol'=>		'si',
+		'Token.Literal.String.Other'=>			'sx',
+		'Token.Literal.String.Regex'=>			'sr',
+		'Token.Literal.String.Single'=>			's1',
+		'Token.Literal.String.Symbol'=>			'ss',
 		
-		'Number'=>                        'm',
-		'Number.Float'=>                  'mf',
-		'Number.Hex'=>                    'mh',
-		'Number.Integer'=>                'mi',
-		'Number.Integer.Long'=>           'il',
-		'Number.Oct'=>                    'mo',
+		'Token.Literal.Number'=>				'm',
+		'Token.Literal.Number.Float'=>			'mf',
+		'Token.Literal.Number.Hex'=>			'mh',
+		'Token.Literal.Number.Integer'=>		'mi',
+		'Token.Literal.Number.Integer.Long'=>	'il',
+		'Token.Literal.Number.Oct'=>			'mo',
 		
-		'Operator'=>                      'o',
-		'Operator.Word'=>                 'ow',
+		'Token.Operator'=>                      'o',
+		'Token.Operator.Word'=>                 'ow',
 		
-		'Punctuation'=>                   'p',
+		'Token.Punctuation'=>                   'p',
 		
-		'Comment'=>                       'c',
-		'Comment.Multiline'=>             'cm',
-		'Comment.Preproc'=>               'cp',
-		'Comment.Single'=>                'c1',
-		'Comment.Special'=>               'cs',
+		'Token.Comment'=>                       'c',
+		'Token.Comment.Multiline'=>             'cm',
+		'Token.Comment.Preproc'=>               'cp',
+		'Token.Comment.Single'=>                'c1',
+		'Token.Comment.Special'=>               'cs',
 		
-		'Generic'=>                       'g',
-		'Generic.Deleted'=>               'gd',
-		'Generic.Emph'=>                  'ge',
-		'Generic.Error'=>                 'gr',
-		'Generic.Heading'=>               'gh',
-		'Generic.Inserted'=>              'gi',
-		'Generic.Output'=>                'go',
-		'Generic.Prompt'=>                'gp',
-		'Generic.Strong'=>                'gs',
-		'Generic.Subheading'=>            'gu',
-		'Generic.Traceback'=>             'gt',
+		'Token.Generic'=>                       'g',
+		'Token.Generic.Deleted'=>               'gd',
+		'Token.Generic.Emph'=>                  'ge',
+		'Token.Generic.Error'=>                 'gr',
+		'Token.Generic.Heading'=>               'gh',
+		'Token.Generic.Inserted'=>              'gi',
+		'Token.Generic.Output'=>                'go',
+		'Token.Generic.Prompt'=>                'gp',
+		'Token.Generic.Strong'=>                'gs',
+		'Token.Generic.Subheading'=>            'gu',
+		'Token.Generic.Traceback'=>             'gt',
 	);
 	
 	private static $_token = null;
-	private static $_aliases = array();
+	
+	# Special token types
+	private static $_aliases = array(
+		'Whitespace'	=> 'Text.Whitespace',
+		'String'		=> 'Literal.String',
+		'Number'		=> 'Literal.Number'		
+	);
 	
     private function __construct()
     {
@@ -145,62 +151,35 @@ class Token
 	
     private static function __declare()
     {
-		//declare main types and aliases
+		# declare main types and aliases
 		
-		$alias = array();
-		
-		self::$_token = new _TokenType('Token');
-
-		# Special token types
-		$alias['Text']			= self::$_token->Text;
-		$alias['Whitespace']	= self::$_token->Text->Whitespace;
-		$alias['Error']			= self::$_token->Token->Error;
-		# Text that doesn't belong to this lexer (e.g. HTML in PHP)
-		$alias['Other']			= self::$_token->Other;
-
-		# Common token types for source code
-		$alias['Keyword']		= self::$_token->Keyword;
-		$alias['Name']			= self::$_token->Token->Name;
-		$alias['Literal']		= self::$_token->Literal;
-		$alias['String']		= $alias['Literal']->String;
-		$alias['Number']		= $alias['Literal']->Number;
-		$alias['Punctuation']	= self::$_token->Punctuation;
-		$alias['Operator']		= self::$_token->Operator;
-		$alias['Comment']		= self::$_token->Comment;
-
-		# Generic types for non-source code
-		$alias['Generic']		= self::$_token->Generic;
-
-		# String and some others are not direct childs of Token.
-		# alias them:
-		$alias['Token.Token']	= self::$_token;
-		$alias['Token.String']	= $alias['String'];
-		$alias['Token.Number']	= $alias['Number'];
-		
-		self::$_aliases = $alias;
+    	# Root Token
+    	//self::$_token = new _TokenType('Token');
+    	
+    	# Special token types
     }
 	
     public static function getToken($type=null)
     {
         if (null === self::$_token) {
-			self::__declare();
+			//self::__declare();
+        	# Root Token
+			self::$_token = new _TokenType('Token');
         }
 		
-		if(!$type) {
+        if (substr($type, 0, 6) == 'Token.') {
+        	$type = substr($type, 6);
+        }        
+        
+		if(!$type || $type=='Token') {
 			return self::$_token;
 		}
 		
-		if(isset(self::$_aliases[$type])) {
-			return self::$_aliases[$type];
-		}
-	
+		//var_dump($type);
+		$type = self::alias_to_name($type);
+		//var_dump($type);
+		
 		$names = explode('.', $type);
-		
-		//fast hack for styles! but Token.Token is an alias ??
-		if($names[0]=='Token') {
-			array_shift($names);
-		}
-		
 		$class = self::$_token;
 		foreach($names as $name) {
 			$class = $class->{$name};
@@ -208,6 +187,25 @@ class Token
 		return $class;
     }
 	
+    //alias to real name (ex. String.Escape => Token.Literal.String.Escape)
+    public static function alias_to_name($type, $short=false)
+    {
+		if (substr($type, 0, 6) == 'Token.') {
+			$type = substr($type, 6);
+        }
+           
+    	$names = explode('.', $type);
+    	$type = '';
+    	foreach($names as $key => $part) {
+    		$type .= ($key ? ".$part" : $part);
+    		if(isset(self::$_aliases[$type])) {
+    			$type = self::$_aliases[$type];
+    		}
+    	}
+    	    	
+    	return "Token.$type";
+    }
+    
 	public static function is_token_subtype($ttype, $other)
 	{
 		//return ttype in other
@@ -222,18 +220,5 @@ class Token
 		}
 		
 		return Token::getToken($s);
-		
-		/*
-		if(!$s) {
-			return Token::getToken(null);
-		}
-		
-		$node = Token::getType(null);
-		foreach(explode('.', $s) as $item) {
-			$node = $node->{$item};
-		}
-
-		return $node;
-		*/
 	}
 }

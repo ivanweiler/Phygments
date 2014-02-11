@@ -15,6 +15,7 @@ Roadmap
 Current
 - solve STANDARD_TYPES to Token map problem, finish Styles logic
 - finalize bygroups, calls, includes, etc.
+- I'm not too happy how Token aliases are implemented
 
 
 RegexLexer match logic notes
