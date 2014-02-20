@@ -160,7 +160,7 @@ class Token
 
 		# Common token types for source code
 		$alias['Keyword']		= self::$_token->Keyword;
-		$alias['Name']			= self::$_token->Token->Name;
+		$alias['Name']			= self::$_token->Name;
 		$alias['Literal']		= self::$_token->Literal;
 		$alias['String']		= $alias['Literal']->String;
 		$alias['Number']		= $alias['Literal']->Number;

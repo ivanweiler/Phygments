@@ -12,11 +12,7 @@ class AbstractStyle implements \IteratorAggregate, \Countable
 	public function __construct()
 	{
 		//aliases to real token names
-		$dummy = array();
-		foreach($this->styles as $token => $value) {
-			$dummy[Token::alias_to_name($token)] = $value;
-		}
-		$this->styles = $dummy;
+		Token::alias_to_name_keys($this->styles);
 		
 		foreach(array_keys(Token::$STANDARD_TYPES) as $token) {
 			if(!isset($this->styles[$token])) {
@@ -28,45 +24,28 @@ class AbstractStyle implements \IteratorAggregate, \Countable
         
 		$this->_styles = [];
 		$_styles = &$this->_styles;
-		
-		/*
-        for ttype in obj.styles:
-            for token in ttype.split():
-                if token in _styles:
-                    continue
-                ndef = _styles.get(token.parent, None)
-                styledefs = obj.styles.get(token, '').split()
-                if  not ndef or token is None:
-                    ndef = ['', 0, 0, 0, '', '', 0, 0, 0]
-                elif 'noinherit' in styledefs and token is not Token:
-                    ndef = _styles[Token][:]
-                else:
-                    ndef = ndef[:]
-                _styles[token] = ndef
-		*/
+
 		foreach(array_keys($this->styles) as $ttype) {
-			$parent = '';
-			foreach(explode('.', $ttype) as $token) {
+			foreach(Token::getToken($ttype)->split() as $token) {
 				
-				if(array_key_exists($token, $this->_styles)) {
+				if(array_key_exists("$token", $this->_styles)) {
 					continue;
 				}
 				
-				$ndef = $_styles[$parent] ?: null;
+				$ndef = $token->parent ? $_styles["{$token->parent}"] : null;
 				$styledefs = explode(' ', $this->styles["$token"]);
-				
-				$parent .= ($parent ? ".$token" : $token);
 				
 				if(!$ndef || !$token) {
 					$ndef = ['', 0, 0, 0, '', '', 0, 0, 0];
-				} elseif(in_array('noinherit', $styledefs) && $token!='Token') {
+				} elseif(in_array('noinherit', $styledefs) && "$token"!='Token') {
 					$ndef = $_styles['Token'];
 				} else {
 					//$ndef = ndef[:]
 					$ndef = $ndef;
 				}
 				
-				$_styles[$token] = $ndef;
+				//$_styles["$token"] = $ndef;
+				//var_dump($ndef);
 				
 				foreach($styledefs as $styledef) {
 					if($styledef == 'noinherit') {
@@ -97,6 +76,9 @@ class AbstractStyle implements \IteratorAggregate, \Countable
 						$ndef[0] = $this->colorformat($styledef);
 					}			
 				}
+				
+				$_styles["$token"] = $ndef;
+				
 			}
 		}
 		
@@ -104,18 +86,18 @@ class AbstractStyle implements \IteratorAggregate, \Countable
 	}
         
 	public function style_for_token($token)
-	{
+	{	//var_dump("$token");
         $t = $this->_styles["$token"];
         return [
-            'color'=>        isset($t[0]) ?: null,
+            'color'=>        $t[0] ?: null,
             'bold'=>         (bool)$t[1],
             'italic'=>       (bool)$t[2],
             'underline'=>    (bool)$t[3],
-            'bgcolor'=>      isset($t[4]) ?: null,
-            'border'=>       isset($t[5]) ?: null,
-            'roman'=>        isset($t[6]) ? (bool)$t[6] : null,
-            'sans'=>         isset($t[7]) ? (bool)$t[7] : null,
-            'mono'=>         isset($t[8]) ? (bool)$t[8] : null,
+            'bgcolor'=>      $t[4] ?: null,
+            'border'=>       $t[5] ?: null,
+            'roman'=>        $t[6] ? (bool)$t[6] : null,
+            'sans'=>         $t[7] ? (bool)$t[7] : null,
+            'mono'=>         $t[8] ? (bool)$t[8] : null,
         ];
 	}
 
@@ -164,6 +146,9 @@ class AbstractStyle implements \IteratorAggregate, \Countable
     	//return new \ArrayIterator($this->_styles);
     	$generator = function() {
         	foreach(array_keys($this->_styles) as $token) {
+        		
+        		//var_dump($token);
+        		
             	yield $token => $this->style_for_token($token);
         	}
     	};

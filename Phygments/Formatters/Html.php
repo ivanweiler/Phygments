@@ -163,9 +163,7 @@ CONST;
         $c2s = &$this->class2style;
         
 		foreach($this->style as $ttype => $ndef) {
-			
-			//var_dump($ttype);
-			
+
 			$name = $this->_get_css_class($ttype);
             $style = '';
             if($ndef['color']) {
@@ -187,13 +185,21 @@ CONST;
                 $style .= sprintf('border: 1px solid #%s; ', $ndef['border']);
             }
             if($style) {
+            	
+            	//var_dump($style);
+            	
                 $t2c[$ttype] = $name;
                 # save len(ttype) to enable ordering the styles by
                 # hierarchy (necessary for CSS cascading rules!)
                 
                 //$c2s[$name] = [style[:-2], ttype, len(ttype)]; //len??
+                
+                $c2s[$name] = [substr($style, 0, -2), $ttype]; //@todo: wtf is len here
+                
             }
 		}
+		
+		//var_dump($this->ttype2class);
 
 	}
 	
@@ -460,22 +466,31 @@ CONST;
         $nocls = $this->noclasses;
         $lsep = $this->lineseparator;
         # for <span style=""> lookup only
-        $getcls = $this->ttype2class;
-        $c2s = $this->class2style;
-        $tagsfile = $this->tagsfile;
-
+        $getcls = &$this->ttype2class;
+        $c2s = &$this->class2style;
+        //$tagsfile = $this->tagsfile;
+        
         $lspan = '';
         $line = '';
         foreach($tokensource as $ttype => $value) {
         	//var_dump($ttype); //var_dump($value);
         	
-            if($nocls && 0) { //killed for now
+            if($nocls || 1) { //forced for now
                 $cclass = $getcls[$ttype];
-                while(!$cclass) {
-                    $ttype = $ttype->parent;
-                    $cclass = $getcls[$ttype];
+                $i = 0;
+                while(is_null($cclass)) {
+                	
+                	//var_dump("$ttype");
+                	
+                    $ttype = Token::getToken($ttype)->parent;
+                    $cclass = $getcls["$ttype"];
+                    
+                    //var_dump($cclass);
+
+                    if($i>=10) break;
+                    $i++;
                 }
-                //$cspan = cclass and '<span style="%s">' % c2s[cclass][0] or ''
+                $cspan = $cclass ? sprintf('<span style="%s">', $c2s[$cclass][0]) : '';
             } else {
                 $cls = $this->_get_css_class($ttype);
                 $cspan = $cls ? sprintf('<span class="%s">', $cls) : '';

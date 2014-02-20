@@ -1,14 +1,11 @@
 <?php
 namespace Phygments;
 /* 
-Singleton Token object, parent of token types
+Singleton Token object, parent of token types, tree object
 
 Token::getToken();
 Token::getToken('Text.Whitespace');
 Token::getToken()->Text->Whitespace
-
-Token::$Text->Whitespace
-Token::$Whitespace
 */
 
 class _TokenType
@@ -139,8 +136,7 @@ class Token
 		'Generic.Traceback'=>             'gt',
 	);
 	
-	public static $Token, $Text, $Whitespace, $Error, $Other, $Keyword, $Name, $Literal, 
-					$String, $Number, $Punctuation, $Operator, $Comment, $Generic;
+	//public static $Token, $Text;
 	
     private function __construct()
     {
@@ -184,7 +180,7 @@ class Token
 
 		
 		//aliases to real token names in $STANDARD_TYPES
-		self::alias_to_name_keys(self::$STANDARD_TYPES);
+		alias_to_name_keys(self::$STANDARD_TYPES);
 		
     }
 	
@@ -201,8 +197,7 @@ class Token
 		
 		$names = explode('.', $type);
 		
-		$objectname = array_shift($names);
-		$object = self::$$objectname;
+		$object = self::$$array_shift($names);
 		foreach($names as $name) {
 			$object = $object->{$name};
 		}
@@ -248,3 +243,9 @@ class Token
 
 //initiate static variables
 Token::__declare();
+
+/*
+	Token::getToken();
+	Token::$Literal->String
+*/
+

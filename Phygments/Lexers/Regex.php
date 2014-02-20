@@ -294,7 +294,7 @@ class Regex extends AbstractLexer
 			//var_dump($tdef);
 			//@todo: include, _inherit support
 			
-			if($tdef instanceof \Phygments\Lexers\Helper\_Include) {
+			if($tdef instanceof \Phygments\Lexers\Regex\Helper\_Include) {
 				# it's a state reference
 				if($tdef == $state) {
 					throw new \Exception(sprintf('circular state reference %s', (string)$state));
@@ -305,7 +305,7 @@ class Regex extends AbstractLexer
 				continue;			
 			}
 			
-			if($tdef instanceof \Phygments\Lexers\Helper\_Inherit) {
+			if($tdef instanceof \Phygments\Lexers\Regex\Helper\_Inherit) {
 				# processed already
 				continue;
 			}
