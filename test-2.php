@@ -1,5 +1,15 @@
 <?php
 
+$a = "0";
+
+if(!empty($a)) {
+	echo "Y";
+}
+
+echo $a . "1";
+
+return;
+
 $matches = array();
 
 $m = preg_match('#\G^Lorem.*#m', "XXX\nLorem ipsum sit amet", $matches, PREG_OFFSET_CAPTURE, 4);

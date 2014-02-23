@@ -56,6 +56,7 @@ CONST;
 	public function __construct($options=array())
 	{
 		parent::__construct($options);
+		
 		$this->title = $this->_decodeifneeded($this->title);
         $this->nowrap = Util::get_bool_opt($options, 'nowrap', false);
         $this->noclasses = Util::get_bool_opt($options, 'noclasses', false);
@@ -125,21 +126,17 @@ CONST;
 		return 'XX';
 		
 		$i = 1;
-		
 		$aname = '';
 		$fname = '';
-		while(!$fname && $ttype && $i<20) {
-			//$aname = '-' + ttype[-1] + $aname;
-			$aname = '-' + 'XX' + $aname;
+		while(!$fname && $i<=5) {
+			$aname = '-' + end(explode('.', $ttype)) + $aname;
 			$ttype = (string)Token::getToken($ttype)->parent;
-			
-			//var_dump($ttype);
-			
-			$fname = Token::$STANDARD_TYPES[$ttype];
-			
+			$fname = isset(Token::$STANDARD_TYPES[$ttype]) ? Token::$STANDARD_TYPES[$ttype] : '';
 			$i++;
 		}
-		return $fname + $aname;		
+		return $fname + $aname;
+		
+		//ttype[-1] => array access, Token.Number.X => X? 
 		
 		/*
 		fname = STANDARD_TYPES.get(ttype)
@@ -423,8 +420,8 @@ CONST;
 	 {
         $style = [];
         if ($this->noclasses && !$this->nobackground && 
-            isset($this->style['background_color'])) {
-            $style[] = sprintf('background: %s', $this->style['background_color']);
+            	$this->style->background_color) {
+            $style[] = sprintf('background: %s', $this->style->background_color);
         }
         if($this->cssstyles) {
             $style[] = $this->cssstyles;
@@ -475,7 +472,7 @@ CONST;
         foreach($tokensource as $ttype => $value) {
         	//var_dump($ttype); //var_dump($value);
         	
-            if($nocls || 1) { //forced for now
+            if($nocls) {
                 $cclass = $getcls[$ttype];
                 $i = 0;
                 while(is_null($cclass)) {
@@ -516,9 +513,11 @@ CONST;
 			
 			$part_last = array_pop($parts);
 			
+			//ZERO bug, $part = '0'; we need to use !=''
+			
 			# for all but the last line
 			foreach($parts as $part) {
-                if($line) {
+                if($line!='') {
                     if($lspan != $cspan) {
                         $line .= ($lspan ? '</span>' : '') . $cspan . $part .
                                 ($cspan ? '</span>' : '') . $lsep;
@@ -527,21 +526,21 @@ CONST;
                     }
                     yield [1, $line];
                     $line = '';
-                } elseif($part) {
+                } elseif($part!='') {
                     yield [1, $cspan . $part . ($cspan ? '</span>' : '') . $lsep];
                 } else {
                     yield [1, $lsep];
                 }
 			}
             # for the last line
-			if($line && $part_last) {
+			if($line!='' && $part_last!='') {
                 if($lspan != $cspan) {
                     $line .= ($lspan ? '</span>' : '') . $cspan . $part_last;
                     $lspan = $cspan;
                 } else {
                     $line .= $part_last;
                 }
-			} elseif($part_last) {
+			} elseif($part_last!='') {
                 $line = $cspan . $part_last;
                 $lspan = $cspan;
 			}
@@ -549,12 +548,47 @@ CONST;
 
         }
         
-        if($line) {
+        if($line!='') {
         	yield [1, $line . ($lspan ? '</span>' : '') . $lsep];
         }
 
 	}
 	
+	private function _lookup_ctag($token)
+	{
+		//@todo
+	}
+	
+	private function _highlight_lines($inner)
+	{
+		/*
+        Highlighted the lines specified in the `hl_lines` option by
+        post-processing the token stream coming from `_format_lines`.
+        */
+		$hls = $this->hl_lines;
+
+        foreach($inner as $i => $iinner) {
+			list($t, $value) = $iinner;
+        	if($t != 1) {
+        		yield [$t, $value];
+        	}
+        	if(in_array($i+1, $hls)) { # i + 1 because indexes start at 0
+        		if($this->noclasses) {
+        			$style = '';
+        			if($this->style->highlight_color) {
+        				$style = sprintf(' style="background-color: %s"', 
+        							$this->style->highlight_color);
+        			}
+        			yield [1, sprintf('<span%s>%s</span>', $style, $value)];
+        		} else {
+        			yield [1, sprintf('<span class="hll">%s</span>', $value)];
+        		}
+        	} else {
+            	yield [1, $value];
+        	}
+        }
+	}
+		            	
 	public function wrap($source)
 	{
 		/*
@@ -583,12 +617,12 @@ CONST;
         
 		$source = $this->_format_lines($tokensource);
 
+		$this->hl_lines = array(2,3,4);
+		
         if($this->hl_lines) {
             $source = $this->_highlight_lines($source);
 		}
-		
-		$this->nowrap = 1;
-		
+
         if(!$this->nowrap) {
             if($this->linenos == 2) {
                 $source = $this->_wrap_inlinelinenos($source);
@@ -604,7 +638,8 @@ CONST;
                 $source = $this->_wrap_tablelinenos($source);
 			}
             if($this->full) {
-                $source = $this->_wrap_full($source, $outfile);
+            	//@todo
+                //$source = $this->_wrap_full($source, $outfile);
 			}
 		}
 

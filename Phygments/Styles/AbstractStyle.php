@@ -2,7 +2,7 @@
 namespace Phygments\Styles;
 use \Phygments\Token;
 
-class AbstractStyle implements \IteratorAggregate, \Countable
+class AbstractStyle implements \IteratorAggregate, \Countable //,\ArrayAccess
 {
 	#: overall background color (``None`` means transparent)
 	public $background_color = '#ffffff';
@@ -135,7 +135,6 @@ class AbstractStyle implements \IteratorAggregate, \Countable
         for token in cls._styles:
             yield token, cls.style_for_token(token)
                   
-
     def __len__(cls):
         return len(cls._styles)
 	*/		
@@ -146,9 +145,6 @@ class AbstractStyle implements \IteratorAggregate, \Countable
     	//return new \ArrayIterator($this->_styles);
     	$generator = function() {
         	foreach(array_keys($this->_styles) as $token) {
-        		
-        		//var_dump($token);
-        		
             	yield $token => $this->style_for_token($token);
         	}
     	};
@@ -159,6 +155,32 @@ class AbstractStyle implements \IteratorAggregate, \Countable
     public function count()
     {
     	return count($this->_styles);
-    }    
-       
+    }
+    
+    public function len()
+    {
+    	return $this->count();
+    }
+    
+    /*
+    public function offsetSet($offset, $value) {
+    	if (is_null($offset)) {
+    		$this->_styles[] = $value;
+    	} else {
+    		$this->_styles[$offset] = $value;
+    	}
+    }
+    
+    public function offsetExists($offset) {
+		return isset($this->_styles[$offset]);
+    }
+    
+    public function offsetUnset($offset) {
+		unset($this->_styles[$offset]);
+    }
+    
+    public function offsetGet($offset) {
+		return isset($this->_styles[$offset]) ? $this->_styles[$offset] : null;
+    }   
+    */
 }

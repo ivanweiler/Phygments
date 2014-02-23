@@ -91,7 +91,7 @@ class Util
 		$val = self::get_opt($options, $optname, $default);
 		
 		if(is_string($val)) {
-			return explode(' ', $val); //??
+			return explode(' ', $val); //why 1 2 3?
 		} elseif(is_array($val)) {
 			return $val;
 		} else {

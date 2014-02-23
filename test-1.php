@@ -61,7 +61,7 @@ $lexer = new \Phygments\Lexers\Html();
 
 //$formater = new \Phygments\Formatters\RawToken();
 $formater = new \Phygments\Formatters\Html(array(
-	
+	'noclasses' => true,
 ));
 //echo $formater->format($generator);
 

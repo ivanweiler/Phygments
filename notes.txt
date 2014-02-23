@@ -5,17 +5,17 @@ Goals
 Roadmap
 - define structure similar to Pygments - DONE
 - implement lexer abstract, regex lexer and basic html lexer - DONE
-- html formatter and html lexer without any guess or file load functionality
-- other web-relevant lexers - php, js, sass ..
-- main Pygments functionalities (Filters, Formaters, Styles, language detection, etc.)
-- consider non-generator version? (php<5.5) - NO
+- html formatter and html lexer without any guess or file load functionality - DONE
+- other web-relevant lexers - php, js, sass .. - WIP
+- consider non-generator version? (php<5.5) - NO, too much work
+- other Pygments functionalities (Filters, main Formaters, language detection, etc.)
 - implement and test all languages - community help needed
 
 
 Current
-- solve STANDARD_TYPES to Token map problem, finish Styles logic
-- finalize bygroups, calls, includes, etc.
-- I'm not too happy how Token aliases are implemented
+- solve STANDARD_TYPES to Token map problem, finish Styles logic - DONE
+- finalize bygroups, calls, includes, etc. - WIP
+- I'm not too happy how Token aliases are implemented - DONE (it's ok)
 
 
 RegexLexer match logic notes
