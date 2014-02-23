@@ -1,34 +1,50 @@
 <?php
 namespace Phygments\Python\Re;
-
-//just an idea
+use \Phygments\Python\Exception;
 
 class MatchObject
 {
-	public function __construct($matches, $start=0)
+	public function __construct($matches, $offset=0)
 	{
 		$this->_matches = $matches;
-		$this->_start = $start;
+		$this->_offset = $start;
 	}
 	
-	public function start()
+	public function start($arg=0)
 	{
-		return $this->_start;
+		if(!isset($this->_matches[$arg])) {
+			throw new Exception\IndexError('No such group');
+		}
+		
+		return $this->_matches[$arg][1];
 	}
 	
-	public function end()
+	public function end($arg=0)
 	{
-		return $this->_start + strlen($this->_matches[0][0]);
+		if(!isset($this->_matches[$arg])) {
+			throw new Exception\IndexError('No such group');
+		}
+				
+		return $this->_matches[$arg][1] + strlen($this->_matches[$arg][0]);
 	}
 	
-	public function group($arg)
+	public function group($arg=0)
 	{
-		return $this->_matches[0][$arg];
+		if(!isset($this->_matches[$arg])) {
+			throw new Exception\IndexError('No such group');
+		}
+				
+		return $this->_matches[$arg][0];
 	}
 	
 	public function groups()
 	{
-		return $this->_matches;
+		$matches = array();
+		foreach($this->_matches as $match) {
+			$matches[] = $match[0];
+		}
+		
+		return $matches;
 	}
 	
 }

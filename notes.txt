@@ -18,6 +18,10 @@ Current
 - I'm not too happy how Token aliases are implemented - DONE (it's ok)
 
 
+Lexer convert
+# => \#  no?
+r'\\' => \\\\ yes?
+
 RegexLexer match logic notes
 Pythons re.match() is matching start of the string, Phps preg_match() is matching whole string. 
 We can always catch PREG_OFFSET_CAPTURE and compare it to zero, but engine is going through whole

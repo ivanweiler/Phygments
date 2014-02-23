@@ -22,18 +22,22 @@ class Re
 	const MULTILINE = 'm';
 	const DOTALL = 's';
 	
-	//emulates python re.match()
-	// match(string[, pos[, endpos]])
-	public static function match($pattern, $string, $flags='', $pos=0)
+	//emulates pythons re.match()
+	public static function match($pattern, &$string, $pos=0)
 	{
-		$flags = is_array($flags) ? implode('', $flags) : $flags;
-		//$regex = addcslashes($regex, '#');
-		$pattern = "#$pattern#$flags";
-				
+		//inject \G at the beggining
+		$delimiter = $pattern[0];
+		$pattern = substr_replace($pattern, "$delimiter\G", 0, 1);
+
 		$matches = array();
+		//var_dump($pattern);
 		$m = preg_match($pattern, $string, $matches, PREG_OFFSET_CAPTURE, $pos);
 		
-		return new Re\MatchObject($matches, $pos);
+		if($m && $matches[0][1]==$pos) {
+			return new Re\MatchObject($matches, $pos);
+		} else {
+			return false;
+		}
 	}
 	
 	//@todo

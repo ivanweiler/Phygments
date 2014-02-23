@@ -44,7 +44,7 @@ class Php extends Regex
     
     protected function __declare()
     {
-	    $this->flags = array(re.IGNORECASE, re.DOTALL, re.MULTILINE);
+	    $this->flags = array(re::IGNORECASE, re::DOTALL, re::MULTILINE);
 	    $this->tokens = [
 	        'root' => [
 	            ['<\?(php)?', 'Comment.Preproc', 'php'],
@@ -63,15 +63,15 @@ class Php extends Regex
 	            ['/\*\*.*?\*/', 'String.Doc'],
 	            ['/\*.*?\*/', 'Comment.Multiline'],
 	            ['(->|::)(\s*)([a-zA-Z_][a-zA-Z0-9_]*)',
-	             bygroups('Operator', 'Text', 'Name.Attribute')],
+	              $this->_bygroups('Operator', 'Text', 'Name.Attribute')],
 	            ['[~!%^&*+=|:.<>/?@-]+', 'Operator'],
 	            ['[\[\]{}();,]+', 'Punctuation'],
-	            ['(class)(\s+)', bygroups('Keyword', 'Text'), 'classname'],
-	            ['(function)(\s*)(?=\()', bygroups('Keyword', 'Text')],
+	            ['(class)(\s+)',  $this->_bygroups('Keyword', 'Text'), 'classname'],
+	            ['(function)(\s*)(?=\()',  $this->_bygroups('Keyword', 'Text')],
 	            ['(function)(\s+)(&?)(\s*)',
-	              bygroups('Keyword', 'Text', 'Operator', 'Text'), 'functionname'],
+	               $this->_bygroups('Keyword', 'Text', 'Operator', 'Text'), 'functionname'],
 	            ['(const)(\s+)([a-zA-Z_][a-zA-Z0-9_]*)',
-	              bygroups('Keyword', 'Text', 'Name.Constant')],
+	               $this->_bygroups('Keyword', 'Text', 'Name.Constant')],
 	            ['(and|E_PARSE|old_function|E_ERROR|or|as|E_WARNING|parent|'.
 	             'eval|PHP_OS|break|exit|case|extends|PHP_VERSION|cfunction|'.
 	             'FALSE|print|for|require|continue|foreach|require_once|'.
@@ -91,8 +91,8 @@ class Php extends Regex
 	            ['0[0-7]+', 'Number.Oct'],
 	            ['0[xX][a-fA-F0-9]+', 'Number.Hex'],
 	            ['\d+', 'Number.Integer'],
-	            ["'([^'\\]*(?:\\.[^'\\]*)*)'", 'String.Single'],
-	            ['`([^`\\]*(?:\\.[^`\\]*)*)`', 'String.Backtick'],
+	            ["'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)'", 'String.Single'], //modified
+	            ['`([^`\\\\]*(?:\\.[^`\\\\]*)*)`', 'String.Backtick'], //modified
 	            ['"', 'String.Double', 'string'],
 	        ],
 	        'classname' => [
@@ -108,24 +108,24 @@ class Php extends Regex
 	            ['\$[a-zA-Z_][a-zA-Z0-9_]*(\[\S+\]|->[a-zA-Z_][a-zA-Z0-9_]*)?',
 	             'String.Interpol'],
 	            ['(\{\$\{)(.*?)(\}\})',
-	             bygroups('String.Interpol', using($this, array('_startinline'=>true)),
+	              $this->_bygroups('String.Interpol', $this->_using($this, array('_startinline'=>true)),
 	                      'String.Interpol')],
 	            ['(\{)(\$.*?)(\})',
-	             bygroups('String.Interpol', using($this, array('_startinline'=>true)),
+	              $this->_bygroups('String.Interpol', $this->_using($this, array('_startinline'=>true)),
 	                      'String.Interpol')],
 	            ['(\$\{)(\S+)(\})',
-	             bygroups('String.Interpol', 'Name.Variable', 'String.Interpol')],
+	              $this->_bygroups('String.Interpol', 'Name.Variable', 'String.Interpol')],
 	            ['[${\\]+', 'String.Double']
 	        ],
 	    ];
     
     }
 
-	public function __init__($options = array())
+	public function __construct($options = array())
 	{
         $this->funcnamehighlighting = Util::get_bool_opt(
             $options, 'funcnamehighlighting', true);
-        $this->disabledmodules = get_list_opt(
+        $this->disabledmodules = Util::get_list_opt(
             $options, 'disabledmodules', ['unknown']);
         $this->startinline = Util::get_bool_opt($options, 'startinline', false);
 

@@ -60,27 +60,69 @@ class Regex extends AbstractLexer
 	{
 		/*
         Split ``text`` into (tokentype, text) pairs.
+
         ``stack`` is the inital stack (default: ``['root']``)
 		*/
+
+		//echo 123; die();
+		
         $pos = 0;
         $tokendefs = &$this->_tokens;
         $statestack = (array)$stack;
         $statetokens = $tokendefs[$statestack[count($statestack)-1]];
+        
+        //var_dump(array_keys($tokendefs));	//all tokens
+        //var_dump($statestack[count($statestack)-1]); //'root'
+        //var_dump($statetokens); //root tokens
+        
+        //$lol = 1; 
+        //$length = strlen($text); //while $pos < $length
         while(1) {
+        	//$lol++;
+        	
+        	//$doelse = !count($statetokens);
 			$doelse = true;
+				
 			foreach($statetokens as $statetoken) {
-				list($rexmatch, $action, $new_state) = $statetoken;
-				$m = re::match($rexmatch, $text, $pos);
-				//var_dump($rexmatch);
+				$rexmatch = $statetoken[0]; 
+				$action = $statetoken[1];
+				$new_state = $statetoken[2];
+				
+				$matches = array();
+				//$texttomatch = substr($text, $pos);
+				
+				//echo $pos . "\n";
+				//echo htmlspecialchars($texttomatch) . "\n";
+				//echo htmlspecialchars($rexmatch) . "\n";
+				
+				$m = preg_match($rexmatch, $text, $matches, PREG_OFFSET_CAPTURE, $pos);
+				//var_dump($matches);
+				
+				//$m = re::match($rexmatch, $text, $pos);
+				
+				//@todo: not needed?
+ 				if($m && $matches[0][1]!=$pos) {
+ 					$m = false;
+ 				}
+				
 				if($m) {
+					//echo $pos . "\n";
+					//echo $rexmatch . "\n";
+					//var_dump($matches);
+					//echo "match\n";
 					if($action instanceof \Phygments\_TokenType) {
-						yield [$pos, $action, $m->group()];
+						yield array($pos, $action, $matches[0][0]);
 					} else {
-						foreach($action($this, $m) as $item) {
+						foreach($action(/*$this,*/ $matches[0][0], $pos) as $item) {
 							yield $item;
 						}						
 					}
-					$pos = $m->end();
+					
+					//m.end();
+					//$pos += ($matches[0][1]==-1) ? 0 : $matches[0][1]+strlen($matches[0][0]);
+					$pos += strlen($matches[0][0]);
+					//var_dump($new_state);
+					
 					//@todo: push isn't tested
 					if($new_state) {
 						# state transition
@@ -94,7 +136,7 @@ class Regex extends AbstractLexer
 									$statestack[] = $state;
 								}
 							}						
-						} elseif(is_int($new_state)) {
+						}elseif(is_int($new_state)) {
 							# pop
 							array_splice($statestack, $new_state);
 							//del statestack[new_state:]
@@ -106,7 +148,8 @@ class Regex extends AbstractLexer
 								'wrong state def: %s', print_r($new_state)
 							));
 						}
-
+						
+						//var_dump($statestack);
 						$statetokens = $tokendefs[$statestack[count($statestack)-1]];						
 					}
 					
@@ -147,7 +190,7 @@ class Regex extends AbstractLexer
 
 		$flags = implode((array)$rflags);
 		//$regex = addcslashes($regex, '#');
-		return "#$regex#$flags";
+		return "#\G$regex#$flags";
 	}
 				
 	private function _process_token($token)
@@ -396,6 +439,7 @@ class Regex extends AbstractLexer
         */
 		
 		return $this->tokens;
+		
 	}
 	
 	
@@ -409,12 +453,12 @@ class Regex extends AbstractLexer
 	
 	protected function _inherit()
 	{
-		return new Regex\Helper\_Inherit();
+		return new  Regex\Helper\_Inherit($str);
 	}
 	
 	protected function _combined($arr)
 	{
-		return new Regex\Helper\_Combined($arr);
+		return new Regex\Helper\_Combined($str);
 	}
 	
 	protected function _bygroups()
@@ -423,23 +467,24 @@ class Regex extends AbstractLexer
 		Callback that yields multiple actions for each group in the match.
 		*/
 		$args = func_get_args();
-		$callback = function($lexer, $match, $ctx=null) use ($args) {
+		$callback = function($lexer, $match, $pos, $ctx=null) {
+			
 			foreach($args as $i => $action) {
 				if(!$action){
 					continue;
 				} elseif(is_string($action)) {
 					//$action = Token::getToken($action);
-					$data = $match->group($i+1);
-					if(!is_null($data)) {
-						yield [$match->start($i+1), Token::getToken($action), $data];
+					$data = isset($match[$i+1]) ? $match[$i+1] : '';
+					if($data) {
+						yield [$pos+1, Token::getToken($action), $data];
 					}
 				} else {
-					$data = $match->group($i+1);
+					$data = isset($match[$i+1]) ? $match[$i+1] : null;
 					if(!is_null($data)) {
 						if($ctx) {
-							$ctx->pos = $match->start($i+1);
+							$ctx->pos = $pos+1;
 						}
-						foreach($action($lexer, new _PseudoMatch($match->start($i+1), $data), $ctx) as $item) {
+						foreach($action($lexer, new _PseudoMatch($pos+1, $data), $ctx) as $item) {
 							if($item) {
 								yield $item;
 							}
@@ -449,14 +494,35 @@ class Regex extends AbstractLexer
 			}
 			
 			if($ctx) {
-				$ctx->pos = $match->end();
+				//$ctx->pos = $pos+strlen($match);
 			}
 		};
+			
+			/*
+			for i, action in enumerate(args):
+				if action is None:
+					continue
+				elif type(action) is _TokenType:
+					data = match.group(i + 1)
+					if data:
+						yield match.start(i + 1), action, data
+				else:
+					data = match.group(i + 1)
+					if data is not None:
+						if ctx:
+							ctx.pos = match.start(i + 1)
+						for item in action(lexer, _PseudoMatch(match.start(i + 1),
+										   data), ctx):
+							if item:
+								yield item
+			if ctx:
+				ctx.pos = match.end()
+			*/
 
 		return $callback;		
 	}
 	
-	//@todo: _using() needs serious revamp/cleanup
+	//@todo: _using needs serious revamp
 	protected function _using($_other, $kwargs=[])
 	{
 		/*
@@ -488,10 +554,10 @@ class Regex extends AbstractLexer
 		//Weiler: lexer should be class not current object? parent tokens?
 		//why always new class inside callback? can we define it outside+use()
 		
-		//$lexer = $this;
+		$lexer = $this;
 		
 		if(is_object($_other) && get_class($_other) == get_class()) {
-			$callback = function($lexer, $match, $ctx=null) use ($kwargs, $gt_kwargs) 
+			$callback = function($match, &$ctx=null) use ($lexer, $kwargs, $gt_kwargs) 
 			{
 				# if keyword arguments are given the callback
 				# function has to create a new lexer instance
@@ -507,17 +573,16 @@ class Regex extends AbstractLexer
 					$lx = $lexer;
 				}
 				
-				$s = $match->start();
-				foreach($lx->get_tokens_unprocessed($match->group(), $gt_kwargs) as $tokenu) {
-					list($i, $t, $v) = $tokenu;
-					yield [$i + $s, $t, $v];
-				}
-				if($ctx) {
-					$ctx->pos = $match->end();
-				}	
+				/*
+				s = match.start()
+				for i, t, v in lx.get_tokens_unprocessed(match.group(), **gt_kwargs):
+					yield i + s, t, v
+				if ctx:
+					ctx.pos = match.end()
+				*/
 			};
 		} else {
-			$callback = function($lexer, $match, $ctx=null) use ($_other, $kwargs, $gt_kwargs) 
+			$callback = function($match, $pos, &$ctx=null) use ($_other, $kwargs, $gt_kwargs) 
 			{
 				//var_dump(get_class($this));
 				//var_dump($gt_kwargs);
@@ -529,14 +594,22 @@ class Regex extends AbstractLexer
 				//kwargs.update(lexer.options)
 				//lx = _other(**kwargs)
 				
-				$s = $match->start();
-				foreach($lx->get_tokens_unprocessed($match->group(), $gt_kwargs) as $tokenu) {
+				$s = $pos; //is $pos reference?
+				foreach($lx->get_tokens_unprocessed($match, $gt_kwargs) as $tokenu) {
 					list($i, $t, $v) = $tokenu;
 					yield [$i + $s, $t, $v];
 				}
 				if($ctx) {
-					$ctx->pos = $match->end();
-				}
+					$ctx->pos = $pos+strlen($match);
+				}				
+				
+				/*
+				s = match.start()
+				for i, t, v in lx.get_tokens_unprocessed(match.group(), **gt_kwargs):
+					yield i + s, t, v
+				if ctx:
+					ctx.pos = match.end()
+				*/
 			};
 		}
 
@@ -612,7 +685,7 @@ class _PseudoMatch
 
 	public function groups()
 	{
-		return array($this->_text);
+		return [self._text];
 	}
 
 	public function groupdict()

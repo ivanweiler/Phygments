@@ -47,6 +47,12 @@ var a = 1337;
 b = function(){ console.log(123); };
 CODE;
 
+$code3 = <<<'CODE'
+$i = 8;
+foreach(array('lol') as $x) $x++;
+CODE;
+
+
 /*
 $token = \Phygments\Token::getToken('Name.Tag');
 var_dump((string)$token);
@@ -56,6 +62,7 @@ die();
 
 use \Phygments\Phygments;
 
+//$lexer = new \Phygments\Lexers\Php(array('_startinline'=>true));
 $lexer = new \Phygments\Lexers\Html();
 //$generator = $lexer->get_tokens($code);
 

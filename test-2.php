@@ -1,5 +1,20 @@
 <?php
 
+$matches = array();
+
+$m = preg_match(
+	'#\GLo(rem) ipsum#m', "XXLorem ipsum sit amet", 
+	$matches, 
+	PREG_OFFSET_CAPTURE, 
+	2);
+
+echo '<pre>';
+var_dump($m);
+var_dump($matches);
+
+return;
+
+
 $a = "0";
 
 if(!empty($a)) {
