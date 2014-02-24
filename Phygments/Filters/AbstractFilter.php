@@ -1,8 +1,9 @@
 <?php
 namespace Phygments\Filters;
+use \Phygments\Python\Exception;
+
 abstract class AbstractFilter
 {
-	
 	public function __construct($options)
 	{
 		$this->options = $options;
@@ -10,8 +11,12 @@ abstract class AbstractFilter
 	
 	public function filter($lexer, $stream)
 	{
-		//raise NotImplementedError()
-		throw new Exception('Not Implemented Error.');
+		Exception::raise('NotImplementedError');
+	}
+	
+	protected function _replace_special()
+	{
+		//@todo
 	}
 		
 }

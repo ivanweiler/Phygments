@@ -10,6 +10,7 @@ Roadmap
 - consider non-generator version? (php<5.5) - NO, too much work
 - other Pygments functionalities (Filters, main Formaters, language detection, etc.)
 - implement and test all languages - community help needed
+- unicode support?
 
 
 Current

@@ -55,7 +55,7 @@ class Php extends Regex
 	            ['\?>', 'Comment.Preproc', '#pop'],
 	            ['<<<(\'?)([a-zA-Z_][a-zA-Z0-9_]*)\1\n.*?\n\2\;?\n', 'String'],
 	            ['\s+', 'Text'],
-	            ['#.*?\n', 'Comment.Single'],
+	            ['\#.*?\n', 'Comment.Single'], 		//modified
 	            ['//.*?\n', 'Comment.Single'],
 	            # put the empty comment here, it is otherwise seen as
 	            # the start of a docstring
@@ -145,8 +145,7 @@ class Php extends Regex
         		}
         	}
         }
-        	
-		//RegexLexer.__init__(self, **options);
+
 		parent::__construct($options);
 	}
         
@@ -158,27 +157,14 @@ class Php extends Regex
     	}
     	foreach(parent::get_tokens_unprocessed($text, $stack) as $tokendata) {
     		list($index, $token, $value) = $tokendata;
-    		if((string)$token=='Name.Other') {
+    		if("$token"=='Token.Name.Other') {
     			if(in_array($value, $this->_functions)) {
     				yield [$index, Token::getToken('Name.Builtin'), $value];
     				continue;
     			}
-    			yield $token;
     		}
+    		yield $tokendata; //[$index, $token, $value]
     	}
-    	
-    	/*
-        stack = ['root']
-        if self.startinline:
-            stack.append('php')
-        for index, token, value in \
-            RegexLexer.get_tokens_unprocessed(self, text, stack):
-            if token is Name.Other:
-                if value in self._functions:
-                    yield index, Name.Builtin, value
-                    continue
-            yield index, token, value
-        */
     }
     
 	public function analyse_text($text)

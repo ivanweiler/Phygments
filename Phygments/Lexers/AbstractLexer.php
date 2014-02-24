@@ -69,16 +69,9 @@ abstract class AbstractLexer
 	}
 	
 	#: php can't declare dynamic properties in class like python
-	protected function __declare(){}
-	
-	/*
-    def __repr__(self):
-        if self.options:
-            return '<pygments.lexers.%s with %r>' % (self.__class__.__name__,
-                                                     self.options)
-        else:
-            return '<pygments.lexers.%s>' % self.__class__.__name__
-	*/
+	protected function __declare()
+	{
+	}
 	
 	public function add_filter($filter_, $options)
 	{
@@ -118,41 +111,7 @@ abstract class AbstractLexer
         wanted and applies registered filters.
 		*/
 		
-		/* mb_ functions here
-        if not isinstance(text, unicode):
-            if $this->encoding == 'guess':
-                try:
-                    text = text.decode('utf-8')
-                    if text.startswith(u'\ufeff'):
-                        text = text[len(u'\ufeff'):]
-                except UnicodeDecodeError:
-                    text = text.decode('latin1')
-            elif $this->encoding == 'chardet':
-                try:
-                    import chardet
-                except ImportError:
-                    raise ImportError('To enable chardet encoding guessing, '
-                                      'please install the chardet library '
-                                      'from http://chardet.feedparser.org/')
-                # check for BOM first
-                decoded = None
-                for bom, encoding in _encoding_map:
-                    if text.startswith(bom):
-                        decoded = unicode(text[len(bom):], encoding,
-                                          errors='replace')
-                        break
-                # no BOM found, so use chardet
-                if decoded is None:
-                    enc = chardet.detect(text[:1024]) # Guess using first 1KB
-                    decoded = unicode(text, enc.get('encoding') or 'utf-8',
-                                      errors='replace')
-                text = decoded
-            else:
-                text = text.decode($this->encoding)
-        else:
-            if text.startswith(u'\ufeff'):
-                text = text[len(u'\ufeff'):]
-		*/
+		//@todo: encoding code, mb_ functions here?
 		
         # text now *is* a unicode string
 		$text = str_replace(array("\r\n","\r"), "\n", $text);
@@ -169,16 +128,9 @@ abstract class AbstractLexer
             $text .= "\n";
 		}
 		
-		/*
-        def streamer():
-            for i, t, v in $this->get_tokens_unprocessed(text):
-                yield t, v
-        stream = streamer()
-        */
-		
 		$streamer = function() use ($text) {
 			foreach($this->get_tokens_unprocessed($text) as $token) {
-				//yield array($token[1], $token[2]); //go with key => value here?
+				//yield [$token[1], $token[2]]; //go with key => value here?
 				yield (string)$token[1] => $token[2];
 			}
 		};

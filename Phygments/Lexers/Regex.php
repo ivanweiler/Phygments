@@ -136,6 +136,7 @@ class Regex extends AbstractLexer
 
 	}
 	
+	
 	/*
     Metaclass for RegexLexer, creates the self._tokens attribute from
     self.tokens on the first instantiation.
@@ -149,7 +150,7 @@ class Regex extends AbstractLexer
 		//$regex = addcslashes($regex, '#');
 		return "#$regex#$flags";
 	}
-				
+
 	private function _process_token($token)
 	{
 		/*Preprocess the token component of a token definition.*/

@@ -266,7 +266,7 @@ CONST;
                 $lncount += 1;
 			}
             $dummyoutfile.=$line;
-		}	
+		}
 
         $fl = $this->linenostart;
         $mw = strlen((string)($lncount + $fl - 1));
@@ -279,7 +279,7 @@ CONST;
         if($sp) {
             $lines = [];
 
-            foreach(range($fl, $fl+$lncount) as $i) {
+            foreach(range($fl, $fl+$lncount-1) as $i) {
                 if($i % $st == 0) {
                     if(i % $sp == 0) {
                         if($aln) {
@@ -302,7 +302,7 @@ CONST;
             $ls = implode("\n", $lines);
         } else {
             $lines = [];
-			foreach(range($fl, $fl+$lncount) as $i) {
+			foreach(range($fl, $fl+$lncount-1) as $i) {
                 if($i % $st == 0) {
                     if($aln) {
                         $lines[] = sprintf('<a href="#%s-%d">%s%d</a>', $la, $i, $mw, $i);
@@ -616,8 +616,6 @@ CONST;
 		*/
         
 		$source = $this->_format_lines($tokensource);
-
-		$this->hl_lines = array(2,3,4);
 		
         if($this->hl_lines) {
             $source = $this->_highlight_lines($source);

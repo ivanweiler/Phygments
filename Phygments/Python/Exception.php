@@ -1,9 +1,9 @@
 <?php
 namespace Phygments\Python;
+use \Phygments\Python\Exception;
 
 class Exception
 {
-	//yes, I know there is assert() in php :)
 	public static function assert($assertion, $description=null)
 	{
 		if($assertion===false) {
@@ -14,11 +14,11 @@ class Exception
 		return true;
 	}
 	
-	public static function raise($exception)
+	public static function raise($exception, $message=null)
 	{
 		if(is_string($exception)) {
-			$exception = "Exception\\$exception";
-			$exception = new $exception(func_get_arg(1));
+			$exception = "\\Phygments\\Python\\Exception\\$exception";
+			$exception = new $exception($message);
 		}
 	
 		throw $exception;

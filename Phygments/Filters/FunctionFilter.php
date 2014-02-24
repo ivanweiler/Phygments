@@ -8,7 +8,7 @@ class FunctionFilter extends AbstractFilter
 	{
 		foreach($this->function($lexer, $stream, $this->options) as $result) {
 			//yield ttype, value
-		}	
+		}
 	}	
 	
 }

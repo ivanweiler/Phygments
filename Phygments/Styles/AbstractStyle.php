@@ -1,6 +1,7 @@
 <?php
 namespace Phygments\Styles;
 use \Phygments\Token;
+use \Phygments\Python\Exception;
 
 class AbstractStyle implements \IteratorAggregate, \Countable //,\ArrayAccess
 {
@@ -21,7 +22,6 @@ class AbstractStyle implements \IteratorAggregate, \Countable //,\ArrayAccess
 		}
 		
 		//var_dump($this->styles);
-        
 		$this->_styles = [];
 		$_styles = &$this->_styles;
 
@@ -43,9 +43,6 @@ class AbstractStyle implements \IteratorAggregate, \Countable //,\ArrayAccess
 					//$ndef = ndef[:]
 					$ndef = $ndef;
 				}
-				
-				//$_styles["$token"] = $ndef;
-				//var_dump($ndef);
 				
 				foreach($styledefs as $styledef) {
 					if($styledef == 'noinherit') {
@@ -86,7 +83,7 @@ class AbstractStyle implements \IteratorAggregate, \Countable //,\ArrayAccess
 	}
         
 	public function style_for_token($token)
-	{	//var_dump("$token");
+	{
         $t = $this->_styles["$token"];
         return [
             'color'=>        $t[0] ?: null,
@@ -127,19 +124,10 @@ class AbstractStyle implements \IteratorAggregate, \Countable //,\ArrayAccess
     		return '';
     	}
 
-    	//assert False, "wrong color format %r" % text
+    	Exception::assert(false, sprintf("wrong color format %s", $text));
     }
     
-    /*
-    def __iter__(cls):
-        for token in cls._styles:
-            yield token, cls.style_for_token(token)
-                  
-    def __len__(cls):
-        return len(cls._styles)
-	*/		
-    
-    //will this work? Generator implements Iterator, it should
+    //Generator implements Iterator, this works
     public function getIterator()
     {
     	//return new \ArrayIterator($this->_styles);

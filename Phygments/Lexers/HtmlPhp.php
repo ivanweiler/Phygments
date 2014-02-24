@@ -6,7 +6,6 @@ class HtmlPhp extends Delegating
 {
 	/*
     Subclass of `PhpLexer` that highlights unhandled data with the `HtmlLexer`.
-	
     Nested Javascript and CSS is highlighted too.
 	*/
 	
@@ -20,9 +19,9 @@ class HtmlPhp extends Delegating
 	
 	public function __construct($options=array())
 	{
-		parent::__construct('HtmlLexer', 'PhpLexer', 'Other', $options);
+		parent::__construct('Html', 'Php', null, $options);
 	}
-		
+
 	public function analyse_text($text)
 	{
 		$rv = PhpLexer::analyse_text($text) - 0.01;
