@@ -21,17 +21,17 @@ class Css extends Regex
 				$this->_include('basics'),
 			],
 			'basics'=> [
-				['\s+', 'Text'],
-				['/\*(?:.|\n)*?\*/', 'Comment'],
+				['\\s+', 'Text'],
+				['/\\*(?:.|\\n)*?\\*/', 'Comment'],
 				['{', 'Punctuation', 'content'],
-				['\:[a-zA-Z0-9_-]+', 'Name.Decorator'],
-				['\.[a-zA-Z0-9_-]+', 'Name.Class'],
-				['\#[a-zA-Z0-9_-]+', 'Name.Function'],
+				['\\:[a-zA-Z0-9_-]+', 'Name.Decorator'],
+				['\\.[a-zA-Z0-9_-]+', 'Name.Class'],
+				['#[a-zA-Z0-9_-]+', 'Name.Function'],	//mod #?
 				['@[a-zA-Z0-9_-]+', 'Keyword', 'atrule'],
 				['[a-zA-Z0-9_-]+', 'Name.Tag'],
-				['[~\^\*!%&\[\]\(\)<>\|+=@:;,./?-]', 'Operator'],
-				['"(\\\\|\\"|[^"])*"', 'String.Double'],
-				["'(\\\\|\\'|[^'])*'", 'String.Single']
+				['[~\\^\\*!%&\\[\\]\\(\\)<>\\|+=@:;,./?-]', 'Operator'],
+				['"(\\\\\\\\|\\\\"|[^"])*"', 'String.Double'],
+				["'(\\\\\\\\|\\\\'|[^'])*'", 'String.Single']
 			],
 			'atrule'=> [
 				['{', 'Punctuation', 'atcontent'],
@@ -43,9 +43,9 @@ class Css extends Regex
 				['}', 'Punctuation', '#pop:2'],
 			],
 			'content'=> [
-				['\s+', 'Text'],
+				['\\s+', 'Text'],
 				['}', 'Punctuation', '#pop'],
-				['url\(.*?\)', 'String.Other'],
+				['url\\(.*?\\)', 'String.Other'],
 				['^@.*?$', 'Comment.Preproc'],
 				['(azimuth|background-attachment|background-color|'.
 				 'background-image|background-position|background-repeat|'.
@@ -103,7 +103,7 @@ class Css extends Regex
 				 'transparent|ultra-condensed|ultra-expanded|underline|'.
 				 'upper-alpha|upper-latin|upper-roman|uppercase|url|'.
 				 'visible|w-resize|wait|wider|x-fast|x-high|x-large|x-loud|'.
-				 'x-low|x-small|x-soft|xx-large|xx-small|yes)\b', 'Keyword'],
+				 'x-low|x-small|x-soft|xx-large|xx-small|yes)\\b', 'Keyword'],
 				 
 				['(indigo|gold|firebrick|indianred|yellow|darkolivegreen|'.
 				 'darkseagreen|mediumvioletred|mediumorchid|chartreuse|'.
@@ -129,16 +129,16 @@ class Css extends Regex
 				 'paleturquoise|palegoldenrod|whitesmoke|darkorchid|salmon|'.
 				 'lightslategray|lawngreen|lightgreen|tomato|hotpink|'.
 				 'lightyellow|lavenderblush|linen|mediumaquamarine|green|'.
-				 'blueviolet|peachpuff)\b', 'Name.Builtin'],
-				['\!important', 'Comment.Preproc'],
-				['/\*(?:.|\n)*?\*/', 'Comment'],
-				['\#[a-zA-Z0-9]{1,6}', 'Number'],
-				['[\.-]?[0-9]*[\.]?[0-9]+(em|px|\%|pt|pc|in|mm|cm|ex|s)\b', 'Number'],
+				 'blueviolet|peachpuff)\\b', 'Name.Builtin'],
+				['\\!important', 'Comment.Preproc'],
+				['/\\*(?:.|\\n)*?\\*/', 'Comment'],
+				['#[a-zA-Z0-9]{1,6}', 'Number'],	//mod #?
+				['[\\.-]?[0-9]*[\\.]?[0-9]+(em|px|\\%|pt|pc|in|mm|cm|ex|s)\\b', 'Number'],
 				['-?[0-9]+', 'Number'],
-				['[~\^\*!%&<>\|+=@:,./?-]+', 'Operator'],
-				['[\[\]();]+', 'Punctuation'],
-				['"(\\\\|\\"|[^"])*"', 'String.Double'],
-				["'(\\\\|\\'|[^'])*'", 'String.Single'],
+				['[~\\^\\*!%&<>\\|+=@:,./?-]+', 'Operator'],
+				['[\\[\\]();]+', 'Punctuation'],
+				['"(\\\\\\\\|\\\\"|[^"])*"', 'String.Double'],
+				["'(\\\\\\\\|\\\\'|[^'])*'", 'String.Single'],
 				['[a-zA-Z_][a-zA-Z0-9_]*', 'Name']
 			]
 		];

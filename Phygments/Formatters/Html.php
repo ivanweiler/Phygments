@@ -123,32 +123,22 @@ CONST;
 			return Token::$STANDARD_TYPES[$ttype];
 		}
 		
-		return 'XX';
-		
+		//@todo: test, remove $i
 		$i = 1;
 		$aname = '';
 		$fname = '';
-		while(!$fname && $i<=5) {
+		while(!$fname) {
 			$aname = '-' + end(explode('.', $ttype)) + $aname;
 			$ttype = (string)Token::getToken($ttype)->parent;
 			$fname = isset(Token::$STANDARD_TYPES[$ttype]) ? Token::$STANDARD_TYPES[$ttype] : '';
+			
 			$i++;
+			if($i>=5) {
+				trigger_error("Possible infinite loop.", E_USER_NOTICE);
+				break;
+			}
 		}
 		return $fname + $aname;
-		
-		//ttype[-1] => array access, Token.Number.X => X? 
-		
-		/*
-		fname = STANDARD_TYPES.get(ttype)
-		if fname:
-			return fname
-		aname = ''
-		while fname is None:
-			aname = '-' + ttype[-1] + aname
-			ttype = ttype.parent
-			fname = STANDARD_TYPES.get(ttype)
-		return fname + aname
-		*/
 	}
 	
 	private function _create_stylesheet()

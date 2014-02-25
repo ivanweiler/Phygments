@@ -28,6 +28,7 @@ class Styles
 
 	public static function get_style_by_name($name)
 	{
+		return new \Phygments\Styles\Monokai();
 		return new \Phygments\Styles\Standard();
 		
 		if(array_key_exists($name, self::$STYLE_MAP)) {

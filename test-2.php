@@ -1,5 +1,19 @@
 <?php
 
+echo '<pre>';
+
+$regex = '\#[a-zA-Z0-9]{1,6}';
+$flags = '';
+$regex = str_replace(array('#','\\\\#'), array('\\#','\\\\\\#'), $regex);
+
+("#$regex#$flags");
+
+
+//var_dump(preg_quote('\#[a-zA-Z0-9]{1,6}','#'));
+
+
+return;
+
 $matches = array();
 
 $m = preg_match(

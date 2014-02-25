@@ -15,13 +15,21 @@ Roadmap
 
 Current
 - solve STANDARD_TYPES to Token map problem, finish Styles logic - DONE
-- finalize bygroups, calls, includes, etc. - WIP
+- finalize bygroups, calls, includes, etc. - DONE
 - I'm not too happy how Token aliases are implemented - DONE (it's ok)
+- fix Php lexer - DONE
+- check and fix all regex definitions (\ and #) - DONE
+- finalize HtmlPhp lexer + Delegating
+- implement guess lexer functionality
+- initial beta release
 
 
 Lexer convert
 # => \#  no?
-r'\\' => \\\\ yes?
+r'\\' => \\\\ yes
+
+Every r'\' needs to be written as '\\' in PHP.
+I converted few r'\#XYZ' to '#XYZ'; is # special preg char in python?? 
 
 RegexLexer match logic notes
 Pythons re.match() is matching start of the string, Phps preg_match() is matching whole string. 

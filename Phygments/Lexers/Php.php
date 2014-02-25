@@ -47,30 +47,30 @@ class Php extends Regex
 	    $this->flags = array(re::IGNORECASE, re::DOTALL, re::MULTILINE);
 	    $this->tokens = [
 	        'root' => [
-	            ['<\?(php)?', 'Comment.Preproc', 'php'],
+	            ['<\\?(php)?', 'Comment.Preproc', 'php'],
 	            ['[^<]+', 'Other'],
 	            ['<', 'Other']
 	        ],
 	        'php' => [
-	            ['\?>', 'Comment.Preproc', '#pop'],
-	            ['<<<(\'?)([a-zA-Z_][a-zA-Z0-9_]*)\1\n.*?\n\2\;?\n', 'String'],
-	            ['\s+', 'Text'],
-	            ['\#.*?\n', 'Comment.Single'], 		//modified
-	            ['//.*?\n', 'Comment.Single'],
+	            ['\\?>', 'Comment.Preproc', '#pop'],
+	            ['<<<(\\\'?)([a-zA-Z_][a-zA-Z0-9_]*)\\1\\n.*?\\n\\2\\;?\\n', 'String'],
+	            ['\\s+', 'Text'],
+	            ['#.*?\\n', 'Comment.Single'],
+	            ['//.*?\\n', 'Comment.Single'],
 	            # put the empty comment here, it is otherwise seen as
 	            # the start of a docstring
-	            ['/\*\*/', 'Comment.Multiline'],
-	            ['/\*\*.*?\*/', 'String.Doc'],
-	            ['/\*.*?\*/', 'Comment.Multiline'],
-	            ['(->|::)(\s*)([a-zA-Z_][a-zA-Z0-9_]*)',
+	            ['/\\*\\*/', 'Comment.Multiline'],
+	            ['/\\*\\*.*?\\*/', 'String.Doc'],
+	            ['/\\*.*?\\*/', 'Comment.Multiline'],
+	            ['(->|::)(\\s*)([a-zA-Z_][a-zA-Z0-9_]*)',
 	              $this->_bygroups('Operator', 'Text', 'Name.Attribute')],
 	            ['[~!%^&*+=|:.<>/?@-]+', 'Operator'],
-	            ['[\[\]{}();,]+', 'Punctuation'],
-	            ['(class)(\s+)',  $this->_bygroups('Keyword', 'Text'), 'classname'],
-	            ['(function)(\s*)(?=\()',  $this->_bygroups('Keyword', 'Text')],
-	            ['(function)(\s+)(&?)(\s*)',
+	            ['[\\[\\]{}();,]+', 'Punctuation'],
+	            ['(class)(\\s+)',  $this->_bygroups('Keyword', 'Text'), 'classname'],
+	            ['(function)(\\s*)(?=\\()',  $this->_bygroups('Keyword', 'Text')],
+	            ['(function)(\\s+)(&?)(\\s*)',
 	               $this->_bygroups('Keyword', 'Text', 'Operator', 'Text'), 'functionname'],
-	            ['(const)(\s+)([a-zA-Z_][a-zA-Z0-9_]*)',
+	            ['(const)(\\s+)([a-zA-Z_][a-zA-Z0-9_]*)',
 	               $this->_bygroups('Keyword', 'Text', 'Name.Constant')],
 	            ['(and|E_PARSE|old_function|E_ERROR|or|as|E_WARNING|parent|'.
 	             'eval|PHP_OS|break|exit|case|extends|PHP_VERSION|cfunction|'.
@@ -81,41 +81,41 @@ class Php extends Regex
 	             'endif|list|__LINE__|endswitch|new|__sleep|endwhile|not|'.
 	             'array|__wakeup|E_ALL|NULL|final|php_user_filter|interface|'.
 	             'implements|public|private|protected|abstract|clone|try|'.
-	             'catch|throw|this|use|namespace|trait)\b', 'Keyword'],
-	            ['(true|false|null)\b', 'Keyword.Constant'],
-	            ['\$\{\$+[a-zA-Z_][a-zA-Z0-9_]*\}', 'Name.Variable'],
-	            ['\$+[a-zA-Z_][a-zA-Z0-9_]*', 'Name.Variable'],
-	            ['[\\a-zA-Z_][\\a-zA-Z0-9_]*', 'Name.Other'],
-	            ['(\d+\.\d*|\d*\.\d+)([eE][+-]?[0-9]+)?', 'Number.Float'],
-	            ['\d+[eE][+-]?[0-9]+', 'Number.Float'],
+	             'catch|throw|this|use|namespace|trait)\\b', 'Keyword'],
+	            ['(true|false|null)\\b', 'Keyword.Constant'],
+	            ['\\$\\{\\$+[a-zA-Z_][a-zA-Z0-9_]*\\}', 'Name.Variable'],
+	            ['\\$+[a-zA-Z_][a-zA-Z0-9_]*', 'Name.Variable'],
+	            ['[\\\\a-zA-Z_][\\\\a-zA-Z0-9_]*', 'Name.Other'],
+	            ['(\\d+\\.\\d*|\\d*\\.\\d+)([eE][+-]?[0-9]+)?', 'Number.Float'],
+	            ['\\d+[eE][+-]?[0-9]+', 'Number.Float'],
 	            ['0[0-7]+', 'Number.Oct'],
 	            ['0[xX][a-fA-F0-9]+', 'Number.Hex'],
-	            ['\d+', 'Number.Integer'],
-	            ["'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)'", 'String.Single'], //modified
-	            ['`([^`\\\\]*(?:\\.[^`\\\\]*)*)`', 'String.Backtick'], //modified
+	            ['\\d+', 'Number.Integer'],
+	            ["'([^'\\\\]*(?:\\\\.[^'\\\\]*)*)'", 'String.Single'],
+	            ['`([^`\\\\]*(?:\\\\.[^`\\\\]*)*)`', 'String.Backtick'],
 	            ['"', 'String.Double', 'string'],
 	        ],
 	        'classname' => [
-	            ['[a-zA-Z_][\\a-zA-Z0-9_]*', 'Name.Class', '#pop']
+	            ['[a-zA-Z_][\\\\a-zA-Z0-9_]*', 'Name.Class', '#pop']
 	        ],
 	        'functionname' => [
 	            ['[a-zA-Z_][a-zA-Z0-9_]*', 'Name.Function', '#pop']
 	        ],
 	        'string' => [
 	            ['"', 'String.Double', '#pop'],
-	            ['[^{$"\\]+', 'String.Double'],
-	            ['\\([nrt\"$\\]|[0-7]{1,3}|x[0-9A-Fa-f]{1,2})', 'String.Escape'],
-	            ['\$[a-zA-Z_][a-zA-Z0-9_]*(\[\S+\]|->[a-zA-Z_][a-zA-Z0-9_]*)?',
+	            ['[^{$"\\\\]+', 'String.Double'],
+	            ['\\\\([nrt\\"$\\\\]|[0-7]{1,3}|x[0-9A-Fa-f]{1,2})', 'String.Escape'],
+	            ['\\$[a-zA-Z_][a-zA-Z0-9_]*(\\[\\S+\\]|->[a-zA-Z_][a-zA-Z0-9_]*)?',
 	             'String.Interpol'],
-	            ['(\{\$\{)(.*?)(\}\})',
+	            ['(\\{\\$\\{)(.*?)(\\}\\})',
 	              $this->_bygroups('String.Interpol', $this->_using($this, array('_startinline'=>true)),
 	                      'String.Interpol')],
-	            ['(\{)(\$.*?)(\})',
+	            ['(\\{)(\\$.*?)(\\})',
 	              $this->_bygroups('String.Interpol', $this->_using($this, array('_startinline'=>true)),
 	                      'String.Interpol')],
-	            ['(\$\{)(\S+)(\})',
+	            ['(\\$\\{)(\\S+)(\\})',
 	              $this->_bygroups('String.Interpol', 'Name.Variable', 'String.Interpol')],
-	            ['[${\\]+', 'String.Double']
+	            ['[${\\\\]+', 'String.Double']
 	        ],
 	    ];
     

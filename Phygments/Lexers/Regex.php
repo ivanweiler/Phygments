@@ -71,8 +71,9 @@ class Regex extends AbstractLexer
 			foreach($statetokens as $statetoken) {
 				list($rexmatch, $action, $new_state) = $statetoken;
 				$m = re::match($rexmatch, $text, $pos);
-				//var_dump($rexmatch);
 				if($m) {
+					//var_dump($rexmatch);
+					//var_dump($m->group());					
 					if($action instanceof \Phygments\_TokenType) {
 						yield [$pos, $action, $m->group()];
 					} else {
@@ -145,9 +146,10 @@ class Regex extends AbstractLexer
 	private function _process_regex($regex, $rflags)
 	{
 		/*Preprocess the regular expression component of a token definition.*/
-
+		
 		$flags = implode((array)$rflags);
 		//$regex = addcslashes($regex, '#');
+		$regex = str_replace(array('#','\\\\#'), array('\\#','\\\\\\#'), $regex);
 		return "#$regex#$flags";
 	}
 

@@ -4,17 +4,6 @@ class Lexers
 {
 	private $_lexer_cache = [];
 	
-	/*
-	private function __construct()
-	{
-	}
-	
-	public function getInstance()
-	{
-		return new self();
-	}
-	*/
-	
 	private static function _import_lexers()
 	{
 		if(!self::$LEXERS) {

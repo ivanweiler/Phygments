@@ -32,20 +32,23 @@ if($i) {
 	echo 123;
 }
 foreach(array('lol') as $x) { $x++; }
+#I am comment!
 CODE;
 
 
 $lexer1 = new \Phygments\Lexers\Html();
+$lexer2 = new \Phygments\Lexers\Javascript();
 $lexer3 = new \Phygments\Lexers\Php(array('_startinline'=>true));
 
-//$formater1 = new \Phygments\Formatters\RawToken();
+$formater1 = new \Phygments\Formatters\RawToken();
 $formater2 = new \Phygments\Formatters\Html(array(
-	'noclasses' => true,
+	'noclasses' =>	true,
+	'style'		=>	'monokai'
 ));
 
-//echo '<pre>';
+echo '<pre>';
 //echo htmlspecialchars(Phygments::highlight($code, $lexer, $formater));
-echo \Phygments\Phygments::highlight($code3, $lexer3, $formater2);
+echo \Phygments\Phygments::highlight($code1, $lexer1, $formater2);
 
 
 

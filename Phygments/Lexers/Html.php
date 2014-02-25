@@ -20,15 +20,15 @@ class Html extends Regex
 		$this->tokens = [
 			'root'=> [
 				['[^<&]+', 'Text'],
-				['&\S*?;', 'Name.Entity'],
-				['\<\!\[CDATA\[.*?\]\]\>', 'Comment.Preproc'],
+				['&\\S*?;', 'Name.Entity'],
+				['\\<\\!\\[CDATA\[.*?\\]\\]\\>', 'Comment.Preproc'],
 				['<!--', 'Comment', 'comment'],
-				['<\?.*?\?>', 'Comment.Preproc'],
+				['<\\?.*?\\?>', 'Comment.Preproc'],
 				['<![^>]*>', 'Comment.Preproc'],
-				['<\s*script\s*', 'Name.Tag', ['script-content', 'tag']],
-				['<\s*style\s*', 'Name.Tag', ['style-content', 'tag']],
-				['<\s*[a-zA-Z0-9:]+', 'Name.Tag', 'tag'],
-				['<\s*/\s*[a-zA-Z0-9:]+\s*>', 'Name.Tag'],
+				['<\\s*script\\s*', 'Name.Tag', ['script-content', 'tag']],
+				['<\\s*style\\s*', 'Name.Tag', ['style-content', 'tag']],
+				['<\\s*[a-zA-Z0-9:]+', 'Name.Tag', 'tag'],
+				['<\\s*/\\s*[a-zA-Z0-9:]+\\s*>', 'Name.Tag'],
 			],
 			'comment'=> [
 				['[^-]+', 'Comment'],
@@ -36,23 +36,23 @@ class Html extends Regex
 				['-', 'Comment'],
 			],
 			'tag'=> [
-				['\s+', Text],
-				['[a-zA-Z0-9_:-]+\s*=', 'Name.Attribute', 'attr'],
+				['\\s+', Text],
+				['[a-zA-Z0-9_:-]+\\s*=', 'Name.Attribute', 'attr'],
 				['[a-zA-Z0-9_:-]+', 'Name.Attribute'],
-				['/?\s*>', 'Name.Tag', '#pop'],
+				['/?\\s*>', 'Name.Tag', '#pop'],
 			],
 			'script-content'=> [
-				['<\s*/\s*script\s*>', 'Name.Tag', '#pop'],
-				['.+?(?=<\s*/\s*script\s*>)', $this->_using('Javascript')],
+				['<\\s*/\\s*script\\s*>', 'Name.Tag', '#pop'],
+				['.+?(?=<\\s*/\\s*script\\s*>)', $this->_using('Javascript')],
 			],
  			'style-content'=> [
- 				['<\s*/\s*style\s*>', 'Name.Tag', '#pop'],
- 				['.+?(?=<\s*/\s*style\s*>)',  $this->_using('Css')],
+ 				['<\\s*/\\s*style\\s*>', 'Name.Tag', '#pop'],
+ 				['.+?(?=<\\s*/\\s*style\\s*>)',  $this->_using('Css')],
  			],
 			'attr'=> [
 				['".*?"', 'String', '#pop'],
 				["'.*?'", 'String', '#pop'],
-				['[^\s>]+', 'String', '#pop'],
+				['[^\\s>]+', 'String', '#pop'],
 			],
 		];
 	}
