@@ -21,7 +21,7 @@ Current
 - check and fix all regex definitions (\ and #) - DONE
 - finalize HtmlPhp lexer + Delegating
 - implement guess lexer functionality
-- initial beta release
+- cleanup + initial beta release
 
 
 Lexer convert

@@ -19,7 +19,7 @@ class HtmlPhp extends Delegating
 	
 	public function __construct($options=array())
 	{
-		parent::__construct('Html', 'Php', null, $options);
+		parent::__construct('\Phygments\Lexers\Html', '\Phygments\Lexers\Php', 'Other', $options);
 	}
 
 	public function analyse_text($text)

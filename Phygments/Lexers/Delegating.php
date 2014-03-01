@@ -28,12 +28,15 @@ class Delegating extends AbstractLexer
         $lng_buffer = [];
         
         foreach($this->language_lexer->get_tokens_unprocessed($text) as $tokenu) {
+        	
+        	//$tokenu[1] = (string)$tokenu[1];
+        	
         	list($i, $t, $v) = $tokenu;
         	if("$t" == $this->needle) {
         		if($lng_buffer) {
         			$insertions[] = [strlen($buffered), $lng_buffer];
         		}
-        		$buffered += $v;
+        		$buffered .= $v;
         	} else {
         		$lng_buffer[] = $tokenu;
         	}
@@ -42,6 +45,8 @@ class Delegating extends AbstractLexer
         if($lng_buffer) {
         	$insertions[] = [strlen($buffered), $lng_buffer];
         }
+        
+        //var_dump($insertions); die();
         
         return $this->do_insertions($insertions,
         			$this->root_lexer->get_tokens_unprocessed($buffered));

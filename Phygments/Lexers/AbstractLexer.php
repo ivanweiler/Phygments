@@ -61,11 +61,9 @@ abstract class AbstractLexer
         $this->encoding = Util::get_opt($options, 'encoding', 'latin1');
         # self.encoding = options.get('inencoding', None) or self.encoding
         $this->filters = [];
-        /*
         foreach(Util::get_list_opt($options, 'filters', []) as $filter_) {
             $this->add_filter($filter_);
 		}
-		*/
 	}
 	
 	#: php can't declare dynamic properties in class like python
@@ -73,7 +71,7 @@ abstract class AbstractLexer
 	{
 	}
 	
-	public function add_filter($filter_, $options)
+	public function add_filter($filter_, $options=array())
 	{
 		/*
         Add a new stream filter to this lexer.
@@ -164,7 +162,66 @@ abstract class AbstractLexer
 	    The result is a combined token stream.
     	*/
 		
-		//@todo
+		if(($next=next($insertions))!==false) {
+			list($index, $itokens) = $next;
+		} else {
+			# no insertions
+			foreach($tokens as $item) {
+				yield $item;
+			}
+			return;			
+		}
+
+		$realpos = null;
+		$insleft = true;
+
+		# iterate over the token stream where we want to insert
+		# the tokens from the insertion list.
+		foreach($tokens as $_tokens) {
+			list($i, $t, $v) = $_tokens;
+			# first iteration. store the postition of first item
+			if(is_null($realpos)) {
+				$realpos = $i;
+			}
+			$oldi = 0;
+			while($insleft && $i + strlen($v) >= $index) {
+				$tmpval = substr($v, $oldi, $index-$i-$oldi);
+				yield [$realpos, $t, $tmpval];
+				$realpos += strlen($tmpval);
+				foreach($itokens as $_itokens) {
+					list($it_index, $it_token, $it_value) = $_itokens;
+					yield [$realpos, $it_token, $it_value];
+					$realpos += strlen($it_value);
+				}
+				$oldi = $index - $i;
+				if(($next=next($insertions))!==false) {
+					list($index, $itokens) = $next;
+				} else {
+					$insleft = false;
+					break;  # not strictly necessary					
+				}
+			}
+			yield [$realpos, $t, substr($v, $oldi)];
+			$realpos += strlen($v) - $oldi;
+		}
+		# leftover tokens
+		while($insleft) {
+			# no normal tokens, set realpos to zero
+			$realpos = $realpos ?: 0;
+			foreach($itokens as $_itokens) {
+				list($p, $t, $v) = $_itokens;
+				yield [$realpos, $t, $v];
+				$realpos += len($v);
+			}
+			
+			if(($next=next($insertions))!==false) {
+				list($index, $itokens) = $next;
+			} else {
+				$insleft = false;
+				break;  # not strictly necessary				
+			}			
+		}
+		
 	}
 
 }
