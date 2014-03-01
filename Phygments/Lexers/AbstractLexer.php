@@ -82,7 +82,7 @@ abstract class AbstractLexer
         $this->filters[] = $filter_;
 	}
 	
-	public function analyse_text($text)
+	public static function analyse_text($text)
 	{
 		/*
         Has to return a float between ``0`` and ``1`` that indicates

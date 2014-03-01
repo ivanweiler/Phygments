@@ -1,5 +1,6 @@
 <?php
 namespace Phygments\Lexers;
+use \Phygments\Lexers\Php as PhpLexer;
 use \Phygments\Util;
 
 class HtmlPhp extends Delegating
@@ -22,7 +23,7 @@ class HtmlPhp extends Delegating
 		parent::__construct('\Phygments\Lexers\Html', '\Phygments\Lexers\Php', 'Other', $options);
 	}
 
-	public function analyse_text($text)
+	public static function analyse_text($text)
 	{
 		$rv = PhpLexer::analyse_text($text) - 0.01;
 		if(Util::html_doctype_matches($text)) {

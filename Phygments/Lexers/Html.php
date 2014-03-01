@@ -1,5 +1,6 @@
 <?php
 namespace Phygments\Lexers;
+use \Phygments\Util;
 use \Phygments\Python\Re as re;
 
 class Html extends Regex
@@ -57,9 +58,9 @@ class Html extends Regex
 		];
 	}
 
-	public function analyse_text($text)
+	public static function analyse_text($text)
 	{
-        if(html_doctype_matches($text)) {
+        if(Util::html_doctype_matches($text)) {
             return 0.5;
 		}
 	}

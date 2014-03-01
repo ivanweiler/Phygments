@@ -167,7 +167,7 @@ class Php extends Regex
     	}
     }
     
-	public function analyse_text($text)
+	public static function analyse_text($text)
 	{
         $rv = 0.0;
         if(preg_match('#<\?(?!xml)#', $text)) {
