@@ -15,9 +15,9 @@
 
 # start
 $FORMATTERS = [
-    'HtmlFormatter' => ['HTML', ['html',], ['*.html', '*.htm'], "Format tokens as HTML 4 ``<span>`` tags within a ``<pre>`` tag, wrapped in a ``<div>`` tag. The ``<div>``'s CSS class can be set by the `cssclass` option."],
-    'NullFormatter' => ['Text only', ['text', 'null'], ['*.txt',], 'Output the text unchanged without any formatting.'],
-    'RawTokenFormatter' => ['Raw tokens', ['raw', 'tokens'], ['*.raw',], 'Format tokens as a raw representation for storing token streams.'],
+    'Html' => ['HTML', ['html',], ['*.html', '*.htm'], "Format tokens as HTML 4 ``<span>`` tags within a ``<pre>`` tag, wrapped in a ``<div>`` tag. The ``<div>``'s CSS class can be set by the `cssclass` option."],
+    'Null' => ['Text only', ['text', 'null'], ['*.txt',], 'Output the text unchanged without any formatting.'],
+    'RawToken' => ['Raw tokens', ['raw', 'tokens'], ['*.raw',], 'Format tokens as a raw representation for storing token streams.'],
 ];
 
 //@todo: implement auto generator if needed

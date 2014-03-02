@@ -1,15 +1,24 @@
 <?php
 namespace Phygments;
+
 class Lexers
 {
 	private $_lexer_cache = [];
 	
-	private static function _import_lexers()
+// 	private static function _import_lexers()
+// 	{
+// 		if(!self::$LEXERS) {
+// 			require dirname(__FILE__).'/Lexers/_mapping.php';
+// 			self::$LEXERS = $LEXERS;
+// 		}
+// 	}
+	
+	public static function __declare()
 	{
 		if(!self::$LEXERS) {
-			require dirname(__FILE__).'/_mapping.php';
+			require dirname(__FILE__).'/Lexers/_mapping.php';
 			self::$LEXERS = $LEXERS;
-		}
+		}		
 	}
 	
 	private function _load_lexers($module_name)
@@ -30,17 +39,15 @@ class Lexers
 		/*
 		Return a generator of tuples in the form ``(name, aliases,
 		filenames, mimetypes)`` of all know lexers.
-		*/		
-
-		self::_import_lexers();
-		
-		foreach($LEXERS as $item) {
-			yield array_slice($item, 1);
-		}
-		/*
-		for lexer in find_plugin_lexers():
-			yield lexer.name, lexer.aliases, lexer.filenames, lexer.mimetypes
 		*/
+		foreach($LEXERS as $item) {
+			//yield array_slice($item, 1);
+			yield $item;
+		}
+
+// 		foreach(Plugin::find_plugin_lexers() as $lexer) {
+// 			yield lexer.name, lexer.aliases, lexer.filenames, lexer.mimetypes
+// 		}
 	}
 
 	public static function find_lexer_class($name)
@@ -189,7 +196,6 @@ class Lexers
 
 		usage::
 
-			>>> from pygments.lexers import guess_lexer_for_filename
 			>>> guess_lexer_for_filename('hello.html', '<%= @foo %>')
 			<pygments.lexers.templates.RhtmlLexer object at 0xb7d2f32c>
 			>>> guess_lexer_for_filename('hello.html', '<h1>{{ title|e }}</h1>')
@@ -231,18 +237,22 @@ class Lexers
 		/*
 		Guess a lexer by strong distinctions in the text (eg, shebang).
 		*/
-		/*
-		best_lexer = [0.0, None]
-		for lexer in _iter_lexerclasses():
-			rv = lexer.analyse_text(_text)
-			if rv == 1.0:
-				return lexer(**options)
-			if rv > best_lexer[0]:
-				best_lexer[:] = (rv, lexer)
-		if not best_lexer[0] or best_lexer[1] is None:
-			raise ClassNotFound('no lexer matching the text found')
-		return best_lexer[1](**options)
-		*/
+		$best_lexer = [0.0, null];
+		foreach(self::_iter_lexerclasses() as $lexer) {
+			$rv = $lexer::analyse_text($_text);
+			if($rv == 1.0) {
+				return new $lexer($options);
+			}
+			if($rv > $best_lexer[0]) {
+				$best_lexer = [$rv, $lexer];
+			}
+		}
+		if(!$best_lexer[0] || is_null($best_lexer[1])) {
+			Exception::raise('ClassNotFound', 'no lexer matching the text found');
+		}
+		return new $best_lexer[1]($options);
 	}
 	
 }
+
+Lexers::__declare();
