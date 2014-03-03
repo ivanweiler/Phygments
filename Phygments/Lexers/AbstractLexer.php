@@ -162,7 +162,7 @@ abstract class AbstractLexer
 	    The result is a combined token stream.
     	*/
 		
-		if(($next=next($insertions))!==false) {
+		if(($next=current($insertions))!==false) {
 			list($index, $itokens) = $next;
 		} else {
 			# no insertions

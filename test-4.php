@@ -27,9 +27,18 @@ $formater2 = new \Phygments\Formatters\Html(array(
 	'style'		=>	'monokai'
 ));
 
+echo \Phygments\Phygments::highlight($code, $lexer, $formater2); 
+return;
+
 echo '<pre>';
 echo htmlspecialchars(\Phygments\Phygments::highlight($code, $lexer, $formater1));
 
 
+function token_dump($array) {
+	array_walk_recursive($array, function(&$item){
+		if($item instanceof \Phygments\_TokenType) $item = "$item";
+	});
+	var_dump($array);
+}
 
 

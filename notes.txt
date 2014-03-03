@@ -19,7 +19,8 @@ Current
 - I'm not too happy how Token aliases are implemented - DONE (it's ok)
 - fix Php lexer - DONE
 - check and fix all regex definitions (\ and #) - DONE
-- finalize HtmlPhp lexer + Delegating
+- finalize HtmlPhp lexer + Delegating - DONE?
+- finalize styles switching
 - implement guess lexer functionality
 - cleanup + initial beta release
 

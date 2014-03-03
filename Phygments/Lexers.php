@@ -3,7 +3,7 @@ namespace Phygments;
 
 class Lexers
 {
-	private $_lexer_cache = [];
+	private static $_lexer_cache = [];
 	
 // 	private static function _import_lexers()
 // 	{
