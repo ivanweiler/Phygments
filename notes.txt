@@ -6,7 +6,7 @@ Roadmap
 - define structure similar to Pygments - DONE
 - implement lexer abstract, regex lexer and basic html lexer - DONE
 - html formatter and html lexer without any guess or file load functionality - DONE
-- other web-relevant lexers - php, js, sass .. - WIP
+- other web-relevant lexers - html, php, js .. - DONE
 - consider non-generator version? (php<5.5) - NO, too much work
 - other Pygments functionalities (Filters, main Formaters, language detection, etc.)
 - implement and test all languages - community help needed
@@ -20,7 +20,7 @@ Current
 - fix Php lexer - DONE
 - check and fix all regex definitions (\ and #) - DONE
 - finalize HtmlPhp lexer + Delegating - DONE?
-- finalize styles switching
+- finalize styles switching - DONE
 - implement guess lexer functionality
 - cleanup + initial beta release
 
@@ -39,21 +39,4 @@ string all the time, can we optimize that?
 
 #\GPATTERN_HERE#m should be ok?
 
-
-
-OLD:
-If we add ^ to the begining of pattern, it will still go through whole string and match something 
-in MULTILINE mode;
-If we add \A to the begining of pattern, we are unable to match ^pattern tokens which exist in 
-some languages. For example, with offset, in MULTILINE mode to match only when we're after \n.
-Same thing when we use substr() to cut text, we're losing ^pattern tokens, since we can't know 
-if they come after \n or not.
-
-I'll most likely implement PREG_OFFSET_CAPTURE=0 logic for start, but it could maybe work 
-to use \A+pattern while remembering last [-1] char from previous match, to know if it's new line or not.
-
-#\A(?:.|\n)PATTERN_HERE#m  =>  prev_char+CURRENT_TEXT_TO_MATCH
-
-It seems \A in front speeds up preg_match(), it makes sense. I did few simple tests, but further testing 
-is needed.
 

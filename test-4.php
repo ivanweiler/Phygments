@@ -24,10 +24,10 @@ $lexer = new \Phygments\Lexers\HtmlPhp();
 $formater1 = new \Phygments\Formatters\RawToken();
 $formater2 = new \Phygments\Formatters\Html(array(
 	'noclasses' =>	true,
-	'style'		=>	'monokai'
+	//'style'		=>	'Github'
 ));
 
-echo \Phygments\Phygments::highlight($code, $lexer, $formater2); 
+echo \Phygments\Phygments::highlight($code, $lexer, $formater2);
 return;
 
 echo '<pre>';
