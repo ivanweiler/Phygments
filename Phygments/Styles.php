@@ -43,7 +43,7 @@ class Styles
 			$builtin = "";
 			$cls = '\\Phygments\\Styles\\'. $name;
 		}
-		
+
 		if(class_exists($cls)) {
 			return new $cls;
 		} else {
