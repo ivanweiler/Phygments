@@ -6,6 +6,8 @@ namespace Phygments\Lexers;
  */
 class LexerContext
 {
+	public $text, $pos, $end, $stack;
+	
 	public function __construct($text, $pos, $stack=null, $end=null)
 	{
 		$this->text = $text;

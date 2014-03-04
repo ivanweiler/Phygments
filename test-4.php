@@ -19,7 +19,32 @@ $i = 8;
 <br />
 CODE;
 
-$lexer = new \Phygments\Lexers\HtmlPhp();
+$code2 = <<<'CODE'
+@mixin font-size ($value) {
+	font-size: $value + px;
+	font-size: $value / $main-font-size + rem;
+}
+
+@mixin transform($property: none) {
+	-webkit-transform: $property;
+	-moz-transform: $property;
+	-ms-transform: $property;
+	-o-transform: $property;
+	transform: $property;
+}
+
+@mixin transition($transition-property, $transition-time, $method) {
+	-webkit-transition: $transition-property $transition-time $method;
+	-moz-transition: $transition-property $transition-time $method;
+	-ms-transition: $transition-property $transition-time $method;
+	-o-transition: $transition-property $transition-time $method;
+	transition: $transition-property $transition-time $method;
+}
+CODE;
+
+
+$lexer1 = new \Phygments\Lexers\HtmlPhp();
+$lexer2 = new \Phygments\Lexers\Scss();
 
 $formater1 = new \Phygments\Formatters\RawToken();
 $formater2 = new \Phygments\Formatters\Html(array(
@@ -27,7 +52,7 @@ $formater2 = new \Phygments\Formatters\Html(array(
 	//'style'		=>	'Github'
 ));
 
-echo \Phygments\Phygments::highlight($code, $lexer, $formater2);
+echo \Phygments\Phygments::highlight($code2, $lexer2, $formater2);
 return;
 
 echo '<pre>';

@@ -23,14 +23,14 @@ class Re
 	const DOTALL = 's';
 	
 	//emulates pythons re.match()
-	public static function match($pattern, &$string, $pos=0)
+	//@todo: $ctx->end not suported
+	public static function match($pattern, &$string, $pos=0, $end=null)
 	{
 		//inject \G at the beggining
 		$delimiter = $pattern[0];
 		$pattern = substr_replace($pattern, "$delimiter\G", 0, 1);
 
 		$matches = array();
-		//var_dump($pattern);
 		$m = preg_match($pattern, $string, $matches, PREG_OFFSET_CAPTURE, $pos);
 		
 		if($m && $matches[0][1]==$pos) {

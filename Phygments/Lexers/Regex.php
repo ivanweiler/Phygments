@@ -7,12 +7,11 @@ use \Phygments\Python\Exception;
 
 class Regex extends AbstractLexer
 {
-	/*
-    Base for simple stateful regular expression-based lexers.
-    Simplifies the lexing process so that you need only
-    provide a list of states and regular expressions.
-	*/
-    //__metaclass__ = RegexLexerMeta
+	/**
+	 * Base for simple stateful regular expression-based lexers.
+	 * Simplifies the lexing process so that you need only 
+	 * provide a list of states and regular expressions.
+	 */
 
     #: Flags for compiling the regular expressions.
     #: Defaults to MULTILINE.
@@ -58,14 +57,16 @@ class Regex extends AbstractLexer
 
 	public function get_tokens_unprocessed(&$text, $stack=array('root'))
 	{
-		/*
-        Split ``text`` into (tokentype, text) pairs.
-        ``stack`` is the inital stack (default: ``['root']``)
-		*/
+		/**
+		 * Split ``text`` into (tokentype, text) pairs. 
+		 * ``stack`` is the inital stack (default: ``['root']``)
+		 */
+		
         $pos = 0;
         $tokendefs = &$this->_tokens;
         $statestack = (array)$stack;
         $statetokens = $tokendefs[$statestack[count($statestack)-1]];
+        
         while(1) {
 			$doelse = true;
 			foreach($statetokens as $statetoken) {
@@ -73,7 +74,7 @@ class Regex extends AbstractLexer
 				$m = re::match($rexmatch, $text, $pos);
 				if($m) {
 					//var_dump($rexmatch);
-					//var_dump($m->group());					
+					//var_dump($m->group());
 					if($action instanceof \Phygments\_TokenType) {
 						yield [$pos, $action, $m->group()];
 					} else {
@@ -98,17 +99,15 @@ class Regex extends AbstractLexer
 						} elseif(is_int($new_state)) {
 							# pop
 							array_splice($statestack, $new_state);
-							//del statestack[new_state:]
 						} elseif($new_state == '#push') {
 							$statestack[] = $statestack[count($statestack)-1];
 						} else {
-							//assert False, "wrong state def: %r" % new_state
-							throw new \Exception(sprintf(
+							Exception::assert(sprintf(
 								'wrong state def: %s', print_r($new_state)
 							));
 						}
 
-						$statetokens = $tokendefs[$statestack[count($statestack)-1]];						
+						$statetokens = $tokendefs[$statestack[count($statestack)-1]];
 					}
 					
 					$doelse = false;
@@ -121,7 +120,6 @@ class Regex extends AbstractLexer
 				if(!isset($text[$pos])) {
 					break;
 				}
-				
 				if($text[$pos] == "\n") {
 					# at EOL, reset state to "root"
 					$statestack = ['root'];
@@ -130,18 +128,18 @@ class Regex extends AbstractLexer
 					$pos += 1;
 					continue;
 				}
-				yield array($pos, Token::getToken('Error'), $text[$pos]);
-				$pos += 1;			
+				yield [$pos, Token::getToken('Error'), $text[$pos]];
+				$pos += 1;
 			}
 		}
 
 	}
 	
 	
-	/*
-    Metaclass for RegexLexer, creates the self._tokens attribute from
-    self.tokens on the first instantiation.
-	*/
+	/**
+	 * Metaclass for RegexLexer, creates the self._tokens attribute from 
+	 * self.tokens on the first instantiation.
+	 */
 	
 	private function _process_regex($regex, $rflags)
 	{
@@ -155,7 +153,7 @@ class Regex extends AbstractLexer
 
 	private function _process_token($token)
 	{
-		/*Preprocess the token component of a token definition.*/
+		/** Preprocess the token component of a token definition. */
 		
 		//check string format? Xyz.Xyz?
 		if(is_string($token) && preg_match('#^[A-Z][a-z]*(?:\.[A-Z][a-z]*)*$#', $token)) {
@@ -175,7 +173,7 @@ class Regex extends AbstractLexer
 
 	private function _process_new_state($new_state, &$unprocessed, &$processed)
 	{
-        /*Preprocess the state transition action of a token definition.*/
+        /** Preprocess the state transition action of a token definition. */
 		
 		if(is_string($new_state)) {
 			# an existing state
@@ -190,9 +188,9 @@ class Regex extends AbstractLexer
 			} else {
 				//assert False, 'unknown new state %r' % new_state
 				throw new \Exception(sprintf('unknown new state %s', (string)$new_state));
-			}			
+			}
 		} elseif(0) {
-			//@todo: combined missing 
+			//@todo: combined missing
 		} elseif(is_array($new_state)) {
 			foreach($new_state as $istate) {
 				if(!(isset($unprocessed[$istate]) || in_array($istate, array('#pop', '#push')))) {
@@ -243,7 +241,7 @@ class Regex extends AbstractLexer
 	
 	private function _process_state(&$unprocessed, &$processed, $state)
 	{
-        /*Preprocess a single state definition.*/
+        /** Preprocess a single state definition. */
 		
 		if(isset($processed[$state])) {
 			return $processed[$state];
@@ -253,8 +251,6 @@ class Regex extends AbstractLexer
 		$tokens = &$processed[$state];
 		$rflags = $this->flags;
 		foreach($unprocessed[$state] as $tdef) {
-			//var_dump($tdef);
-			//@todo: include, _inherit support
 			
 			if($tdef instanceof \Phygments\Lexers\Regex\Helper\_Include) {
 				# it's a state reference
@@ -263,17 +259,15 @@ class Regex extends AbstractLexer
 				}
 
 				$tokens = array_merge($tokens, $this->_process_state($unprocessed, $processed, (string)$tdef));
-				//tokens.extend(cls._process_state(unprocessed, processed,str(tdef)))
 				continue;			
 			}
 			
 			if($tdef instanceof \Phygments\Lexers\Regex\Helper\_Inherit) {
-				# processed already
+				#processed already
 				continue;
 			}
 			
 			$rex = $this->_process_regex($tdef[0], $rflags);
-			//$rex = $tdef[0];
 			$token = $this->_process_token($tdef[1]);
 			
 			if(count($tdef) == 2) {
@@ -282,54 +276,15 @@ class Regex extends AbstractLexer
 				$new_state = $this->_process_new_state($tdef[2], $unprocessed, $processed);
 			}
 			
-			//tokens.append((rex, token, new_state))
 			$tokens[] = array($rex, $token, $new_state);		
 		}
 		
 		return $tokens;
-		
-		/*
-        assert type(state) is str, "wrong state name %r" % state
-        assert state[0] != '#', "invalid state name %r" % state
-        if state in processed:
-            return processed[state]
-        tokens = processed[state] = []
-        rflags = cls.flags
-        for tdef in unprocessed[state]:
-            if isinstance(tdef, include):
-                # it's a state reference
-                assert tdef != state, "circular state reference %r" % state
-                tokens.extend(cls._process_state(unprocessed, processed,
-                                                 str(tdef)))
-                continue
-            if isinstance(tdef, _inherit):
-                # processed already
-                continue
-
-            assert type(tdef) is tuple, "wrong rule def %r" % tdef
-
-            try:
-                rex = cls._process_regex(tdef[0], rflags)  //compile, no need in php
-            except Exception, err:
-                raise ValueError("uncompilable regex %r in state %r of %r: %s" %
-                                 (tdef[0], state, cls, err))
-
-            token = cls._process_token(tdef[1])
-
-            if len(tdef) == 2:
-                new_state = None
-            else:
-                new_state = cls._process_new_state(tdef[2],
-                                                   unprocessed, processed)
-
-            tokens.append((rex, token, new_state))
-        return tokens
-        */
 	}
 	
 	public function process_tokendef($name, $tokendefs=null)
 	{
-        /*Preprocess a dictionary of token definitions.*/
+        /** Preprocess a dictionary of token definitions. */
 
         $processed = $this->_all_tokens[$name] = [];
         if(!$tokendefs) {
@@ -504,8 +459,6 @@ class Regex extends AbstractLexer
 					$kwargs = array_merge($kwargs, $lexer->options);
 					$lexer = '\\Phygments\\Lexers\\'.$lexer;
 					$lx = new $lexer($kwargs);
-					//kwargs.update(lexer.options)
-					//lx = lexer.__class__(**kwargs)
 				} else {
 					$lx = $lexer;
 				}
@@ -522,15 +475,10 @@ class Regex extends AbstractLexer
 		} else {
 			$callback = function($lexer, $match, $ctx=null) use ($_other, $kwargs, $gt_kwargs) 
 			{
-				//var_dump(get_class($this));
-				//var_dump($gt_kwargs);
-				
 				# XXX: cache that somehow
 				$kwargs = array_merge($kwargs, $this->options);
 				$_other = '\\Phygments\\Lexers\\'.$_other;
 				$lx = new $_other($kwargs);
-				//kwargs.update(lexer.options)
-				//lx = _other(**kwargs)
 				
 				$s = $match->start();
 				foreach($lx->get_tokens_unprocessed($match->group(), $gt_kwargs) as $tokenu) {
@@ -584,9 +532,9 @@ class _Combined
 
 class _PseudoMatch
 {
-	/*
-	 A pseudo match object constructed from a string.
-	*/
+	/**
+	 * A pseudo match object constructed from a string.
+	 */
 
 	public function __construct($start, $text)
 	{
@@ -607,8 +555,7 @@ class _PseudoMatch
 	public function group($arg)
 	{
 		if($arg) {
-			//raise IndexError('No such group')
-			throw new Exception\IndexError('No such group');
+			Exception::raise('IndexError', 'No such group');
 		}
 		return  $this->_text;
 	}
@@ -620,7 +567,7 @@ class _PseudoMatch
 
 	public function groupdict()
 	{
-		return array();  //{}
+		return array();
 	}
 	 
 }
