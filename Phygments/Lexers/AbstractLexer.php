@@ -43,7 +43,7 @@ abstract class AbstractLexer
     public $mimetypes = [];
 
     #: Priority, should multiple lexers match and no content is provided
-    public $priority = 0;
+    public static $priority = 0;
 
     //protected $__metaclass__ = 'Phygments\Lexers\LexerMeta';
 

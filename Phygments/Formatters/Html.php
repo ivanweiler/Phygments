@@ -244,6 +244,50 @@ CONST;
 	private function _wrap_full($inner, $outfile)
 	{
 		//@todo
+		/*
+        if($this->cssfile) {
+            if os.path.isabs(self.cssfile):
+                # it's an absolute filename
+                cssfilename = self.cssfile
+            else:
+                try:
+                    filename = outfile.name
+                    if not filename or filename[0] == '<':
+                        # pseudo files, e.g. name == '<fdopen>'
+                        raise AttributeError
+                    cssfilename = os.path.join(os.path.dirname(filename),
+                                               self.cssfile)
+                except AttributeError:
+                    print >>sys.stderr, 'Note: Cannot determine output file name, ' \
+                          'using current directory as base for the CSS file name'
+                    cssfilename = self.cssfile
+            
+            # write CSS file only if noclobber_cssfile isn't given as an option.
+            try:
+                if not os.path.exists(cssfilename) or not self.noclobber_cssfile:
+                    cf = open(cssfilename, "w")
+                    cf.write(CSSFILE_TEMPLATE %
+                            {'styledefs': self.get_style_defs('body')})
+                    cf.close()
+            except IOError, err:
+                err.strerror = 'Error writing CSS file: ' + err.strerror
+                raise
+
+            yield 0, (DOC_HEADER_EXTERNALCSS %
+                      dict(title     = self.title,
+                           cssfile   = self.cssfile,
+                           encoding  = self.encoding))
+        } else {
+            yield 0, (DOC_HEADER %
+                      dict(title     = self.title,
+                           styledefs = self.get_style_defs('body'),
+                           encoding  = self.encoding))
+        }
+        
+        for t, line in inner:
+            yield t, line
+        yield 0, DOC_FOOTER
+        */
 	}
 	
 	private function _wrap_tablelinenos($inner)
@@ -460,19 +504,12 @@ CONST;
         $lspan = '';
         $line = '';
         foreach($tokensource as $ttype => $value) {
-        	//var_dump($ttype); //var_dump($value);
-        	
             if($nocls) {
                 $cclass = $getcls[$ttype];
                 $i = 0;
                 while(is_null($cclass)) {
-                	
-                	//var_dump("$ttype");
-                	
                     $ttype = Token::getToken($ttype)->parent;
                     $cclass = $getcls["$ttype"];
-                    
-                    //var_dump($cclass);
 
                     if($i>=10) break;
                     $i++;
