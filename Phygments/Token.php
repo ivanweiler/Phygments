@@ -1,15 +1,5 @@
 <?php
 namespace Phygments;
-/* 
-Singleton Token object, parent of token types
-
-Token::getToken();
-Token::getToken('Text.Whitespace');
-Token::getToken()->Text->Whitespace
-
-Token::$Text->Whitespace
-Token::$Whitespace
-*/
 
 class _TokenType
 {
@@ -54,6 +44,17 @@ class _TokenType
 	}
 }
 
+/**
+ * Singleton Token object, parent of token types
+ *
+ *  Token::getToken();
+ *  Token::getToken('Text.Whitespace');
+ *  Token::getToken()->Text->Whitespace
+ *
+ *  Token::$Text->Whitespace
+ *  Token::$Whitespace
+ *
+ */
 class Token
 {
 	public static $STANDARD_TYPES = array(
@@ -144,6 +145,7 @@ class Token
 	
     private function __construct()
     {
+    	// killing me softly
     }
 	
     public static function __declare()
@@ -152,18 +154,18 @@ class Token
     		return;
     	}
     	
-		//declare main types and aliases
+		// declare main types and aliases
 		$Token = new _TokenType('Token');
 		self::$Token = $Token;
 		
-		# Special token types
+		// Special token types
 		self::$Text				= $Token->Text;
 		self::$Whitespace		= $Token->Text->Whitespace;
 		self::$Error			= $Token->Error;
-		# Text that doesn't belong to this lexer (e.g. HTML in PHP)
+		// Text that doesn't belong to this lexer (e.g. HTML in PHP)
 		self::$Other			= $Token->Other;
 
-		# Common token types for source code
+		// Common token types for source code
 		self::$Keyword			= $Token->Keyword;
 		self::$Name				= $Token->Name;
 		self::$Literal			= $Token->Literal;
@@ -173,19 +175,17 @@ class Token
 		self::$Operator			= $Token->Operator;
 		self::$Comment			= $Token->Comment;
 
-		# Generic types for non-source code
+		// Generic types for non-source code
 		self::$Generic			= $Token->Generic;
 
-		# String and some others are not direct childs of Token.
-		# alias them:
+		// String and some others are not direct childs of Token.
+		// alias them:
 		self::$Token->Token		= self::$Token;
 		self::$Token->String	= self::$String;
 		self::$Token->Number	= self::$Number;
 
-		
 		//aliases to real token names in $STANDARD_TYPES
 		self::alias_to_name_keys(self::$STANDARD_TYPES);
-		
     }
 	
     public static function getToken($type=null)
@@ -209,7 +209,9 @@ class Token
 		return $object;
     }
     
-    //alias to real name (ex. String.Escape => Token.Literal.String.Escape)
+    /**
+     * Alias to real name (ex. String.Escape => Token.Literal.String.Escape)
+     */
     public static function alias_to_name($type)
     {
 		return self::getToken($type)->__toString();
@@ -231,7 +233,6 @@ class Token
 	
 	public static function is_token_subtype($ttype, $other)
 	{
-		//return ttype in other
 		//return property_exists($other, $ttype);
 		return isset($other->subtypes[$ttype]);
 	}

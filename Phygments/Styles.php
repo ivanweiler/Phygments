@@ -1,10 +1,11 @@
 <?php
 namespace Phygments;
+
 use \Phygments\Python\Exception;
 
 class Styles
 {
-	#: Maps style names to classname.
+	// Maps style names to classname.
 	public static $STYLE_MAP = [
 		'default'=>  'Standard',
 		'standard'=> 'Standard',
@@ -32,40 +33,25 @@ class Styles
 	{
 		if(array_key_exists($name, self::$STYLE_MAP)) {
 			$cls = '\\Phygments\\Styles\\' . self::$STYLE_MAP[$name];
-			$builtin = "yes";
 		} else {
-// 			foreach(Plugin::find_plugin_styles() as $found_name => $style) {
-// 				if($name == $found_name) {
-// 					return $style;
-// 				}
-// 			}
-			# perhaps it got dropped into our styles package
-			$builtin = "";
+			// perhaps it got dropped into our styles package
 			$cls = '\\Phygments\\Styles\\'. $name;
 		}
 
 		if(class_exists($cls)) {
 			return new $cls;
 		} else {
-			Exception::raise('ClassNotFound', sprintf('Could not find style class %s', $cls) .
-							 ($builtin ? ', though it should be builtin' : '') . '.');
+			Exception::raise('ClassNotFound', sprintf('Could not find style class %s.', $cls));
 		}
 	}
 
+	/**
+	 * Return an generator for all styles by name
+	 */
 	public static function get_all_styles()
 	{
-		/*
-		Return an generator for all styles by name,
-		both builtin and plugin.
-		*/
 		foreach(array_keys(self::$STYLE_MAP) as $name) {
 			yield $name;
 		}
-		
-// 		foreach(Plugin::find_plugin_styles() as $name => $_) {
-// 			yield $name;
-// 		}
-
 	}
-	
 }

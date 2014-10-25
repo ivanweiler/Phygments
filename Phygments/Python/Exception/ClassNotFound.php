@@ -1,3 +1,6 @@
 <?php 
 namespace Phygments\Python\Exception;
-class ClassNotFound extends \Exception {}
+
+class ClassNotFound extends \Exception 
+{	
+}

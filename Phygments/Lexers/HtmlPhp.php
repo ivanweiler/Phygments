@@ -1,5 +1,6 @@
 <?php
 namespace Phygments\Lexers;
+
 use \Phygments\Lexers\Php as PhpLexer;
 use \Phygments\Util;
 

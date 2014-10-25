@@ -10,7 +10,7 @@ spl_autoload_register(function($class) {
 });
 //
 
-$code = <<<'CODE'
+$code1 = <<<'CODE'
 <b><?php echo "test 123"; ?></b>
 <?php 
 $i = 8;
@@ -48,11 +48,13 @@ $lexer2 = new \Phygments\Lexers\Scss();
 
 $formater1 = new \Phygments\Formatters\RawToken();
 $formater2 = new \Phygments\Formatters\Html(array(
-	'noclasses' =>	true,
+	//'noclasses' =>	true,
+	'full'	=> true,
+	'title'	=> 'My code'
 	//'style'		=>	'Github'
 ));
 
-echo \Phygments\Phygments::highlight($code2, $lexer2, $formater2);
+echo \Phygments\Phygments::highlight($code1, $lexer1, $formater2);
 return;
 
 echo '<pre>';

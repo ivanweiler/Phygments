@@ -12,7 +12,6 @@ Roadmap
 - implement and test all languages - community help needed
 - unicode support?
 
-
 Current
 - solve STANDARD_TYPES to Token map problem, finish Styles logic - DONE
 - finalize bygroups, calls, includes, etc. - DONE
@@ -21,8 +20,15 @@ Current
 - check and fix all regex definitions (\ and #) - DONE
 - finalize HtmlPhp lexer + Delegating - DONE?
 - finalize styles switching - DONE
-- implement guess lexer functionality
+- implement guess lexer functionality - DROPED
 - cleanup + initial beta release
+
+New
+- drop mimetypes, not needed
+- drop guess_lexer, most of them works only for full files
+- drop style classes, implement css version ? or html5 formatter
+- drop plugins
+- simplify, modernize
 
 
 Lexer convert

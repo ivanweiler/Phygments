@@ -1,5 +1,6 @@
 <?php
 namespace Phygments\Python;
+
 use \Phygments\Python\Exception;
 
 class Exception

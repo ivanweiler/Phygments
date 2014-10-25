@@ -1,5 +1,6 @@
 <?php
 namespace Phygments;
+
 use \Phygments\Python\Exception;
 
 class Formatters

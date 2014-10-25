@@ -1,5 +1,6 @@
 <?php
 namespace Phygments\Lexers;
+
 use \Phygments\Token;
 use \Phygments\Python\Re as re;
 use \Phygments\Python\Exception;

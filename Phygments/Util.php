@@ -1,5 +1,6 @@
 <?php
 namespace Phygments;
+
 class Util
 {
 	const split_path_re = '[/\\\\ ]';
@@ -89,43 +90,40 @@ class Util
 	
 	public static function docstring_headline($obj)
 	{
-		//@todo: finish, use ReflectionClass::getDocComment()
+		//@todo: finish, test
 		$r = new ReflectionClass($obj);
 		$doc = $r->getDocComment();
 		preg_match_all('#@(.*?)\n#s', $doc, $annotations);
 		return $annotations[1];		
 	}
 	
+	/**
+	 * Check if the given regular expression matches the last part of the
+	 * shebang if one exists.
+	 * 
+	 * >>> shebang_matches('#!/usr/bin/env python', 'python(2\.\d)?')
+	 * True
+	 * >>> shebang_matches('#!/usr/bin/python2.4', 'python(2\.\d)?')
+	 * True
+	 * >>> shebang_matches('#!/usr/bin/python-ruby', 'python(2\.\d)?')
+	 * False
+	 * >>> shebang_matches('#!/usr/bin/python/ruby', 'python(2\.\d)?')
+	 * False
+	 * >>> shebang_matches('#!/usr/bin/startsomethingwith python', 'python(2\.\d)?')
+	 * True
+	 * 
+	 * It also checks for common windows executable file extensions::
+	 * >>> shebang_matches('#!C:\\Python2.4\\Python.exe', r'python(2\.\d)?')
+	 * True
+	 * 
+	 * Parameters (``'-f'`` or ``'--foo'`` are ignored so ``'perl'`` does
+	 * the same as ``'perl -e'``)
+	 * 
+	 * Note that this method automatically searches the whole string (eg:
+	 * the regular expression is wrapped in ``'^$'``)
+	 */
 	public static function shebang_matches($text, $regex)
 	{
-		/*
-	    Check if the given regular expression matches the last part of the
-	    shebang if one exists.
-			
-	        >>> shebang_matches('#!/usr/bin/env python', 'python(2\.\d)?')
-	        True
-	        >>> shebang_matches('#!/usr/bin/python2.4', 'python(2\.\d)?')
-	        True
-	        >>> shebang_matches('#!/usr/bin/python-ruby', 'python(2\.\d)?')
-	        False
-	        >>> shebang_matches('#!/usr/bin/python/ruby', 'python(2\.\d)?')
-	        False
-	        >>> shebang_matches('#!/usr/bin/startsomethingwith python',
-	        ...                 'python(2\.\d)?')
-	        True
-			
-	    It also checks for common windows executable file extensions::
-			
-	        >>> shebang_matches('#!C:\\Python2.4\\Python.exe', r'python(2\.\d)?')
-	        True
-			
-	    Parameters (``'-f'`` or ``'--foo'`` are ignored so ``'perl'`` does
-	    the same as ``'perl -e'``)
-			
-	    Note that this method automatically searches the whole string (eg:
-	    the regular expression is wrapped in ``'^$'``)
-	    */
-		
 		$index = strpos($text, "\n");
 		if($index===0 || $index>0) {
 			$first_line = strtolower(substr($text, $index));
@@ -155,13 +153,13 @@ class Util
 		return false;
 	}
 	
+	/**
+	 * Check if the doctype matches a regular expression (if present).
+	 * Note that this method only checks the first part of a DOCTYPE.
+	 * eg: 'html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'
+	 */
 	public static function doctype_matches($text, $regex)
 	{
-		/*
-	    Check if the doctype matches a regular expression (if present).
-	    Note that this method only checks the first part of a DOCTYPE.
-	    eg: 'html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"'
-	    */
 	    $matches = array();
 	    if(!preg_match("#\G".doctype_lookup_re."#", $text, $matches)) {
 	    	return false;
@@ -172,21 +170,21 @@ class Util
 	    return (bool)preg_match("#\G$regex#", trim($doctype));
 	}	
 	
+	/**
+	 * Check if the file looks like it has a html doctype.
+	 */
 	public static function html_doctype_matches($text)
 	{
-    	/*
-    	Check if the file looks like it has a html doctype.
-    	*/
     	return self::doctype_matches($text, 'html\\s+PUBLIC\\s+"-//W3C//DTD X?HTML.*');	
 	}
 	
 	private static $_looks_like_xml_cache = [];
 	
+	/**
+	 * Check if a doctype exists or if we have some tags.
+	 */
 	public static function looks_like_xml($text)
 	{
-		/*
-	    Check if a doctype exists or if we have some tags.
-	    */
 	    $key = hash('md5', $text);
 	    
 	    if(isset(self::$_looks_like_xml_cache[$key])) {

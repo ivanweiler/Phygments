@@ -1,5 +1,6 @@
 <?php
 namespace Phygments\Python;
+
 class Re
 {
 	/*

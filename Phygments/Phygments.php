@@ -1,13 +1,18 @@
 <?php
 namespace Phygments;
+
 class Phygments
 {
-	const VERSION = '0.1';
+	const VERSION = '0.2';
 	const PYGMENTS_VERSION = '1.6';
 	
 	public function lex($code, $lexer)
 	{
-		return $lexer->get_tokens($code);
+		try {
+			return $lexer->get_tokens($code);
+		} catch(Exception $e) {
+			echo 'error';
+		}
 		/*
 		try:
 			return lexer.get_tokens(code)
@@ -51,11 +56,9 @@ class Phygments
 		return self::format(self::lex($code, $lexer), $formatter, $outfile);
 	}
 	
-	/*
-	public function check()
-	{
-		return version_compare(phpversion(), '5.5.0', '>=');
-	}
-	*/
+// 	public function check()
+// 	{
+// 		return version_compare(phpversion(), '5.5.0', '>=');
+// 	}
 	
 }

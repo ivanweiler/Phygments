@@ -2,6 +2,7 @@
 namespace Phygments;
 
 use Phygments\Python\Exception;
+
 class Lexers
 {
 	private static $_lexer_cache = [];
@@ -14,12 +15,11 @@ class Lexers
 		}		
 	}
 	
+	/**
+	 * Load a lexer (and all others in the module too).
+	 */	
 	private static function _load_lexers()
 	{
-		/*
-		Load a lexer (and all others in the module too).
-		*/
-		
 		//self::__declare();
 		
 		foreach(self::$LEXERS as $cls => $lexer) {
@@ -29,71 +29,56 @@ class Lexers
 			//why no aliases here?
 		}
 	}
-
+	
+	/**
+	 * Return a generator of tuples in the form ``(name, aliases,
+	 * filenames, mimetypes)`` of all know lexers.
+	 */
 	public static function get_all_lexers()
 	{
-		/*
-		Return a generator of tuples in the form ``(name, aliases,
-		filenames, mimetypes)`` of all know lexers.
-		*/
 		foreach($LEXERS as $item) {
 			yield $item;
 		}
-
-// 		foreach(Plugin::find_plugin_lexers() as $lexer) {
-// 			yield lexer.name, lexer.aliases, lexer.filenames, lexer.mimetypes
-// 		}
 	}
 
+	/**
+	 * Lookup a lexer class by name. Return None if not found.
+	 */
 	public static function find_lexer_class($name)
 	{
-		/*
-		Lookup a lexer class by name. Return None if not found.
-		*/
-		
 		self::_load_lexers();
 		
-		# lookup builtin lexers
+		// lookup builtin lexers
 		if(isset(self::$_lexer_cache[$name])) {
 			return self::$_lexer_cache[$name];
-		}
-
-// 		foreach(Plugin::find_plugin_lexers() as $cls) {
-// 			if(cls.name == name) {
-//				return $cls;
-//			}
-// 		}		
+		}	
 	}
 
+	/**
+	 * Get a lexer by an alias.
+	 */	
 	public static function get_lexer_by_name($_alias, $options=[])
 	{
-		/*
-		Get a lexer by an alias.
-		*/
-		
 		self::_load_lexers();
 		
-		# lookup builtin lexers
+		// lookup builtin lexers
 		foreach(self::$LEXERS as $lexer) {
 			list($name, $aliases) = $lexer;
 			if(array_search($_alias, $aliases)!==false) {
 				return self::$_lexer_cache[$name]($options);
 			}
 		}
-
-		//foreach(Plugin::find_plugin_lexers() as $cls) {}
 		
 		Exception::raise('ClassNotFound', sprintf('no lexer for alias %s found', $_alias));
 	}
 
+	/**
+	 * Get a lexer for a filename.  If multiple lexers match the filename
+	 * pattern, use ``analyze_text()`` to figure out which one is more
+	 * appropriate.
+	 */	
 	public static function get_lexer_for_filename($_fn, $code=null, $options=[])
 	{
-		/*
-		Get a lexer for a filename.  If multiple lexers match the filename
-		pattern, use ``analyze_text()`` to figure out which one is more
-		appropriate.
-		*/
-		
 		self::_load_lexers();
 		
 		$matches = [];
@@ -107,16 +92,14 @@ class Lexers
 			}
 		}
 		
-		//foreach(Plugin::find_plugin_lexers() as $cls) {}
-		
 		$get_rating = function($info) use ($code) {
 			list($cls, $filename) = $info;
-			# explicit patterns get a bonus
+			// explicit patterns get a bonus
 			$bonus = (strpos($filename, '*')===false) ? 0.5 : 0;
-			# The class _always_ defines analyse_text because it's included in
-			# the Lexer class.  The default implementation returns None which
-			# gets turned into 0.0.  Run scripts/detect_missing_analyse_text.py
-			# to find lexers which need it overridden.
+			// The class _always_ defines analyse_text because it's included in
+			// the Lexer class.  The default implementation returns None which
+			// gets turned into 0.0.  Run scripts/detect_missing_analyse_text.py
+			// to find lexers which need it overridden.
 			if($code) {
 				return $cls::analyse_text($code) + $bonus;
 			}
@@ -131,12 +114,11 @@ class Lexers
 		Exception::raise('ClassNotFound', sprintf('no lexer for filename %s found', $_fn));
 	}
 
+	/**
+	 * Get a lexer for a mimetype.
+	 */	
 	public static function get_lexer_for_mimetype($_mime, $options=[])
 	{
-		/*
-		Get a lexer for a mimetype.
-		*/
-		
 		self::_load_lexers();
 		
 		foreach(self::$LEXERS as $lexer) {
@@ -146,45 +128,38 @@ class Lexers
 			}
 		}
 		
-		//foreach(Plugin::find_plugin_lexers() as $cls) {}
-		
 		Exception::raise('ClassNotFound', sprintf('no lexer for mimetype %s found', $_mime));
 	}
 
-
+	
+	/**
+	 * Return an iterator over all lexer classes.
+	 */
 	public static function _iter_lexerclasses()
 	{
-		/*
-		Return an iterator over all lexer classes.
-		*/
-		
 		self::_load_lexers();
 		
 		foreach(sort(array_keys(self::$LEXERS)) as $key) {
 			$name = self::$LEXERS[$key][0];
 			yield self::$_lexer_cache[$name];
 		}
-		
-		//foreach(Plugin::find_plugin_lexers() as $lexer) {}
 	}
 
+	/**
+	 * Lookup all lexers that handle those filenames primary (``filenames``)
+	 * or secondary (``alias_filenames``). Then run a text analysis for those
+	 * lexers and choose the best result.
+	 * 
+	 * usage::
+	 * >>> guess_lexer_for_filename('hello.html', '<%= @foo %>')
+	 * <RhtmlLexer object>
+	 * >>> guess_lexer_for_filename('hello.html', '<h1>{{ title|e }}</h1>')
+	 * <HtmlDjangoLexer object>
+	 * >>> guess_lexer_for_filename('style.css', 'a { color: <?= $link ?> }')
+	 * <CssPhpLexer object>
+	 */
 	public static function guess_lexer_for_filename($_fn, $_text, $options=[])
 	{
-		/*
-		Lookup all lexers that handle those filenames primary (``filenames``)
-		or secondary (``alias_filenames``). Then run a text analysis for those
-		lexers and choose the best result.
-
-		usage::
-
-			>>> guess_lexer_for_filename('hello.html', '<%= @foo %>')
-			<pygments.lexers.templates.RhtmlLexer object at 0xb7d2f32c>
-			>>> guess_lexer_for_filename('hello.html', '<h1>{{ title|e }}</h1>')
-			<pygments.lexers.templates.HtmlDjangoLexer object at 0xb7d2f2ac>
-			>>> guess_lexer_for_filename('style.css', 'a { color: <?= $link ?> }')
-			<pygments.lexers.templates.CssPhpLexer object at 0xb7ba518c>
-		*/
-
 		/*
 		$fn = basename($_fn);
 		$primary = null;
@@ -226,11 +201,11 @@ class Lexers
 		*/
 	}
 
+	/**
+	 * Guess a lexer by strong distinctions in the text (eg, shebang).
+	 */
 	public static function guess_lexer($_text, $options=[])
 	{
-		/*
-		Guess a lexer by strong distinctions in the text (eg, shebang).
-		*/
 		$best_lexer = [0.0, null];
 		foreach(self::_iter_lexerclasses() as $lexer) {
 			$rv = $lexer::analyse_text($_text);

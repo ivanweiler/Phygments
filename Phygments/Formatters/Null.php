@@ -1,5 +1,6 @@
 <?php
 namespace Phygments\Formatters;
+
 class Null extends AbstractFormatter
 {
 	public $name = 'Text only';

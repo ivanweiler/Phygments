@@ -1,5 +1,6 @@
 <?php
 namespace Phygments\Lexers;
+
 use \Phygments\Token;
 
 class Delegating extends AbstractLexer

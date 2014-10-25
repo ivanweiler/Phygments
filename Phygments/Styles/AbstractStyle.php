@@ -1,18 +1,19 @@
 <?php
 namespace Phygments\Styles;
+
 use \Phygments\Token;
 use \Phygments\Python\Exception;
 
-class AbstractStyle implements \IteratorAggregate, \Countable //,\ArrayAccess
+class AbstractStyle implements \IteratorAggregate, \Countable
 {
-	#: overall background color (``None`` means transparent)
+	// overall background color (``None`` means transparent)
 	public $background_color = '#ffffff';
-	#: highlight background color
+	// highlight background color
 	public $highlight_color = '#ffffcc';
 	
 	public function __construct()
 	{
-		//aliases to real token names
+		// aliases to real token names
 		Token::alias_to_name_keys($this->styles);
 		
 		foreach(array_keys(Token::$STANDARD_TYPES) as $token) {
@@ -21,7 +22,6 @@ class AbstractStyle implements \IteratorAggregate, \Countable //,\ArrayAccess
 			}
 		}
 		
-		//var_dump($this->styles);
 		$this->_styles = [];
 		$_styles = &$this->_styles;
 
@@ -78,8 +78,6 @@ class AbstractStyle implements \IteratorAggregate, \Countable //,\ArrayAccess
 				
 			}
 		}
-		
-		//var_dump($this->_styles);
 	}
         
 	public function style_for_token($token)
@@ -97,17 +95,9 @@ class AbstractStyle implements \IteratorAggregate, \Countable //,\ArrayAccess
             'mono'=>         $t[8] ? (bool)$t[8] : null,
         ];
 	}
-
-	/*
-    public function list_styles()
-    {
-        //return list(cls) //?? property list?
-    }
-    */
 	
     public function styles_token($ttype)
     {
-        //return ttype in cls._styles
         return $this->_styles["$ttype"];
     }
     
@@ -127,10 +117,9 @@ class AbstractStyle implements \IteratorAggregate, \Countable //,\ArrayAccess
     	Exception::assert(false, sprintf("wrong color format %s", $text));
     }
     
-    //Generator implements Iterator, this works
+    // Generator implements Iterator, this works
     public function getIterator()
     {
-    	//return new \ArrayIterator($this->_styles);
     	$generator = function() {
         	foreach(array_keys($this->_styles) as $token) {
             	yield $token => $this->style_for_token($token);
@@ -149,26 +138,5 @@ class AbstractStyle implements \IteratorAggregate, \Countable //,\ArrayAccess
     {
     	return $this->count();
     }
-    
-    /*
-    public function offsetSet($offset, $value) {
-    	if (is_null($offset)) {
-    		$this->_styles[] = $value;
-    	} else {
-    		$this->_styles[$offset] = $value;
-    	}
-    }
-    
-    public function offsetExists($offset) {
-		return isset($this->_styles[$offset]);
-    }
-    
-    public function offsetUnset($offset) {
-		unset($this->_styles[$offset]);
-    }
-    
-    public function offsetGet($offset) {
-		return isset($this->_styles[$offset]) ? $this->_styles[$offset] : null;
-    }   
-    */
+
 }

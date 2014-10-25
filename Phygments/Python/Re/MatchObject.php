@@ -1,5 +1,6 @@
 <?php
 namespace Phygments\Python\Re;
+
 use \Phygments\Python\Exception;
 
 class MatchObject

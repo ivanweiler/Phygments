@@ -1,7 +1,9 @@
 <?php
 namespace Phygments\Formatters;
+
 use \Phygments\Util;
 use \Phygments\Token;
+use \Phygments\Python\Helper;
 
 class Html extends AbstractFormatter
 {
@@ -17,15 +19,13 @@ pre { line-height: 125%%; }
 CONST;
     
     const DOC_HEADER = <<<'CONST'
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
-   "http://www.w3.org/TR/html4/strict.dtd">
-    
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
   <title>%(title)s</title>
-  <meta http-equiv="content-type" content="text/html; charset=%(encoding)s">
+  <meta http-equiv="content-type" content="text/html; charset="%(encoding)s">
   <style type="text/css">
-%(CSSFILE_TEMPLATE)
+CSSFILE_TEMPLATE
   </style>
 </head>
 <body>
@@ -34,13 +34,11 @@ CONST;
 CONST;
     
     const DOC_HEADER_EXTERNALCSS = <<<'CONST'
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN"
-   "http://www.w3.org/TR/html4/strict.dtd">
-    
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
   <title>%(title)s</title>
-  <meta http-equiv="content-type" content="text/html; charset=%(encoding)s">
+  <meta http-equiv="content-type" content="text/html; charset="%(encoding)s">
   <link rel="stylesheet" href="%(cssfile)s" type="text/css">
 </head>
 <body>
@@ -59,6 +57,7 @@ CONST;
 		
 		$this->title = $this->_decodeifneeded($this->title);
         $this->nowrap = Util::get_bool_opt($options, 'nowrap', false);
+        
         $this->noclasses = Util::get_bool_opt($options, 'noclasses', false);
         $this->classprefix = Util::get_opt($options, 'classprefix', '');
         $this->cssclass = $this->_decodeifneeded(Util::get_opt($options, 'cssclass', 'highlight'));
@@ -67,19 +66,10 @@ CONST;
         $this->cssfile = $this->_decodeifneeded(Util::get_opt($options, 'cssfile', ''));
         $this->noclobber_cssfile = Util::get_bool_opt($options, 'noclobber_cssfile', false);
         
-        /*@todo: check if ctags are possible through shell exec
-         * https://github.com/jeremykendall/phpctagger        
-        //$this->tagsfile = $this->_decodeifneeded(options.get('tagsfile', ''));
-        //$this->tagurlformat = $this->_decodeifneeded(options.get('tagurlformat', ''));
-
-        if($this->tagsfile) {
-            if(!ctags) {
-                raise RuntimeError('The "ctags" package must to be installed '
-                                   'to be able to use the "tagsfile" feature.')
-			}
-            $this->._ctags = ctags.CTags($this->tagsfile)
-		}
-		*/
+        /**
+         * @todo: check if ctags are possible; shell exec maybe
+         * https://github.com/jeremykendall/phpctagger
+         */
 		
         $linenos = Util::get_opt($options, 'linenos', false);
         if($linenos == 'inline') {
@@ -107,9 +97,11 @@ CONST;
         $this->_create_stylesheet();
 	}
 	
+	/**
+	 * Return the css class of this token type prefixed with the classprefix option.
+	 */
 	private function _get_css_class($ttype)
 	{
-        /*Return the css class of this token type prefixed with the classprefix option.*/
         $ttypeclass = $this->_get_ttype_class($ttype);
         if($ttypeclass) {
             return $this->classprefix . $ttypeclass;
@@ -172,65 +164,87 @@ CONST;
                 $style .= sprintf('border: 1px solid #%s; ', $ndef['border']);
             }
             if($style) {
-            	
-            	//var_dump($style);
-            	
                 $t2c[$ttype] = $name;
-                # save len(ttype) to enable ordering the styles by
-                # hierarchy (necessary for CSS cascading rules!)
+                /**
+                 * save len(ttype) to enable ordering the styles by 
+                 * hierarchy (necessary for CSS cascading rules!)
+                 */
                 
-                //$c2s[$name] = [style[:-2], ttype, len(ttype)]; //len??
-                
+                //$c2s[$name] = [style[:-2], ttype, len(ttype)];
                 $c2s[$name] = [substr($style, 0, -2), $ttype]; //@todo: wtf is len here
-                
             }
 		}
-		
-		//var_dump($this->ttype2class);
-
 	}
 	
+	/**
+	 * Return CSS style definitions for the classes produced by the current
+	 * highlighting style. ``arg`` can be a string or list of selectors to
+	 * insert before the token type classes.
+	 */
     public function get_style_defs($arg=null)
 	{
-        /*
-        Return CSS style definitions for the classes produced by the current
-        highlighting style. ``arg`` can be a string or list of selectors to
-        insert before the token type classes.
-        */
-		/*
-        if arg is None:
-            arg = ('cssclass' in self.options and '.'+self.cssclass or '')
-        if isinstance(arg, basestring):
-            args = [arg]
-        else:
-            args = list(arg)
+		if(!$arg) {
+			$arg = isset($this->options['cssclass']) ? '.'.$this->cssclass : '';
+		}
+		if(is_string($arg)) {
+			$args = array($arg);
+		} else {
+			$args = (array)$arg;
+		}
+		
+		$prefix = function($cls) use ($args) {
+			if($cls) {
+				$cls = '.' . $cls;
+			}
+			$tmp = [];
+			foreach($args as $arg) {
+				$tmp[] = ($arg ? $arg . ' ' : '') . $cls;
+			}
+			return implode(', ', $tmp);			
+		};
+		
+		//var_dump($this->class2style); 
+		//var_dump($this->ttype2class);
+		//die();
+		
+		$styles = [];
+		foreach($this->class2style as $cls => $sstyle) {
+			$styles[] = [
+				'style' => $sstyle[0],
+				'ttype'	=> $sstyle[1],
+				'level'	=> '0',
+				'cls'	=> $cls
+			];
+		}
+		
+		//var_dump($styles);
 
-        def prefix(cls):
-            if cls:
-                cls = '.' + cls
-            tmp = []
-            for arg in args:
-                tmp.append((arg and arg + ' ' or '') + cls)
-            return ', '.join(tmp)
+		$lines = [];
+		foreach($styles as $sstyle) {
+			//list($level, $ttype, $cls, $style) = $sstyle;
+			extract($sstyle);
+			$lines[] = sprintf('%s { %s } /* %s */', $prefix($cls), $style, substr($ttype, 6));
+		}
+		
+		//@todo:  styles.sort() .. by len/level?
+		
+		if($arg && !$this->nobackground && $this->style->background_color) {
+			$text_style = '';
+			if(array_key_exists('Text', $this->ttype2class)) {
+				$text_style = ' ' . $this->class2style[$this->ttype2class['Text']][0];
+			}
+			array_splice($lines, 0, 0,
+				sprintf('%s { background: %s;%s }', $prefix(''), $this->style->background_color, $text_style)
+			);							
+		}		
 
-        styles = [(level, ttype, cls, style)
-                  for cls, (style, ttype, level) in self.class2style.iteritems()
-                  if cls and style]
-        styles.sort()
-        lines = ['%s { %s } /zvjezda %s zvjezda/' % (prefix(cls), style, repr(ttype)[6:])
-                 for (level, ttype, cls, style) in styles]
-        if arg and not self.nobackground and \
-           self.style.background_color is not None:
-            text_style = ''
-            if Text in self.ttype2class:
-                text_style = ' ' + self.class2style[self.ttype2class[Text]][0]
-            lines.insert(0, '%s { background: %s;%s }' %
-                         (prefix(''), self.style.background_color, text_style))
-        if self.style.highlight_color is not None:
-            lines.insert(0, '%s.hll { background-color: %s }' %
-                         (prefix(''), self.style.highlight_color))
-        return '\n'.join(lines)	
-		*/	
+		if($this->style->highlight_color) {
+			array_splice($lines, 0, 0, 
+				sprintf('%s.hll { background-color: %s }', $prefix(''), $this->style->highlight_color)
+			);
+		}
+		
+		return implode("\n", $lines);
 	}
 	
     private function _decodeifneeded($value)
@@ -243,9 +257,10 @@ CONST;
 	
 	private function _wrap_full($inner, $outfile)
 	{
-		//@todo
-		/*
-        if($this->cssfile) {
+		//@todo: finish
+
+        if(0 && $this->cssfile) {
+        	/*
             if os.path.isabs(self.cssfile):
                 # it's an absolute filename
                 cssfilename = self.cssfile
@@ -261,33 +276,39 @@ CONST;
                     print >>sys.stderr, 'Note: Cannot determine output file name, ' \
                           'using current directory as base for the CSS file name'
                     cssfilename = self.cssfile
-            
+            */
+        	
+        	$cssfilename = $this->cssfile;
+        	
             # write CSS file only if noclobber_cssfile isn't given as an option.
-            try:
-                if not os.path.exists(cssfilename) or not self.noclobber_cssfile:
-                    cf = open(cssfilename, "w")
-                    cf.write(CSSFILE_TEMPLATE %
-                            {'styledefs': self.get_style_defs('body')})
-                    cf.close()
-            except IOError, err:
-                err.strerror = 'Error writing CSS file: ' + err.strerror
-                raise
+            if(!file_exists($cssfilename) || !$this->noclobber_cssfile) {
+            	file_put_contents(
+            		$cssfilename, 
+            		Helper::string_format(self::CSSFILE_TEMPLATE, 
+            			array('styledefs' => $this->get_style_defs('body')))
+            	);
+            	//raise IOError, Error writing CSS file
+            }
 
-            yield 0, (DOC_HEADER_EXTERNALCSS %
-                      dict(title     = self.title,
-                           cssfile   = self.cssfile,
-                           encoding  = self.encoding))
+            yield [0, Helper::string_format(self::DOC_HEADER_EXTERNALCSS,
+						array(	'title'		=> $this->title,
+								'cssfile'   => $this->cssfile,
+								'encoding'  => $this->encoding))];
         } else {
-            yield 0, (DOC_HEADER %
-                      dict(title     = self.title,
-                           styledefs = self.get_style_defs('body'),
-                           encoding  = self.encoding))
+        	//@note: this won't be needed with constants in php 5.6
+        	$doc_header = str_replace('CSSFILE_TEMPLATE', self::CSSFILE_TEMPLATE, self::DOC_HEADER);
+            yield [0, Helper::string_format($doc_header,
+						array(	'title'		=> $this->title,
+								'styledefs'	=> $this->get_style_defs('body'),
+								'encoding'	=> $this->encoding))];
         }
         
-        for t, line in inner:
-            yield t, line
-        yield 0, DOC_FOOTER
-        */
+		foreach($inner as $_inner) {
+        	//t, line in inner:
+            //yield t, line
+            yield $_inner;
+		}
+        yield [0, self::DOC_FOOTER];
 	}
 	
 	private function _wrap_tablelinenos($inner)
@@ -350,9 +371,11 @@ CONST;
             $ls = implode("\n", $lines);
 		}
 		
-        # in case you wonder about the seemingly redundant <div> here: since the
-        # content in the other cell also is wrapped in a div, some browsers in
-        # some configurations seem to mess up the formatting...
+        /** 
+         * in case you wonder about the seemingly redundant <div> here: since the
+         * content in the other cell also is wrapped in a div, some browsers in
+         * some configurations seem to mess up the formatting...
+         */ 
         if($nocls) {
             yield [0, sprintf('<table class="%stable">', $this->cssclass) .
                       '<tr><td><div class="linenodiv" ' .
@@ -370,12 +393,11 @@ CONST;
 	
 	private function _wrap_inlinelinenos($inner)
 	{
-        # need a list of lines since we need the width of a single number :(
+        // need a list of lines since we need the width of a single number :(
         $lines = $inner;
         $sp = $this->linenospecial;
         $st = $this->linenostep;
         $num = $this->linenostart;
-        //mw = len(str(len(lines) + num - 1))
         $mw = strlen((string)(count($lines) + $num - 1));
         $mw = str_repeat(' ', $mw);	
 
@@ -422,8 +444,7 @@ CONST;
     private function _wrap_lineanchors($inner)
 	{
         $s = $this->lineanchors;
-        $i = $this->linenostart - 1; # subtract 1 since we have to increment i
-									# *before* yielding
+        $i = $this->linenostart - 1; // subtract 1 since we have to increment i before yielding
         foreach($inner as $iinner) {
 			list($t, $line) = $iinner;
             if($t) {
@@ -488,18 +509,17 @@ CONST;
         yield [0, '</pre>'];
 	}
 	
+	/**
+	 * Just format the tokens, without any wrapping tags.
+	 * Yield individual lines.
+	 */
 	private function _format_lines($tokensource)
 	{
-		/*
-        Just format the tokens, without any wrapping tags.
-        Yield individual lines.
-		*/
         $nocls = $this->noclasses;
         $lsep = $this->lineseparator;
-        # for <span style=""> lookup only
+        // for <span style=""> lookup only
         $getcls = &$this->ttype2class;
         $c2s = &$this->class2style;
-        //$tagsfile = $this->tagsfile;
         
         $lspan = '';
         $line = '';
@@ -523,32 +543,17 @@ CONST;
 			$parts = htmlspecialchars($value, ENT_QUOTES);
 			$parts = explode("\n", $parts);
 			
-			/*
-            if tagsfile and ttype in Token.Name:
-                filename, linenumber = $this->_lookup_ctag(value)
-                if linenumber:
-                    base, filename = os.path.split(filename)
-                    if base:
-                        base += '/'
-                    filename, extension = os.path.splitext(filename)
-                    url = $this->tagurlformat % {'path': base, 'fname': filename,
-                                               'fext': extension}
-                    parts[0] = "<a href=\"%s#%s-%d\">%s" % \
-                        (url, $this->lineanchors, linenumber, parts[0])
-                    parts[-1] = parts[-1] + "</a>"
-			*/
-			
 			$part_last = array_pop($parts);
 			
-			//ZERO bug, $part = '0'; we need to use !=''
+			// Weiler: ZERO bug, $part = '0'; we need to use !=''
 			
-			# for all but the last line
+			// for all but the last line
 			foreach($parts as $part) {
                 if($line!='') {
                     if($lspan != $cspan) {
                         $line .= ($lspan ? '</span>' : '') . $cspan . $part .
                                 ($cspan ? '</span>' : '') . $lsep;
-                    } else { # both are the same
+                    } else { // both are the same
                         $line .= $part . ($lspan ? '</span>' : '') . $lsep;
                     }
                     yield [1, $line];
@@ -559,7 +564,7 @@ CONST;
                     yield [1, $lsep];
                 }
 			}
-            # for the last line
+            // for the last line
 			if($line!='' && $part_last!='') {
                 if($lspan != $cspan) {
                     $line .= ($lspan ? '</span>' : '') . $cspan . $part_last;
@@ -571,8 +576,7 @@ CONST;
                 $line = $cspan . $part_last;
                 $lspan = $cspan;
 			}
-            # else we neither have to open a new span nor set lspan
-
+            // else we neither have to open a new span nor set lspan
         }
         
         if($line!='') {
@@ -581,17 +585,12 @@ CONST;
 
 	}
 	
-	private function _lookup_ctag($token)
-	{
-		//@todo
-	}
-	
+	/**
+	 * Highlighted the lines specified in the `hl_lines` option by
+	 * post-processing the token stream coming from `_format_lines`.
+	 */
 	private function _highlight_lines($inner)
 	{
-		/*
-        Highlighted the lines specified in the `hl_lines` option by
-        post-processing the token stream coming from `_format_lines`.
-        */
 		$hls = $this->hl_lines;
 
         foreach($inner as $i => $iinner) {
@@ -599,7 +598,7 @@ CONST;
         	if($t != 1) {
         		yield [$t, $value];
         	}
-        	if(in_array($i+1, $hls)) { # i + 1 because indexes start at 0
+        	if(in_array($i+1, $hls)) { // i + 1 because indexes start at 0
         		if($this->noclasses) {
         			$style = '';
         			if($this->style->highlight_color) {
@@ -615,33 +614,32 @@ CONST;
         	}
         }
 	}
-		            	
+
+	/**
+	 * Wrap the ``source``, which is a generator yielding 
+	 * individual lines, in custom generators. See docstring 
+	 * for `format`. Can be overridden.
+	 */
 	public function wrap($source)
 	{
-		/*
-        Wrap the ``source``, which is a generator yielding
-        individual lines, in custom generators. See docstring
-        for `format`. Can be overridden.
-        */
 		return $this->_wrap_div($this->_wrap_pre($source));
 	}
 	
+	/**
+	 * The formatting process uses several nested generators; which of
+	 * them are used is determined by the user's options.
+	 * 
+	 * Each generator should take at least one argument, ``inner``,
+	 * and wrap the pieces of text generated by this.
+	 * 
+	 * Always yield 2-tuples: (code, text). If "code" is 1, the text 
+	 * is part of the original tokensource being highlighted, if it's
+	 * 0, the text is some piece of wrapping. This makes it possible to
+	 * use several different wrappers that process the original source
+	 * linewise, e.g. line number generators.
+	 */
 	public function format_unencoded($tokensource, $outfile)
 	{
-		/*
-        The formatting process uses several nested generators; which of
-        them are used is determined by the user's options.
-
-        Each generator should take at least one argument, ``inner``,
-        and wrap the pieces of text generated by this.
-
-        Always yield 2-tuples: (code, text). If "code" is 1, the text
-        is part of the original tokensource being highlighted, if it's
-        0, the text is some piece of wrapping. This makes it possible to
-        use several different wrappers that process the original source
-        linewise, e.g. line number generators.
-		*/
-        
 		$source = $this->_format_lines($tokensource);
 		
         if($this->hl_lines) {
@@ -663,8 +661,7 @@ CONST;
                 $source = $this->_wrap_tablelinenos($source);
 			}
             if($this->full) {
-            	//@todo
-                //$source = $this->_wrap_full($source, $outfile);
+                $source = $this->_wrap_full($source, $outfile);
 			}
 		}
 

@@ -1,16 +1,18 @@
 <?php
 namespace Phygments\Formatters;
+
 use \Phygments\Util;
 use \Phygments\Token;
 
+/**
+ * Html5 Formatter
+ * 
+ * Modern version of Html Formatter.
+ * Fomat tokens in <span>-s, wrapped in <code><pre>.
+ * Mixed code support. No line numbers in html. External css.
+ */
 class Html5 extends Html
 {
-	/**
-	 * Modern version of Html Formatter. 
-	 * Fomat tokens in <span>-s, wrapped in <code><pre>.
-	 * Mixed code support. No line numbers in html. External css.
-	 */
-	
 	public $name = 'HTML5';
 	public $aliases = ['html5'];
 	public $filenames = ['*.html'];	
@@ -38,15 +40,16 @@ CONST;
 	
 	public function __construct($options=array())
 	{
+		$options = array_merge($options, array(
+			'noclasses' => false,
+			'lineos'	=> 2
+		));
+		
 		parent::__construct($options);
 		
 		//$this->cssfile =  Util::get_opt($options, 'cssfile', '');
 		//$this->cssclass = Util::get_opt($options, 'cssclass', 'highlight');
-		
-		$this->noclasses = false;
-		if($this->linenos == 1) {
-			$this->linenos = 2;
-		}
+
 	}
 	
      private function _wrap_code($inner)
@@ -96,8 +99,7 @@ CONST;
 			list($t, $piece) = $ssource;
 			fwrite($handle, $piece);
 		}
-		fclose($handle);		
-		
+		fclose($handle);
 	}	
 	
 }

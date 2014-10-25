@@ -1,5 +1,6 @@
 <?php
 namespace Phygments\Lexers;
+
 use \Phygments\Python\Re as re;
 
 class Scss extends Sass
