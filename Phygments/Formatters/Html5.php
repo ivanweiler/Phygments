@@ -3,6 +3,7 @@ namespace Phygments\Formatters;
 
 use \Phygments\Util;
 use \Phygments\Token;
+use \Phygments\Python\Helper;
 
 /**
  * Html5 Formatter
@@ -17,20 +18,17 @@ class Html5 extends Html
 	public $aliases = ['html5'];
 	public $filenames = ['*.html'];	
 	
-	const EXTERNALCSS_TEMPLATE = <<<'CONST'
-<link rel="stylesheet" type="text/css" href="%(cssfile)s" media="all" />
-CONST;
-	
 	const DOC_HEADER = <<<'CONST'
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
 	<title>%(title)s</title>
-	<meta http-equiv="content-type" content="text/html; charset="%(encoding)s">
-	EXTERNALCSS_TEMPLATE
+	<meta charset="%(encoding)s">
+	<link rel="stylesheet" type="text/css" href="%(cssfile)s" media="all" />
 </head>
 <body>
 <h1>%(title)s</h1>
+
 CONST;
 	
 	const DOC_FOOTER = <<<'CONST'
@@ -42,27 +40,42 @@ CONST;
 	{
 		$options = array_merge($options, array(
 			'noclasses' => false,
-			'lineos'	=> 2
+			//'linenos'	=> 'inline',
+			'encoding'	=> 'utf-8',
+			'nowrap'	=> false
 		));
 		
 		parent::__construct($options);
 		
-		//$this->cssfile =  Util::get_opt($options, 'cssfile', '');
-		//$this->cssclass = Util::get_opt($options, 'cssclass', 'highlight');
+		$this->cssfile = $this->cssfile ?: 'default.css';
 	}
 	
-     private function _wrap_code($inner)
-	 {
-		yield [0, '<code' . ($this->cssclass ? sprintf(' class="%s"', $this->cssclass) : '') . '>'];
+	private function _wrap_code_pre($inner)
+	{
+		yield [0, '<pre' . ($this->cssclass ? sprintf(' class="%s"', $this->cssclass) : '') . '><code>'];
 		foreach($inner as $tup) {
 			yield $tup;
 		}
-		yield [0, "</code>\n"];       		
+		yield [0, "</code></pre>\n"];       		
 	}
+	
+	protected function _wrap_full($inner, $outfile)
+	{
+		yield [0, Helper::string_format(static::DOC_HEADER,
+				array(	'title'		=> $this->title,
+						'encoding'	=> $this->encoding,
+						'cssfile'	=> $this->cssfile
+				))];
+	
+		foreach($inner as $_inner) {
+			yield $_inner;
+		}
+		yield [0, self::DOC_FOOTER];
+	}	
 	
 	public function wrap($source)
 	{
-		return $this->_wrap_pre($this->_wrap_code($source));
+		return $this->_wrap_code_pre($source);
 	}	
 	
 	public function __format_unencoded($tokensource, $outfile)
@@ -74,7 +87,10 @@ CONST;
 		}
 		
 		if(!$this->nowrap) {
-			if($this->linenos == 2) {
+			
+			
+			
+			if($this->linenos == 2) { echo 123;
 				$source = $this->_wrap_inlinelinenos($source);
 			}
 			if($this->lineanchors) {

@@ -23,7 +23,7 @@ CONST;
 <html>
 <head>
   <title>%(title)s</title>
-  <meta http-equiv="content-type" content="text/html; charset="%(encoding)s">
+  <meta http-equiv="content-type" content="text/html; charset=%(encoding)s">
   <style type="text/css">
 CSSFILE_TEMPLATE
   </style>
@@ -38,7 +38,7 @@ CONST;
 <html>
 <head>
   <title>%(title)s</title>
-  <meta http-equiv="content-type" content="text/html; charset="%(encoding)s">
+  <meta http-equiv="content-type" content="text/html; charset=%(encoding)s">
   <link rel="stylesheet" href="%(cssfile)s" type="text/css">
 </head>
 <body>
@@ -169,9 +169,8 @@ CONST;
                  * save len(ttype) to enable ordering the styles by 
                  * hierarchy (necessary for CSS cascading rules!)
                  */
-                
-                //$c2s[$name] = [style[:-2], ttype, len(ttype)];
-                $c2s[$name] = [substr($style, 0, -2), $ttype]; //@todo: wtf is len here
+				//@todo len = getToken()->len() ?
+                $c2s[$name] = [substr($style, 0, -2), $ttype, substr_count($ttype, '.')];
             }
 		}
 	}
@@ -203,21 +202,19 @@ CONST;
 			return implode(', ', $tmp);			
 		};
 		
-		//var_dump($this->class2style); 
-		//var_dump($this->ttype2class);
-		//die();
-		
 		$styles = [];
 		foreach($this->class2style as $cls => $sstyle) {
 			$styles[] = [
 				'style' => $sstyle[0],
 				'ttype'	=> $sstyle[1],
-				'level'	=> '0',
+				'level'	=> $sstyle[2],
 				'cls'	=> $cls
 			];
 		}
-		
-		//var_dump($styles);
+
+		usort($styles, function ($a, $b) {
+        	return $a['level'] - $b['level'];
+    	});
 
 		$lines = [];
 		foreach($styles as $sstyle) {
@@ -225,8 +222,6 @@ CONST;
 			extract($sstyle);
 			$lines[] = sprintf('%s { %s } /* %s */', $prefix($cls), $style, substr($ttype, 6));
 		}
-		
-		//@todo:  styles.sort() .. by len/level?
 		
 		if($arg && !$this->nobackground && $this->style->background_color) {
 			$text_style = '';
@@ -255,11 +250,11 @@ CONST;
         return $value;
 	}
 	
-	private function _wrap_full($inner, $outfile)
+	protected function _wrap_full($inner, $outfile)
 	{
 		//@todo: finish
 
-        if(0 && $this->cssfile) {
+        if($this->cssfile) {
         	/*
             if os.path.isabs(self.cssfile):
                 # it's an absolute filename
@@ -277,7 +272,7 @@ CONST;
                           'using current directory as base for the CSS file name'
                     cssfilename = self.cssfile
             */
-        	
+        	/*
         	$cssfilename = $this->cssfile;
         	
             # write CSS file only if noclobber_cssfile isn't given as an option.
@@ -289,6 +284,7 @@ CONST;
             	);
             	//raise IOError, Error writing CSS file
             }
+            */
 
             yield [0, Helper::string_format(self::DOC_HEADER_EXTERNALCSS,
 						array(	'title'		=> $this->title,

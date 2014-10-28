@@ -132,7 +132,7 @@ class Regex extends AbstractLexer
 					break;
 				}
 				if($text[$pos] == "\n") {
-					# at EOL, reset state to "root"
+					// at EOL, reset state to "root"
 					$statestack = ['root'];
 					$statetokens = $tokendefs['root'];
 					yield array($pos, Token::getToken('Text'), "\n");
@@ -184,7 +184,7 @@ class Regex extends AbstractLexer
 	private function _process_new_state($new_state, &$unprocessed, &$processed)
 	{
 		if(is_string($new_state)) {
-			# an existing state
+			// an existing state
 			if($new_state == '#pop') {
 				return -1;
 			} elseif(isset($unprocessed[$new_state])) {
@@ -197,54 +197,36 @@ class Regex extends AbstractLexer
 				//assert False, 'unknown new state %r' % new_state
 				throw new \Exception(sprintf('unknown new state %s', (string)$new_state));
 			}
-		} elseif(0) {
-			//@todo: combined missing
+			
+		//@todo combined not tested
+		} elseif($new_state instanceof \Phygments\Lexers\Regex\Helper\_Combined) {
+			// combine a new state from existing ones
+			$tmp_state = sprintf('_tmp_%d', $this->_tmpname);
+			$this->_tmpname += 1;
+			$itokens = [];
+			foreach($new_state as $istate) {
+				if($istate == $new_state) {
+					throw new \Exception(sprintf('circular state ref %s', (string)$istate));
+				}
+				//assert istate != new_state, 'circular state ref %r' % istate
+				$itokens = array_merge($itokens, $this->_process_state($unprocessed, $processed, $istate));
+			}
+			$processed[$tmp_state] = $itokens;
+			return [$tmp_state]; //(tmp_state,)			
+			
 		} elseif(is_array($new_state)) {
 			foreach($new_state as $istate) {
+				//assert
 				if(!(isset($unprocessed[$istate]) || in_array($istate, array('#pop', '#push')))) {
 					throw new \Exception(sprintf('unknown new state %s', (string)$istate));
 				}
 			}
 			return $new_state;
+			
 		} else {
 			throw new \Exception(sprintf('unknown new state def %s', (string)$new_state));
+			//assert False, 'unknown new state %r' % new_state
 		}
-		
-		/*
-        if isinstance(new_state, str):
-            # an existing state
-            if($new_state == '#pop') {
-                return -1;
-			} elseif($new_state in unprocessed) {
-                return (new_state,)
-			} elseif($new_state == '#push') {
-                return new_state
-			} elseif($new_state[:5] == '#pop:') {
-                return -int(new_state[5:])
-			} else {
-                assert False, 'unknown new state %r' % new_state
-			}
-        elif isinstance(new_state, combined):
-            # combine a new state from existing ones
-            tmp_state = '_tmp_%d' % cls._tmpname
-            cls._tmpname += 1
-            itokens = []
-            for istate in new_state:
-                assert istate != new_state, 'circular state ref %r' % istate
-                itokens.extend(cls._process_state(unprocessed,
-                                                  processed, istate))
-            processed[tmp_state] = itokens
-            return (tmp_state,)
-        elif isinstance(new_state, tuple):
-            # push more than one state
-            for istate in new_state:
-                assert (istate in unprocessed or
-                        istate in ('#pop', '#push')), \
-                       'unknown new state ' + istate
-            return new_state
-        else:
-            assert False, 'unknown new state def %r' % new_state
-            */
 	}
 	
 	/** 
@@ -262,7 +244,7 @@ class Regex extends AbstractLexer
 		foreach($unprocessed[$state] as $tdef) {
 			
 			if($tdef instanceof \Phygments\Lexers\Regex\Helper\_Include) {
-				# it's a state reference
+				// it's a state reference
 				if($tdef == $state) {
 					throw new \Exception(sprintf('circular state reference %s', (string)$state));
 				}
@@ -272,7 +254,7 @@ class Regex extends AbstractLexer
 			}
 			
 			if($tdef instanceof \Phygments\Lexers\Regex\Helper\_Inherit) {
-				#processed already
+				// processed already
 				continue;
 			}
 			

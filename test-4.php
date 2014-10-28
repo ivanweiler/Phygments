@@ -16,8 +16,8 @@ spl_autoload_register(function($class) {
 $code1 = <<<'CODE'
 <b><?php echo "test 123"; ?></b>
 <?php 
-$i = 8;
-#I am comment!
+	$i = 8;
+	#I am comment!
 ?>
 <br />
 CODE;
@@ -52,8 +52,10 @@ $lexer2 = new \Phygments\Lexers\Scss();
 $formater1 = new \Phygments\Formatters\RawToken();
 $formater2 = new \Phygments\Formatters\Html(array(
 	//'noclasses' =>	true,
-	'full'	=> true,
-	'title'	=> 'My code'
+	'full'		=> true,
+	'title'		=> 'My Test Code',
+	//'cssfile'	=> 'http://localho.st/default.css',
+	//'cssclass'	=> 'codehilite',
 	//'style'		=>	'Github'
 ));
 
