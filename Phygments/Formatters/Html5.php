@@ -26,8 +26,8 @@ CONST;
 <html>
 <head>
 	<title>%(title)s</title>
-	<meta http-equiv="content-type" content="text/html; charset=%(encoding)s">
-	%(EXTERNALCSS_TEMPLATE)
+	<meta http-equiv="content-type" content="text/html; charset="%(encoding)s">
+	EXTERNALCSS_TEMPLATE
 </head>
 <body>
 <h1>%(title)s</h1>
@@ -49,7 +49,6 @@ CONST;
 		
 		//$this->cssfile =  Util::get_opt($options, 'cssfile', '');
 		//$this->cssclass = Util::get_opt($options, 'cssclass', 'highlight');
-
 	}
 	
      private function _wrap_code($inner)
@@ -89,8 +88,7 @@ CONST;
 				$source = $this->_wrap_tablelinenos($source);
 			}
 			if($this->full) {
-				//@todo
-				//$source = $this->_wrap_full($source, $outfile);
+				$source = $this->_wrap_full($source, $outfile);
 			}
 		}
 		

@@ -6,7 +6,7 @@ class Phygments
 	const VERSION = '0.2';
 	const PYGMENTS_VERSION = '1.6';
 	
-	public function lex($code, $lexer)
+	public static function lex($code, $lexer)
 	{
 		try {
 			return $lexer->get_tokens($code);
@@ -25,7 +25,7 @@ class Phygments
 		*/
 	}
 
-	public function format($tokens, $formatter, $outfile=null)
+	public static function format($tokens, $formatter, $outfile=null)
 	{
 		try {
 			if(!$outfile) {
@@ -51,7 +51,7 @@ class Phygments
 		*/
 	}
 
-	public function highlight($code, $lexer, $formatter, $outfile=null)
+	public static function highlight($code, $lexer, $formatter, $outfile=null)
 	{
 		return self::format(self::lex($code, $lexer), $formatter, $outfile);
 	}

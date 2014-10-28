@@ -3,7 +3,7 @@ namespace Phygments\Python;
 
 class Helper
 {
-	public function string_format($string, array $args = array())
+	public static function string_format($string, array $args = array())
 	{
 		$search = array();
 		$i = 1;

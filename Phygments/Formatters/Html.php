@@ -74,7 +74,7 @@ CONST;
         $linenos = Util::get_opt($options, 'linenos', false);
         if($linenos == 'inline') {
             $this->linenos = 2;
-        } elseif(linenos) {
+        } elseif($linenos) {
             # compatibility with <= 0.7
             $this->linenos = 1;
 		} else {

@@ -6,42 +6,53 @@ use \Phygments\Token;
 use \Phygments\Python\Re as re;
 use \Phygments\Python\Exception;
 
+/**
+ * Base for simple stateful regular expression-based lexers.
+ * Simplifies the lexing process so that you need only
+ * provide a list of states and regular expressions.
+ */
 class Regex extends AbstractLexer
 {
-	/**
-	 * Base for simple stateful regular expression-based lexers.
-	 * Simplifies the lexing process so that you need only 
-	 * provide a list of states and regular expressions.
-	 */
-
-    #: Flags for compiling the regular expressions.
-    #: Defaults to MULTILINE.
+    /** 
+     * Flags for compiling the regular expressions.
+     * Defaults to MULTILINE.
+     */
     public $flags = re::MULTILINE;
 
-    #: Dict of ``{'state': [(regex, tokentype, new_state), ...], ...}``
-    #:
-    #: The initial state is 'root'.
-    #: ``new_state`` can be omitted to signify no state transition.
-    #: If it is a string, the state is pushed on the stack and changed.
-    #: If it is a tuple of strings, all states are pushed on the stack and
-    #: the current state will be the topmost.
-    #: It can also be ``combined('state1', 'state2', ...)``
-    #: to signify a new, anonymous state combined from the rules of two
-    #: or more existing ones.
-    #: Furthermore, it can be '#pop' to signify going back one step in
-    #: the state stack, or '#push' to push the current state on the stack
-    #: again.
-    #:
-    #: The tuple can also be replaced with ``include('state')``, in which
-    #: case the rules from the state named by the string are included in the
-    #: current one.
+    /**
+     * Dict of ``{'state': [(regex, tokentype, new_state), ...], ...}``
+     *
+     * The initial state is 'root'.
+     * ``new_state`` can be omitted to signify no state transition.
+     * If it is a string, the state is pushed on the stack and changed.
+     * If it is a tuple of strings, all states are pushed on the stack and
+     * the current state will be the topmost.
+     * It can also be ``combined('state1', 'state2', ...)``
+     * to signify a new, anonymous state combined from the rules of two
+     * or more existing ones.
+     * Furthermore, it can be '#pop' to signify going back one step in
+     * the state stack, or '#push' to push the current state on the stack
+     * again.
+     *
+     * The tuple can also be replaced with ``include('state')``, in which
+     * case the rules from the state named by the string are included in the
+     * current one.
+     */
     public $tokens = [];
+    
+    private $_tokens;
+    protected $token_variants = false;
 	
 	public function __construct($options=array())
 	{
 		$this->__declare();
-		
-		/* Metaclass __call() logic */
+
+		/**
+		 * Metaclass for RegexLexer, creates the self._tokens attribute from
+		 * self.tokens on the first instantiation.
+		 * 
+		 * Metaclass __call() logic
+		 */		
 		if(is_null($this->_tokens)) {
 			$this->_all_tokens = [];
             $this->_tmpname = 0;
@@ -56,13 +67,12 @@ class Regex extends AbstractLexer
 		parent::__construct($options);
 	}
 
+	/**
+	 * Split ``text`` into (tokentype, text) pairs.
+	 * ``stack`` is the inital stack (default: ``['root']``)
+	 */	
 	public function get_tokens_unprocessed(&$text, $stack=array('root'))
 	{
-		/**
-		 * Split ``text`` into (tokentype, text) pairs. 
-		 * ``stack`` is the inital stack (default: ``['root']``)
-		 */
-		
         $pos = 0;
         $tokendefs = &$this->_tokens;
         $statestack = (array)$stack;
@@ -136,26 +146,22 @@ class Regex extends AbstractLexer
 
 	}
 	
-	
 	/**
-	 * Metaclass for RegexLexer, creates the self._tokens attribute from 
-	 * self.tokens on the first instantiation.
+	 * Preprocess the regular expression component of a token definition.
 	 */
-	
 	private function _process_regex($regex, $rflags)
 	{
-		/*Preprocess the regular expression component of a token definition.*/
-		
 		$flags = implode((array)$rflags);
 		//$regex = addcslashes($regex, '#');
 		$regex = str_replace(array('#','\\\\#'), array('\\#','\\\\\\#'), $regex);
 		return "#$regex#$flags";
 	}
 
+	/** 
+	 * Preprocess the token component of a token definition. 
+	 */
 	private function _process_token($token)
 	{
-		/** Preprocess the token component of a token definition. */
-		
 		//check string format? Xyz.Xyz?
 		if(is_string($token) && preg_match('#^[A-Z][a-z]*(?:\.[A-Z][a-z]*)*$#', $token)) {
 			$token = Token::getToken($token);
@@ -172,10 +178,11 @@ class Regex extends AbstractLexer
         return $token;
 	}
 
+	/** 
+	 * Preprocess the state transition action of a token definition. 
+	 */
 	private function _process_new_state($new_state, &$unprocessed, &$processed)
 	{
-        /** Preprocess the state transition action of a token definition. */
-		
 		if(is_string($new_state)) {
 			# an existing state
 			if($new_state == '#pop') {
@@ -240,10 +247,11 @@ class Regex extends AbstractLexer
             */
 	}
 	
+	/** 
+	 * Preprocess a single state definition. 
+	 */
 	private function _process_state(&$unprocessed, &$processed, $state)
 	{
-        /** Preprocess a single state definition. */
-		
 		if(isset($processed[$state])) {
 			return $processed[$state];
 		}
@@ -299,20 +307,19 @@ class Regex extends AbstractLexer
         return $processed;
 	}
 	
+	/**
+	 * Merge tokens from superclasses in MRO order, returning a single tokendef
+	 * dictionary.
+	 * 
+	 * Any state that is not defined by a subclass will be inherited
+	 * automatically.  States that *are* defined by subclasses will, by
+	 * default, override that state in the superclass.  If a subclass wishes to
+	 * inherit definitions from a superclass, it can use the special value
+	 * "inherit", which will cause the superclass' state definition to be
+	 * included at that point in the state.
+	 */	
 	public function get_tokendefs()
 	{
-        /*
-        Merge tokens from superclasses in MRO order, returning a single tokendef
-        dictionary.
-
-        Any state that is not defined by a subclass will be inherited
-        automatically.  States that *are* defined by subclasses will, by
-        default, override that state in the superclass.  If a subclass wishes to
-        inherit definitions from a superclass, it can use the special value
-        "inherit", which will cause the superclass' state definition to be
-        included at that point in the state.
-        */
-		
 		/*
 		Weiler: I believe we can access defined parent properties through Reflection if nothing else
 		http://stackoverflow.com/questions/2439181/php-and-classes-access-to-parents-public-property-within-the-parent-class
@@ -376,11 +383,11 @@ class Regex extends AbstractLexer
 		return new Regex\Helper\_Combined($arr);
 	}
 	
+	/**
+	 * Callback that yields multiple actions for each group in the match.
+	 */
 	protected function _bygroups()
 	{
-		/*
-		Callback that yields multiple actions for each group in the match.
-		*/
 		$args = func_get_args();
 		$callback = function($lexer, $match, $ctx=null) use ($args) {
 			foreach($args as $i => $action) {
@@ -415,21 +422,22 @@ class Regex extends AbstractLexer
 		return $callback;		
 	}
 	
-	//@todo: _using() needs serious revamp/cleanup
+	/**
+	 * Callback that processes the match with a different lexer.
+	 * The keyword arguments are forwarded to the lexer, except `state` which
+	 * is handled separately.
+	 * 
+	 * `state` specifies the state that the new lexer will start in, and can
+	 * be an enumerable such as ('root', 'inline', 'string') or a simple
+	 * string which is assumed to be on top of the root state.
+	 * 
+	 * Note: For that to work, `_other` must not be an `ExtendedRegexLexer`.
+	 * 
+	 * 
+	 * @todo: _using() needs serious revamp/cleanup
+	 */
 	protected function _using($_other, $kwargs=[])
 	{
-		/*
-	    Callback that processes the match with a different lexer.
-			
-	    The keyword arguments are forwarded to the lexer, except `state` which
-	    is handled separately.
-			
-	    `state` specifies the state that the new lexer will start in, and can
-	    be an enumerable such as ('root', 'inline', 'string') or a simple
-	    string which is assumed to be on top of the root state.
-			
-	    Note: For that to work, `_other` must not be an `ExtendedRegexLexer`.
-	    */
 		$gt_kwargs = [];
 		if(isset($kwargs['state'])) {
 			$s = $kwargs['state'];
@@ -531,12 +539,11 @@ class _Combined
 	}
 }
 
+/**
+ * A pseudo match object constructed from a string.
+ */
 class _PseudoMatch
 {
-	/**
-	 * A pseudo match object constructed from a string.
-	 */
-
 	public function __construct($start, $text)
 	{
 		$this->_text = $text;

@@ -16,6 +16,7 @@
 # start
 $FORMATTERS = [
     'Html' => ['HTML', ['html',], ['*.html', '*.htm'], "Format tokens as HTML 4 ``<span>`` tags within a ``<pre>`` tag, wrapped in a ``<div>`` tag. The ``<div>``'s CSS class can be set by the `cssclass` option."],
+    'Html5' => ['HTML5', ['html5',], ['*.html', '*.htm'], "Format tokens as HTML 5."],
     'Null' => ['Text only', ['text', 'null'], ['*.txt',], 'Output the text unchanged without any formatting.'],
     'RawToken' => ['Raw tokens', ['raw', 'tokens'], ['*.raw',], 'Format tokens as a raw representation for storing token streams.'],
 ];

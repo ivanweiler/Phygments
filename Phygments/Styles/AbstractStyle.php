@@ -27,13 +27,14 @@ class AbstractStyle implements \IteratorAggregate, \Countable
 
 		foreach(array_keys($this->styles) as $ttype) {
 			foreach(Token::getToken($ttype)->split() as $token) {
-				
+
 				if(array_key_exists("$token", $this->_styles)) {
 					continue;
 				}
 				
 				$ndef = $token->parent ? $_styles["{$token->parent}"] : null;
-				$styledefs = explode(' ', $this->styles["$token"]);
+				// Weiler: fix for explode of empty string not returning empty array
+				$styledefs = $this->styles["$token"] ? explode(' ', $this->styles["$token"]) : [];
 				
 				if(!$ndef || !$token) {
 					$ndef = ['', 0, 0, 0, '', '', 0, 0, 0];
@@ -42,9 +43,14 @@ class AbstractStyle implements \IteratorAggregate, \Countable
 				} else {
 					//$ndef = ndef[:]
 					$ndef = $ndef;
-				}
+				}		
 				
 				foreach($styledefs as $styledef) {
+					
+					if(!$styledef) {
+						continue;
+					}
+					
 					if($styledef == 'noinherit') {
 						continue;
 					} elseif($styledef == 'bold') {
@@ -65,7 +71,7 @@ class AbstractStyle implements \IteratorAggregate, \Countable
 						$ndef[5] = $this->colorformat(substr($styledef, 7));
 					} elseif($styledef == 'roman') {
 						$ndef[6] = 1;
-					} elseif( styledef == 'sans') {
+					} elseif($styledef == 'sans') {
 						$ndef[7] = 1;
 					} elseif($styledef == 'mono') {
 						$ndef[8] = 1;
@@ -75,9 +81,9 @@ class AbstractStyle implements \IteratorAggregate, \Countable
 				}
 				
 				$_styles["$token"] = $ndef;
-				
 			}
 		}
+
 	}
         
 	public function style_for_token($token)
@@ -103,7 +109,7 @@ class AbstractStyle implements \IteratorAggregate, \Countable
     
     private function colorformat($text)
     {
-    	if($text[0] == '#') {
+    	if(isset($text[0]) && $text[0] == '#') {
     		$col = substr($text, 1);
     		if(strlen($col) == 6) {
     			return $col;

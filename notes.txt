@@ -23,6 +23,8 @@ Current
 - implement guess lexer functionality - DROPED
 - cleanup + initial beta release
 
+- Style is initialized twice in Delegating lexers !! fix
+
 New
 - drop mimetypes, not needed
 - drop guess_lexer, most of them works only for full files

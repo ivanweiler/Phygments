@@ -8,7 +8,7 @@ class MatchObject
 	public function __construct($matches, $offset=0)
 	{
 		$this->_matches = $matches;
-		$this->_offset = $start;
+		$this->_offset = $offset;
 	}
 	
 	public function start($arg=0)

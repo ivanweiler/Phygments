@@ -38,7 +38,7 @@ class Html extends Regex
 				['-', 'Comment'],
 			],
 			'tag'=> [
-				['\\s+', Text],
+				['\\s+', 'Text'],
 				['[a-zA-Z0-9_:-]+\\s*=', 'Name.Attribute', 'attr'],
 				['[a-zA-Z0-9_:-]+', 'Name.Attribute'],
 				['/?\\s*>', 'Name.Tag', '#pop'],
