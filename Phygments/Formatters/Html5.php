@@ -76,44 +76,6 @@ CONST;
 	public function wrap($source)
 	{
 		return $this->_wrap_code_pre($source);
-	}	
-	
-	public function __format_unencoded($tokensource, $outfile)
-	{
-		$source = $this->_format_lines($tokensource);
-		
-		if($this->hl_lines) {
-			$source = $this->_highlight_lines($source);
-		}
-		
-		if(!$this->nowrap) {
-			
-			
-			
-			if($this->linenos == 2) { echo 123;
-				$source = $this->_wrap_inlinelinenos($source);
-			}
-			if($this->lineanchors) {
-				$source = $this->_wrap_lineanchors($source);
-			}
-			if($this->linespans) {
-				$source = $this->_wrap_linespans($source);
-			}
-			$source = $this->wrap($source);
-			if($this->linenos == 1) {	//default one
-				$source = $this->_wrap_tablelinenos($source);
-			}
-			if($this->full) {
-				$source = $this->_wrap_full($source, $outfile);
-			}
-		}
-		
-		$handle = fopen($outfile, 'wb');
-		foreach($source as $ssource) {
-			list($t, $piece) = $ssource;
-			fwrite($handle, $piece);
-		}
-		fclose($handle);
-	}	
+	}
 	
 }

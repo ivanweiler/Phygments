@@ -250,7 +250,7 @@ CONST;
         return $value;
 	}
 	
-	protected function _wrap_full($inner, $outfile)
+	private function _wrap_full($inner, $outfile)
 	{
 		//@todo: finish
 
