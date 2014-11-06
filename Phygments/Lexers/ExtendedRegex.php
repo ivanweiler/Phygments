@@ -33,7 +33,7 @@ class ExtendedRegex extends Regex
             $doelse = true;
             foreach($statetokens as $statetoken) {
             	list($rexmatch, $action, $new_state) = $statetoken;
-            	//@todo: $ctx->end not suported
+            	//@todo: test $ctx->end 
                 $m = re::match($rexmatch, $text, $ctx->pos, $ctx->end);
                 if($m) {
                 	if($action instanceof \Phygments\_TokenType) {

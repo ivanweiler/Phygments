@@ -191,7 +191,7 @@ abstract class AbstractLexer
 					list($index, $itokens) = $next;
 				} else {
 					$insleft = false;
-					break;  // not strictly necessary					
+					break;  // not strictly necessary
 				}
 			}
 			yield [$realpos, $t, substr($v, $oldi)];
@@ -211,7 +211,7 @@ abstract class AbstractLexer
 				list($index, $itokens) = $next;
 			} else {
 				$insleft = false;
-				break;  // not strictly necessary				
+				break;  // not strictly necessary
 			}			
 		}
 		

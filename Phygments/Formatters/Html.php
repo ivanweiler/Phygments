@@ -7,7 +7,7 @@ use \Phygments\Python\Helper;
 
 class Html extends AbstractFormatter
 {
-    public $name = 'HTML';
+	public $name = 'HTML';
     public $aliases = ['html'];
     public $filenames = ['*.html', '*.htm'];
     
@@ -120,7 +120,7 @@ CONST;
 		$aname = '';
 		$fname = '';
 		while(!$fname) {
-			$aname = '-' + end(explode('.', $ttype)) + $aname;
+			$aname = '-' . end(explode('.', $ttype)) . $aname;
 			$ttype = (string)Token::getToken($ttype)->parent;
 			$fname = isset(Token::$STANDARD_TYPES[$ttype]) ? Token::$STANDARD_TYPES[$ttype] : '';
 			
@@ -130,7 +130,7 @@ CONST;
 				break;
 			}
 		}
-		return $fname + $aname;
+		return $fname . $aname;
 	}
 	
 	private function _create_stylesheet()
@@ -585,30 +585,40 @@ CONST;
 	 * Highlighted the lines specified in the `hl_lines` option by
 	 * post-processing the token stream coming from `_format_lines`.
 	 */
-	private function _highlight_lines($inner)
-	{
+	private function _highlight_lines($inner) {
 		$hls = $this->hl_lines;
-
-        foreach($inner as $i => $iinner) {
-			list($t, $value) = $iinner;
-        	if($t != 1) {
-        		yield [$t, $value];
-        	}
-        	if(in_array($i+1, $hls)) { // i + 1 because indexes start at 0
-        		if($this->noclasses) {
-        			$style = '';
-        			if($this->style->highlight_color) {
-        				$style = sprintf(' style="background-color: %s"', 
-        							$this->style->highlight_color);
-        			}
-        			yield [1, sprintf('<span%s>%s</span>', $style, $value)];
-        		} else {
-        			yield [1, sprintf('<span class="hll">%s</span>', $value)];
-        		}
-        	} else {
-            	yield [1, $value];
-        	}
-        }
+		
+		foreach ( $inner as $i => $iinner ) {
+			list ( $t, $value ) = $iinner;
+			if ($t != 1) {
+				yield [ 
+						$t,
+						$value 
+				];
+			}
+			if (in_array ( $i + 1, $hls )) { // i + 1 because indexes start at 0
+				if ($this->noclasses) {
+					$style = '';
+					if ($this->style->highlight_color) {
+						$style = sprintf ( ' style="background-color: %s"', $this->style->highlight_color );
+					}
+					yield [ 
+							1,
+							sprintf ( '<span%s>%s</span>', $style, $value ) 
+					];
+				} else {
+					yield [ 
+							1,
+							sprintf ( '<span class="hll">%s</span>', $value ) 
+					];
+				}
+			} else {
+				yield [ 
+						1,
+						$value 
+				];
+			}
+		}
 	}
 
 	/**

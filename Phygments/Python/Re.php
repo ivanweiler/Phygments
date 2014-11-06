@@ -25,11 +25,16 @@ class Re
 	
 	//emulates pythons re.match()
 	//@todo: $ctx->end not suported
-	public static function match($pattern, &$string, $pos=0, $end=null)
+	public static function match($pattern, $string, $pos=0, $end=null)
 	{
 		//inject \G at the beggining
 		$delimiter = $pattern[0];
 		$pattern = substr_replace($pattern, "$delimiter\G", 0, 1);
+		
+		//it's either this or matches offset + len can't be greater than $end
+		if($end) {
+			$string = substr($string, 0, $end);
+		}
 
 		$matches = array();
 		$m = preg_match($pattern, $string, $matches, PREG_OFFSET_CAPTURE, $pos);

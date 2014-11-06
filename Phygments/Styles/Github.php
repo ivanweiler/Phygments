@@ -17,10 +17,6 @@ namespace Phygments\Styles;
 
 class Github extends AbstractStyle
 {
-	/*
-    	Port of the github color scheme.
-    */
-
 	public $background_color = "#ffffff";
 	public $default_style = "";
 	

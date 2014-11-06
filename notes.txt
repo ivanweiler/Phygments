@@ -32,6 +32,9 @@ New
 - drop plugins
 - simplify, modernize
 
+- inherit
+- match.end()
+
 
 Lexer convert
 # => \#  no?

@@ -273,10 +273,11 @@ class Regex extends AbstractLexer
 		return $tokens;
 	}
 	
+	/** 
+	 * Preprocess a dictionary of token definitions. 
+	 */
 	public function process_tokendef($name, $tokendefs=null)
 	{
-        /** Preprocess a dictionary of token definitions. */
-
         $processed = $this->_all_tokens[$name] = [];
         if(!$tokendefs) {
         	$tokendefs = $this->tokens[$name];
@@ -342,6 +343,54 @@ class Regex extends AbstractLexer
 
         return tokens
         */
+		
+		/*
+		$tokens = [];
+		$inheritable = [];
+		
+		$class = $this;
+		while($class) {
+			$toks = call_user_func(array($class, 'tokens'));
+				
+			foreach($toks as $state => $items) {
+				
+				//$curitems = $tokens[$state];
+				
+				if(!isset($tokens[$state])) {
+					$tokens[$state] = $items;
+					
+					$inherit_ndx = array_search($this->_inherit(), $items, false);
+					if(!$inherit_ndx) {
+						continue;
+					}
+					
+					$inheritable[$state] = $inherit_ndx;
+					continue;
+				}
+				
+				if(isset($inheritable[$state])) {
+					$inherit_ndx = $inheritable[$state];
+					unset($inheritable[$state]);
+				} else {
+					continue;
+				}
+				
+				// Replace the "inherit" value with the items
+				
+				array_splice($a, 1, 0, $items);
+				//curitems[inherit_ndx:inherit_ndx+1] = items
+				$tokens[$state][$inherit_ndx] = $items;
+				
+				$new_inh_ndx = array_search($this->_inherit(), $items, false);
+				if($new_inh_ndx) {
+					$inheritable[$state] = $inherit_ndx + $new_inh_ndx;
+				}
+				
+			}
+			
+			$class = get_parent_class($class);
+		}		
+		*/
 		
 		return $this->tokens;
 	}
