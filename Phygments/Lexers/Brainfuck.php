@@ -30,10 +30,10 @@ class BrainfuckLexer extends Regex
 				$this->_include('common'),
 			],
 			'loop'=> [
-				['\\[', Keyword, '#push'],
-				['\\]', Keyword, '#pop'],
+				['\\[', 'Keyword', '#push'],
+				['\\]', 'Keyword', '#pop'],
 				$this->_include('common'),
-			]			
+			]
 		];
 	}
 }

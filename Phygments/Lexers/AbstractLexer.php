@@ -47,9 +47,6 @@ abstract class AbstractLexer
 	public function __construct($options=array())
 	{
 		$this->options = $options;
-		
-		// declare dynamic properties
-		//$this->__declare();
 
         $this->stripnl = Util::get_bool_opt($options, 'stripnl', True);
         $this->stripall = Util::get_bool_opt($options, 'stripall', False);
@@ -57,28 +54,7 @@ abstract class AbstractLexer
         $this->tabsize = Util::get_int_opt($options, 'tabsize', 0);
         $this->encoding = Util::get_opt($options, 'encoding', 'latin1');
         // self.encoding = options.get('inencoding', None) or self.encoding
-        
-//         $this->filters = [];
-//         foreach(Util::get_list_opt($options, 'filters', []) as $filter_) {
-//             $this->add_filter($filter_);
-// 		}
 	}
-	
-	// php can't declare dynamic properties in class like python
-	protected function __declare()
-	{
-	}
-	
-	/**
-	 * Add a new stream filter to this lexer.
-	 */
-// 	public function add_filter($filter_, $options=array())
-// 	{
-//         if(!($filter instanceof Filter)){
-//             $filter_ = get_filter_by_name($filter_, $options);
-// 		}
-//         $this->filters[] = $filter_;
-// 	}
 	
 	/**
 	 * Has to return a float between ``0`` and ``1`` that indicates

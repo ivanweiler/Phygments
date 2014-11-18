@@ -3,21 +3,21 @@ namespace Phygments\Lexers;
 
 use \Phygments\Python\Re as re;
 
+/**
+ * For Sass stylesheets.
+ */
 class Sass extends ExtendedRegex
 {
-	/**
-	 * For Sass stylesheets.
-	 */
-
     public $name = 'Sass';
     public $aliases = ['sass', 'SASS'];
     public $filenames = ['*.sass'];
     public $mimetypes = ['text/x-sass'];
     
+    public $flags = [re::IGNORECASE];
+    
     protected function __declare()
     {
-    	$this->flags = [re::IGNORECASE];
-    	$this->tokens = [
+    	$tokendefs = [
 			'root'=> [
 				['[ \\t]*\\n', 'Text'],
 				['[ \\t]*', $this->_indentation()],
@@ -80,14 +80,17 @@ class Sass extends ExtendedRegex
 			],    		
 		];
     	
-    	foreach($this->common_sass_tokens() as $group => $common) {
-    		$this->tokens[$group] = $common; //copy.copy(common) //array_merge??
-    	}
-    	$this->tokens['value'][] = ['\\n', 'Text', 'root'];
-    	$this->tokens['selector'][] = ['\\n', 'Text', 'root'];    	
+    	//foreach($this->common_sass_tokens() as $group => $common) {
+    	//	$this->tokens[$group] = $common; //copy.copy(common) //array_merge??
+    	//}
     	
+    	$tokendefs = array_merge($tokendefs, $this->common_sass_tokens());
+    	
+    	$tokendefs['value'][] = ['\\n', 'Text', 'root'];
+    	$tokendefs['selector'][] = ['\\n', 'Text', 'root'];
+    	
+    	return $tokendefs;
     }
-    
     
     public function common_sass_tokens()
     {

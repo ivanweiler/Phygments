@@ -3,21 +3,21 @@ namespace Phygments\Lexers;
 
 use \Phygments\Python\Re as re;
 
+/**
+ * For SCSS stylesheets.
+ */
 class Scss extends Sass
 {
-	/**
-	 * For SCSS stylesheets.
-	 */
-
     public $name = 'SCSS';
     public $aliases = ['scss'];
     public $filenames = ['*.scss'];
     public $mimetypes = ['text/x-scss'];
     
-    protected function __declare()
+    public $flags = [re::IGNORECASE, re::DOTALL];
+    
+    protected function tokendefs()
     {
-    	$this->flags = [re::IGNORECASE, re::DOTALL];
-    	$this->tokens = [	
+    	$tokendefs = [
 			'root'=> [
 				['\\s+', 'Text'],
 				['//.*?\\n', 'Comment.Single'],
@@ -49,15 +49,32 @@ class Scss extends Sass
 		
 		];
     	
-		foreach($this->common_sass_tokens() as $group => $common) {
-			$this->tokens[$group] = $common; //copy.copy(common) //array_merge??
-		}
-		$this->tokens['value'][] = ['\\n', 'Text'];
-		$this->tokens['value'][] = ['[;{}]', 'Punctuation', 'root'];
-		$this->tokens['selector'][] = ['\\n', 'Text'];
-		$this->tokens['selector'][] = ['[;{}]', 'Punctuation', 'root'];
+		//foreach($this->common_sass_tokens() as $group => $common) {
+		//	$tokens[$group] = $common; //copy.copy(common) //array_merge??
+		//}
+		
+    	$tokendefs = array_merge($tokendefs, $this->common_sass_tokens());
+		
+		array_push($tokendefs['value'], ['\\n', 'Text'], ['[;{}]', 'Punctuation', 'root']);
+		array_push($tokendefs['selector'], ['\\n', 'Text'], ['[;{}]', 'Punctuation', 'root']);
     	
+		return $this->inherit_tokendefs($tokendefs, parent::tokendefs());
+
+		//$this->tokens[] = $tokens;
+		//parent::_declare_tokens();
+		
+		//return array_merge(array($tokens), parent::tokens());
+		
+		//needed for auto-inheritance
+		//parent::_declare_tokens();
+		
+		//$this->stack_tokens($tokens, parent::tokens());
+		
+		//$this->inherit_tokendefs(parent::tokendefs());
+		
     }
+    
+    // declare_tokendefs
     
     
 }

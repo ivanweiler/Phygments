@@ -41,11 +41,12 @@ class Regex extends AbstractLexer
     public $tokens = [];
     
     private $_tokens;
+    private $_tokens_inherited = false;
     protected $token_variants = false;
 	
 	public function __construct($options=array())
 	{
-		$this->__declare();
+		//$this->__declare();
 
 		/**
 		 * Metaclass for RegexLexer, creates the self._tokens attribute from
@@ -65,6 +66,29 @@ class Regex extends AbstractLexer
 		}
 
 		parent::__construct($options);
+	}
+	
+	protected function _declare_tokens() {
+		
+		//know from where it is called?
+		
+		$this->tokens[] = self::tokens();
+		
+		//get_called_class() == $this
+		
+		if(1) {
+			$this->tokens = self::tokens();
+		} else {
+			
+		}
+	}
+	
+	protected function _declare_tokens2() {
+		
+	}	
+	
+	protected function _declare_parent_tokens() {
+		$this->parent_tokens[] = static::tokens();
 	}
 
 	/**
@@ -290,6 +314,22 @@ class Regex extends AbstractLexer
         return $processed;
 	}
 	
+	
+	protected function inherit_tokendefs($tokendefs, $stack)
+	{
+		if(!$this->_tokens_inherited) {
+			$stack = array($tokendefs, $stack);
+			$this->_tokens_inherited = true;
+		} else {
+			array_unshift($stack, $tokendefs);
+		}
+		
+		return $stack;
+		
+		//$tokendefs_array = func_get_args();
+		//get_called_class() == $this
+	}
+	
 	/**
 	 * Merge tokens from superclasses in MRO order, returning a single tokendef
 	 * dictionary.
@@ -344,13 +384,16 @@ class Regex extends AbstractLexer
         return tokens
         */
 		
-		/*
+		//check for 
+
+		if(!$this->_tokens_inherited) {
+			return $this->tokendefs();
+		}
+		
 		$tokens = [];
 		$inheritable = [];
-		
-		$class = $this;
-		while($class) {
-			$toks = call_user_func(array($class, 'tokens'));
+
+		foreach($this->tokendefs() as $toks) {
 				
 			foreach($toks as $state => $items) {
 				
@@ -388,11 +431,9 @@ class Regex extends AbstractLexer
 				
 			}
 			
-			$class = get_parent_class($class);
 		}		
-		*/
-		
-		return $this->tokens;
+
+		return $tokens;
 	}
 	
 	
