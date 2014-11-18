@@ -26,34 +26,33 @@ use \Phygments\Util;
  */
 abstract class AbstractLexer
 {
-    // Name of the lexer
-    public $name;
+	// Name of the lexer
+	public $name;
+	
+	// Shortcuts for the lexer
+	public $aliases = [];
+	
+	// File name globs
+	public $filenames = [];
+	
+	// Secondary file name globs
+	public $alias_filenames = [];
+	
+	// MIME types
+	public $mimetypes = [];
+	
+	// Priority, should multiple lexers match and no content is provided
+	public static $priority = 0;
 
-    // Shortcuts for the lexer
-    public $aliases = [];
-
-    // File name globs
-    public $filenames = [];
-
-    // Secondary file name globs
-    public $alias_filenames = [];
-
-    // MIME types
-    public $mimetypes = [];
-
-    // Priority, should multiple lexers match and no content is provided
-    public static $priority = 0;
-
-	public function __construct($options=array())
+	public function __construct($options = array())
 	{
 		$this->options = $options;
-
-        $this->stripnl = Util::get_bool_opt($options, 'stripnl', True);
-        $this->stripall = Util::get_bool_opt($options, 'stripall', False);
-        $this->ensurenl = Util::get_bool_opt($options, 'ensurenl', True);
-        $this->tabsize = Util::get_int_opt($options, 'tabsize', 0);
-        $this->encoding = Util::get_opt($options, 'encoding', 'latin1');
-        // self.encoding = options.get('inencoding', None) or self.encoding
+		
+		$this->stripnl = Util::get_bool_opt($options, 'stripnl', True);
+		$this->stripall = Util::get_bool_opt($options, 'stripall', False);
+		$this->ensurenl = Util::get_bool_opt($options, 'ensurenl', True);
+		$this->tabsize = Util::get_int_opt($options, 'tabsize', 0);
+		//$this->encoding = Util::get_opt($options, 'encoding', 'latin1');
 	}
 	
 	/**
@@ -74,42 +73,39 @@ abstract class AbstractLexer
 
 	/**
 	 * Return an iterable of (tokentype, value) pairs generated from
-	 * `text`. If `unfiltered` is set to `True`, the filtering mechanism
+	 * `text`.
+	 * If `unfiltered` is set to `True`, the filtering mechanism
 	 * is bypassed even if filters are defined.
 	 * Also preprocess the text, i.e. expand tabs and strip it if
 	 * wanted and applies registered filters.
 	 */
-    public function get_tokens($text, $unfiltered=false)
+	public function get_tokens($text, $unfiltered = false)
 	{
-		//@todo: encoding code, mb_ functions here?
+		// @todo: encoding code, mb_ functions here?
+		// text now *is* a unicode string
 		
-        // text now *is* a unicode string
-		$text = str_replace(array("\r\n","\r"), "\n", $text);
+		$text = str_replace(array("\r\n", "\r"), "\n", $text);
 		
-        if($this->stripall) {
-            $text = trim($text);
-		} elseif($this->stripnl) {
-			$text = trim($text,"\n");
+		if ($this->stripall) {
+			$text = trim($text);
+		} elseif ($this->stripnl) {
+			$text = trim($text, "\n");
 		}
-        if($this->tabsize > 0) {
+		if ($this->tabsize > 0) {
 			$text = str_replace("\t", str_repeat(' ', $this->tabsize), $text);
 		}
-        if($this->ensurenl && substr($text, -1)!="\n") {
-            $text .= "\n";
+		if ($this->ensurenl && substr($text, -1) != "\n") {
+			$text .= "\n";
 		}
 		
-		$streamer = function() use ($text) {
-			foreach($this->get_tokens_unprocessed($text) as $token) {
-				//yield [$token[1], $token[2]]; //go with key => value here?
+		$streamer = function () use ($text) {
+			foreach ($this->get_tokens_unprocessed($text) as $token) {
+				// yield [$token[1], $token[2]];
 				yield (string)$token[1] => $token[2];
 			}
 		};
-		$stream = $streamer();
 		
-        //if(!$unfiltered) {
-            //$stream = Filters::apply_filters($stream, $this->filters, $this);
-		//}
-        return $stream;
+		return $streamer();
 	}
 	
 	/**
@@ -138,7 +134,7 @@ abstract class AbstractLexer
 			foreach($tokens as $item) {
 				yield $item;
 			}
-			return;			
+			return;
 		}
 
 		$realpos = null;

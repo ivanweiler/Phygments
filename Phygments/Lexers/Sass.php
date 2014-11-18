@@ -8,26 +8,24 @@ use \Phygments\Python\Re as re;
  */
 class Sass extends ExtendedRegex
 {
-    public $name = 'Sass';
-    public $aliases = ['sass', 'SASS'];
-    public $filenames = ['*.sass'];
-    public $mimetypes = ['text/x-sass'];
-    
-    public $flags = [re::IGNORECASE];
-    
-    protected function __declare()
-    {
-    	$tokendefs = [
+	public $name = 'Sass';
+	public $aliases = ['sass', 'SASS'];
+	public $filenames = ['*.sass'];
+	public $mimetypes = ['text/x-sass'];
+
+	protected $flags = [re::IGNORECASE];
+
+	protected function tokendefs()
+	{
+		$tokendefs = [
 			'root'=> [
 				['[ \\t]*\\n', 'Text'],
 				['[ \\t]*', $this->_indentation()],
 			],
 
 			'content'=> [
-				['//[^\\n]*', $this->_starts_block('Comment.Single', 'single-comment'),
-				 'root'],
-				['/\\*[^\\n]*', $this->_starts_block('Comment.Multiline', 'multi-comment'),
-				 'root'],
+				['//[^\\n]*', $this->_starts_block('Comment.Single', 'single-comment'), 'root'],
+				['/\\*[^\\n]*', $this->_starts_block('Comment.Multiline', 'multi-comment'), 'root'],
 				['@import', 'Keyword', 'import'],
 				['@for', 'Keyword', 'for'],
 				['@(debug|warn|if|while)', 'Keyword', 'value'],
@@ -38,7 +36,7 @@ class Sass extends ExtendedRegex
 				['=[\\w-]+', 'Name.Function', 'value'],
 				['\\+[\\w-]+', 'Name.Decorator', 'value'],
 				['([!$][\\w-]\\w*)([ \\t]*(?:(?:\\|\\|)?=|:)]',
-				 $this->_bygroups('Name.Variable', 'Operator'), 'value'],
+					$this->_bygroups('Name.Variable', 'Operator'), 'value'],
 				[':', 'Name.Attribute', 'old-style-attr'],
 				['(?=.+?[=:]([^a-z]|$))', 'Name.Attribute', 'new-style-attr'],
 				['', 'Text', 'selector'],
@@ -77,19 +75,15 @@ class Sass extends ExtendedRegex
 				["(\\\\#|#(?=[^\\n{]]|\\*(?=[^\\n/])|[^\\n#*])+", 'Comment.Multiline'],
 				['#\\{', 'String.Interpol', 'interpolation'],
 				["\\*/", 'Comment', '#pop'],
-			],    		
+			],
 		];
-    	
-    	//foreach($this->common_sass_tokens() as $group => $common) {
-    	//	$this->tokens[$group] = $common; //copy.copy(common) //array_merge??
-    	//}
-    	
-    	$tokendefs = array_merge($tokendefs, $this->common_sass_tokens());
-    	
-    	$tokendefs['value'][] = ['\\n', 'Text', 'root'];
-    	$tokendefs['selector'][] = ['\\n', 'Text', 'root'];
-    	
-    	return $tokendefs;
+
+		$tokendefs = array_merge($tokendefs, $this->common_sass_tokens());
+
+		$tokendefs['value'][] = ['\\n', 'Text', 'root'];
+		$tokendefs['selector'][] = ['\\n', 'Text', 'root'];
+
+		return $tokendefs;
     }
     
     public function common_sass_tokens()
@@ -259,7 +253,5 @@ class Sass extends ExtendedRegex
 				$this->_include('value'),
 			], 
 		];
-    }
-    
-    
+	}
 }

@@ -3,21 +3,19 @@ namespace Phygments\Lexers;
 
 use \Phygments\Python\Re as re;
 
+/**
+ * For CSS (Cascading Style Sheets).
+ */
 class Css extends Regex
 {
-	/*
-    For CSS (Cascading Style Sheets).
-	*/
+	public $name = 'CSS';
+	public $aliases = ['css'];
+	public $filenames = ['*.css'];
+	public $mimetypes = ['text/css'];
 
-    public $name = 'CSS';
-    public $aliases = ['css'];
-    public $filenames = ['*.css'];
-    public $mimetypes = ['text/css'];
-	
-	protected function __declare()
+	protected function tokendefs()
 	{
-		//$this->flags = []; //shouldn't be here??
-		$this->tokens = [
+		return [
 			'root'=> [
 				$this->_include('basics'),
 			],

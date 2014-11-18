@@ -9,14 +9,14 @@ use \Phygments\Python\Re as re;
  */
 class BrainfuckLexer extends Regex
 {
-    public $name = 'Brainfuck';
-    public $aliases = ['brainfuck', 'bf'];
-    public $filenames = ['*.bf', '*.b'];
-    public $mimetypes = ['application/x-brainfuck'];
+	public $name = 'Brainfuck';
+	public $aliases = ['brainfuck', 'bf'];
+	public $filenames = ['*.bf', '*.b'];
+	public $mimetypes = ['application/x-brainfuck'];
     
-	protected function __declare()
+	protected function tokendefs()
 	{
-		$this->tokens = [
+		return [
 			'common'=> [
 				// use different colors for different instruction types
 				['[.,]+', 'Name.Tag'],

@@ -15,11 +15,12 @@ class Html extends Regex
     public $aliases = ['html'];
     public $filenames = ['*.html', '*.htm', '*.xhtml', '*.xslt'];
     public $mimetypes = ['text/html', 'application/xhtml+xml'];
+    
+    public $flags = [re::IGNORECASE, re::DOTALL];
 	
-	protected function __declare()
+	protected function tokendefs()
 	{
-		$this->flags = [re::IGNORECASE, re::DOTALL];
-		$this->tokens = [
+		return [
 			'root'=> [
 				['[^<&]+', 'Text'],
 				['&\\S*?;', 'Name.Entity'],

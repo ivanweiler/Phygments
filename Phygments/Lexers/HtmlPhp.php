@@ -4,22 +4,21 @@ namespace Phygments\Lexers;
 use \Phygments\Lexers\Php as PhpLexer;
 use \Phygments\Util;
 
+/**
+ * Subclass of `PhpLexer` that highlights unhandled data with the `HtmlLexer`.
+ * Nested Javascript and CSS is highlighted too.
+ */
 class HtmlPhp extends Delegating
 {
-	/*
-    Subclass of `PhpLexer` that highlights unhandled data with the `HtmlLexer`.
-    Nested Javascript and CSS is highlighted too.
-	*/
-	
-    public $name = 'HTML+PHP';
+	public $name = 'HTML+PHP';
 	public $aliases = ['html+php'];
 	public $filenames = ['*.phtml'];
 	public $alias_filenames = ['*.php', '*.html', '*.htm', '*.xhtml', '*.php[345]'];
 	public $mimetypes = ['application/x-php',
-    			'application/x-httpd-php', 'application/x-httpd-php3',
-    			'application/x-httpd-php4', 'application/x-httpd-php5'];
+				'application/x-httpd-php', 'application/x-httpd-php3',
+				'application/x-httpd-php4', 'application/x-httpd-php5'];
 	
-	public function __construct($options=array())
+	public function __construct($options = array())
 	{
 		parent::__construct('\Phygments\Lexers\Html', '\Phygments\Lexers\Php', 'Other', $options);
 	}
@@ -32,5 +31,4 @@ class HtmlPhp extends Delegating
 			return $rv;
 		}
 	}
-	
 }

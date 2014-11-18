@@ -17,7 +17,7 @@ class Regex extends AbstractLexer
      * Flags for compiling the regular expressions.
      * Defaults to MULTILINE.
      */
-    public $flags = re::MULTILINE;
+    protected $flags = re::MULTILINE;
 
     /**
      * Dict of ``{'state': [(regex, tokentype, new_state), ...], ...}``
@@ -38,7 +38,6 @@ class Regex extends AbstractLexer
      * case the rules from the state named by the string are included in the
      * current one.
      */
-    public $tokens = [];
     
     private $_tokens;
     private $_tokens_inherited = false;
@@ -48,12 +47,14 @@ class Regex extends AbstractLexer
 	{
 		//$this->__declare();
 
+		parent::__construct($options);
+		
 		/**
 		 * Metaclass for RegexLexer, creates the self._tokens attribute from
 		 * self.tokens on the first instantiation.
 		 * 
 		 * Metaclass __call() logic
-		 */		
+		 */
 		if(is_null($this->_tokens)) {
 			$this->_all_tokens = [];
             $this->_tmpname = 0;
@@ -64,33 +65,28 @@ class Regex extends AbstractLexer
 				$this->_tokens = $this->process_tokendef('', $this->get_tokendefs());
 			}
 		}
-
-		parent::__construct($options);
 	}
 	
-	protected function _declare_tokens() {
-		
-		//know from where it is called?
-		
-		$this->tokens[] = self::tokens();
-		
-		//get_called_class() == $this
-		
-		if(1) {
-			$this->tokens = self::tokens();
-		} else {
-			
-		}
+	/**
+	 * Metaclass for RegexLexer, creates the self._tokens attribute from
+	 * self.tokens on the first instantiation.
+	 *
+	 * Metaclass __call() logic
+	 */	
+	private function _init_tokens()
+	{
+		if(is_null($this->_tokens)) {
+			$this->_all_tokens = [];
+			$this->_tmpname = 0;
+				
+			if($this->token_variants) {
+				//pass
+			} else {
+				$this->_tokens = $this->process_tokendef('', $this->get_tokendefs());
+			}
+		}		
 	}
 	
-	protected function _declare_tokens2() {
-		
-	}	
-	
-	protected function _declare_parent_tokens() {
-		$this->parent_tokens[] = static::tokens();
-	}
-
 	/**
 	 * Split ``text`` into (tokentype, text) pairs.
 	 * ``stack`` is the inital stack (default: ``['root']``)

@@ -8,15 +8,15 @@ use \Phygments\Python\Re as re;
  */
 class Scss extends Sass
 {
-    public $name = 'SCSS';
-    public $aliases = ['scss'];
-    public $filenames = ['*.scss'];
-    public $mimetypes = ['text/x-scss'];
-    
-    public $flags = [re::IGNORECASE, re::DOTALL];
-    
-    protected function tokendefs()
-    {
+	public $name = 'SCSS';
+	public $aliases = ['scss'];
+	public $filenames = ['*.scss'];
+	public $mimetypes = ['text/x-scss'];
+	
+	protected $flags = [re::IGNORECASE, re::DOTALL];
+
+	protected function tokendefs()
+	{
     	$tokendefs = [
 			'root'=> [
 				['\\s+', 'Text'],
@@ -48,33 +48,12 @@ class Scss extends Sass
 			],
 		
 		];
-    	
-		//foreach($this->common_sass_tokens() as $group => $common) {
-		//	$tokens[$group] = $common; //copy.copy(common) //array_merge??
-		//}
-		
-    	$tokendefs = array_merge($tokendefs, $this->common_sass_tokens());
-		
+
+		//$tokendefs = array_merge($tokendefs, $this->common_sass_tokens());
+
 		array_push($tokendefs['value'], ['\\n', 'Text'], ['[;{}]', 'Punctuation', 'root']);
 		array_push($tokendefs['selector'], ['\\n', 'Text'], ['[;{}]', 'Punctuation', 'root']);
-    	
-		return $this->inherit_tokendefs($tokendefs, parent::tokendefs());
 
-		//$this->tokens[] = $tokens;
-		//parent::_declare_tokens();
-		
-		//return array_merge(array($tokens), parent::tokens());
-		
-		//needed for auto-inheritance
-		//parent::_declare_tokens();
-		
-		//$this->stack_tokens($tokens, parent::tokens());
-		
-		//$this->inherit_tokendefs(parent::tokendefs());
-		
-    }
-    
-    // declare_tokendefs
-    
-    
+		return $this->inherit_tokendefs($tokendefs, parent::tokendefs());
+	}
 }

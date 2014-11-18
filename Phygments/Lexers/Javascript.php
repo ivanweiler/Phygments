@@ -3,22 +3,21 @@ namespace Phygments\Lexers;
 
 use \Phygments\Python\Re as re;
 
+/**
+ * For JavaScript source code.
+ */
 class Javascript extends Regex
 {
-	/*
-    For JavaScript source code.
-	*/
+	public $name = 'JavaScript';
+	public $aliases = ['js', 'javascript'];
+	public $filenames = ['*.js'];
+	public $mimetypes = ['application/javascript', 'application/x-javascript', 'text/x-javascript', 'text/javascript'];
 
-    public $name = 'JavaScript';
-    public $aliases = ['js', 'javascript'];
-    public $filenames = ['*.js'];
-    public $mimetypes = ['application/javascript', 'application/x-javascript',
-				'text/x-javascript', 'text/javascript'];
+	protected $flags = [re::DOTALL];
 	
-	protected function __declare()
+	protected function tokendefs()
 	{
-		$this->flags = [re::DOTALL];
-		$this->tokens = [
+		return [
 			'commentsandwhitespace'=> [
 				['\\s+', 'Text'],
 				['<!--', 'Comment'],
