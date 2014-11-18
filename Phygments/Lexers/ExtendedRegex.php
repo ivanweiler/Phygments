@@ -98,7 +98,7 @@ class ExtendedRegex extends Regex
 		}
 	}
 
-	private function _indentation()
+	protected function _indentation()
 	{
 		if (is_null(self::$_indentation)) {
 			
@@ -118,12 +118,12 @@ class ExtendedRegex extends Regex
 			};
 		}
 		
-		return self::_indentation;
+		return self::$_indentation;
 	}
 
-	private function _starts_block($lexer, $token, $state)
+	protected function _starts_block($token, $state)
 	{
-		$callback = function ($lexer, $match, $ctx) use ($token, $state) {
+		$callback = function ($match, $ctx) use ($token, $state) {
 			// Weiler: check if Token::getToken needed?
 			yield [$match->start(), Token::getToken($token), $match->group(0)];
 			

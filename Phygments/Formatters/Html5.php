@@ -56,7 +56,7 @@ CONST;
 		foreach($inner as $tup) {
 			yield $tup;
 		}
-		yield [0, "</code></pre>\n"];       		
+		yield [0, "</code></pre>\n"]; 
 	}
 	
 	protected function _wrap_full($inner, $outfile)
@@ -77,5 +77,5 @@ CONST;
 	{
 		return $this->_wrap_code_pre($source);
 	}
-	
+
 }

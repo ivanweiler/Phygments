@@ -171,7 +171,7 @@ class Regex extends AbstractLexer
 	 */
 	private function _process_regex($regex, $rflags)
 	{
-		$flags = implode((array)$rflags);
+		$flags = implode('', (array)$rflags);
 		//$regex = addcslashes($regex, '#');
 		$regex = str_replace(array('#','\\\\#'), array('\\#','\\\\\\#'), $regex);
 		return "#$regex#$flags";
@@ -381,15 +381,17 @@ class Regex extends AbstractLexer
         */
 		
 		//check for 
-
+		
+		$tokendefs = $this->tokendefs();
+		
 		if(!$this->_tokens_inherited) {
-			return $this->tokendefs();
+			return $tokendefs;
 		}
 		
 		$tokens = [];
 		$inheritable = [];
 
-		foreach($this->tokendefs() as $toks) {
+		foreach($tokendefs as $toks) {
 				
 			foreach($toks as $state => $items) {
 				

@@ -48,12 +48,13 @@ class Scss extends Sass
 			],
 		
 		];
-
-		//$tokendefs = array_merge($tokendefs, $this->common_sass_tokens());
+		
+		//@todo: not needed here, will be inherited?
+		$tokendefs = array_merge($tokendefs, $this->common_sass_tokens());
 
 		array_push($tokendefs['value'], ['\\n', 'Text'], ['[;{}]', 'Punctuation', 'root']);
 		array_push($tokendefs['selector'], ['\\n', 'Text'], ['[;{}]', 'Punctuation', 'root']);
-
+		
 		return $this->inherit_tokendefs($tokendefs, parent::tokendefs());
 	}
 }
