@@ -13,41 +13,24 @@ use \Phygments\Python\Exception;
  */
 class Regex extends AbstractLexer
 {
-    /** 
-     * Flags for compiling the regular expressions.
-     * Defaults to MULTILINE.
-     */
-    protected $flags = re::MULTILINE;
-
-    /**
-     * Dict of ``{'state': [(regex, tokentype, new_state), ...], ...}``
-     *
-     * The initial state is 'root'.
-     * ``new_state`` can be omitted to signify no state transition.
-     * If it is a string, the state is pushed on the stack and changed.
-     * If it is a tuple of strings, all states are pushed on the stack and
-     * the current state will be the topmost.
-     * It can also be ``combined('state1', 'state2', ...)``
-     * to signify a new, anonymous state combined from the rules of two
-     * or more existing ones.
-     * Furthermore, it can be '#pop' to signify going back one step in
-     * the state stack, or '#push' to push the current state on the stack
-     * again.
-     *
-     * The tuple can also be replaced with ``include('state')``, in which
-     * case the rules from the state named by the string are included in the
-     * current one.
-     */
-    
-    private $_tokens;
-    private $_tokens_inherited = false;
-    protected $token_variants = false;
+	/** 
+	 * Flags for compiling the regular expressions.
+	 * Defaults to MULTILINE.
+	 */
+	protected $flags = re::MULTILINE;
+	protected $tokens;
+	
+	protected $_tokens;
+	protected $_tokens_inherited = false;
+	protected $token_variants = false;
 	
 	public function __construct($options=array())
 	{
 		//$this->__declare();
 
 		parent::__construct($options);
+		
+		//$this->tokens = $this->tokendefs();
 		
 		/**
 		 * Metaclass for RegexLexer, creates the self._tokens attribute from
@@ -57,7 +40,7 @@ class Regex extends AbstractLexer
 		 */
 		if(is_null($this->_tokens)) {
 			$this->_all_tokens = [];
-            $this->_tmpname = 0;
+			$this->_tmpname = 0;
 			
 			if($this->token_variants) {
 				//pass
@@ -66,6 +49,30 @@ class Regex extends AbstractLexer
 			}
 		}
 	}
+	
+	/**
+	 * Dict of ``{'state': [(regex, tokentype, new_state), ...], ...}``
+	 *
+	 * The initial state is 'root'.
+	 * ``new_state`` can be omitted to signify no state transition.
+	 * If it is a string, the state is pushed on the stack and changed.
+	 * If it is a tuple of strings, all states are pushed on the stack and
+	 * the current state will be the topmost.
+	 * It can also be ``combined('state1', 'state2', ...)``
+	 * to signify a new, anonymous state combined from the rules of two
+	 * or more existing ones.
+	 * Furthermore, it can be '#pop' to signify going back one step in
+	 * the state stack, or '#push' to push the current state on the stack
+	 * again.
+	 *
+	 * The tuple can also be replaced with ``include('state')``, in which
+	 * case the rules from the state named by the string are included in the
+	 * current one.
+	 */	
+	protected function tokendefs()
+	{
+		return [];
+	}	
 	
 	/**
 	 * Metaclass for RegexLexer, creates the self._tokens attribute from
@@ -93,12 +100,12 @@ class Regex extends AbstractLexer
 	 */	
 	public function get_tokens_unprocessed(&$text, $stack=array('root'))
 	{
-        $pos = 0;
-        $tokendefs = &$this->_tokens;
-        $statestack = (array)$stack;
-        $statetokens = $tokendefs[$statestack[count($statestack)-1]];
-        
-        while(1) {
+		$pos = 0;
+		$tokendefs = &$this->_tokens;
+		$statestack = (array)$stack;
+		$statetokens = $tokendefs[$statestack[count($statestack)-1]];
+
+		while(1) {
 			$doelse = true;
 			foreach($statetokens as $statetoken) {
 				list($rexmatch, $action, $new_state) = $statetoken;
@@ -111,7 +118,7 @@ class Regex extends AbstractLexer
 					} else {
 						foreach($action($this, $m) as $item) {
 							yield $item;
-						}						
+						}
 					}
 					$pos = $m->end();
 					//@todo: push isn't tested
@@ -298,16 +305,16 @@ class Regex extends AbstractLexer
 	 */
 	public function process_tokendef($name, $tokendefs=null)
 	{
-        $processed = $this->_all_tokens[$name] = [];
-        if(!$tokendefs) {
-        	$tokendefs = $this->tokens[$name];
-        }
-        
-        foreach(array_keys($tokendefs) as $state) {
-        	$this->_process_state($tokendefs, $processed, $state);
-        }
-        
-        return $processed;
+		$processed = $this->_all_tokens[$name] = [];
+		if(!$tokendefs) {
+			$tokendefs = $this->tokens[$name];
+		}
+
+		foreach(array_keys($tokendefs) as $state) {
+			$this->_process_state($tokendefs, $processed, $state);
+		}
+
+		return $processed;
 	}
 	
 	
@@ -339,49 +346,6 @@ class Regex extends AbstractLexer
 	 */	
 	public function get_tokendefs()
 	{
-		/*
-		Weiler: I believe we can access defined parent properties through Reflection if nothing else
-		http://stackoverflow.com/questions/2439181/php-and-classes-access-to-parents-public-property-within-the-parent-class
-		but I think tokens must by dynamicly declared in php (__declare()), so I'm not sure how to do this ??
-		Can every parent do this merge for himself? parent::get_tokendefs() ?
-		How many Lexers are using parent tokens ?
-		*/
-		
-		/*
-        $tokens = {}
-        $inheritable = {}
-        for c in itertools.chain((cls,), cls.__mro__):
-            toks = c.__dict__.get('tokens', {})
-
-            for state, items in toks.iteritems(): //normal k/v iterator
-                curitems = tokens.get(state)
-                if curitems is None:
-                    tokens[state] = items
-                    try:
-                        inherit_ndx = items.index(inherit)
-                    except ValueError:
-                        continue
-                    inheritable[state] = inherit_ndx
-                    continue
-
-                inherit_ndx = inheritable.pop(state, None)
-                if inherit_ndx is None:
-                    continue
-
-                # Replace the "inherit" value with the items
-                curitems[inherit_ndx:inherit_ndx+1] = items
-                try:
-                    new_inh_ndx = items.index(inherit)
-                except ValueError:
-                    pass
-                else:
-                    inheritable[state] = inherit_ndx + new_inh_ndx
-
-        return tokens
-        */
-		
-		//check for 
-		
 		$tokendefs = $this->tokendefs();
 		
 		if(!$this->_tokens_inherited) {
@@ -417,10 +381,8 @@ class Regex extends AbstractLexer
 				}
 				
 				// Replace the "inherit" value with the items
-				
-				array_splice($a, 1, 0, $items);
+				array_splice($tokens[$state], $inherit_ndx, 1, $items);
 				//curitems[inherit_ndx:inherit_ndx+1] = items
-				$tokens[$state][$inherit_ndx] = $items;
 				
 				$new_inh_ndx = array_search($this->_inherit(), $items, false);
 				if($new_inh_ndx) {
